@@ -22,6 +22,15 @@
   }
 }
 
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-bottom: 70px; /* Bottom nav için boşluk */
+    padding: 1rem;
+    width: 100%;
+  }
+}
+
 .app-loading {
   display: flex;
   align-items: center;

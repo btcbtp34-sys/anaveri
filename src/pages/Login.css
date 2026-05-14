@@ -112,3 +112,34 @@
 .login-demo-info li strong {
   color: #334155;
 }
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-container {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .login-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .login-header svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .form-group input {
+    padding: 0.875rem;
+    font-size: 16px; /* iOS zoom önleme */
+  }
+
+  .login-demo-info {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+}
