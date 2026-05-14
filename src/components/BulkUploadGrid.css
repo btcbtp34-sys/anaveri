@@ -1,0 +1,180 @@
+.bulk-grid-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 4rem);
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e8edf2;
+  overflow: hidden;
+}
+
+.bulk-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e8edf2;
+  background: #f8fafc;
+}
+
+.bulk-grid-header h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.bulk-grid-header p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.bulk-grid-actions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+.bulk-grid-wrapper {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+}
+
+.bulk-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.8rem;
+}
+
+.bulk-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f1f5f9;
+}
+
+.bulk-grid th {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.bulk-grid tbody tr {
+  transition: background 0.15s;
+}
+
+.bulk-grid tbody tr:hover {
+  background: #f8fafc;
+}
+
+.bulk-grid tbody tr.has-error {
+  background: #fef2f2;
+}
+
+.bulk-grid td {
+  padding: 0.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.bulk-grid td.row-number {
+  text-align: center;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.75rem;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+
+.bulk-grid input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #0f172a;
+  background: #fff;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.bulk-grid input:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.2);
+}
+
+.bulk-grid input.error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.bulk-grid input::placeholder {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+}
+
+.delete-row-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #fff1f2;
+  color: #e11d48;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.delete-row-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.delete-row-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.bulk-grid-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e8edf2;
+  background: #f8fafc;
+}
+
+.bulk-grid-tips {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.tip-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.tip-item svg {
+  color: #94a3b8;
+}
+
+.bulk-grid-stats {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.bulk-grid-stats strong {
+  color: #0f172a;
+  font-weight: 700;
+}

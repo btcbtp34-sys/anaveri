@@ -1,0 +1,274 @@
+.approvals-page {
+  width: 100%;
+}
+
+.approvals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.approvals-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.2rem;
+}
+
+.approvals-header p {
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.approvals-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  background: #fff;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.approvals-empty svg {
+  color: #10b981;
+}
+
+.approvals-empty h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.approvals-empty p {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.approvals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.approval-card {
+  background: #fff;
+  border: 1px solid #e8edf2;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  transition: all 0.15s;
+}
+
+.approval-card:hover {
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  border-color: #d1d9e0;
+}
+
+.approval-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.approval-code {
+  font-family: 'SF Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.approval-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.625rem;
+  background: #fef9c3;
+  color: #ca8a04;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.approval-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.approval-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.approval-detail {
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.approval-detail strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+.approval-creator,
+.approval-date {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.approval-creator svg,
+.approval-date svg {
+  color: #94a3b8;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.approval-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.approval-modal-text {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0;
+}
+
+.approval-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: #0f172a;
+  resize: vertical;
+  min-height: 100px;
+  box-sizing: border-box;
+}
+
+.approval-textarea:focus {
+  outline: none;
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.1);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Başarı Modalı */
+.approval-success-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.success-icon.approved {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.success-icon.rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.approval-success-modal h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+}
+
+.success-message {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  max-width: 400px;
+}
+
+.success-summary {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.success-row span {
+  color: #64748b;
+}
+
+.success-row strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.success-row .status-active {
+  color: #16a34a;
+  background: #dcfce7;
+  padding: 0.25rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}
+
+.success-row .status-passive {
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 0.25rem 0.625rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+}

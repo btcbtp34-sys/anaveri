@@ -1,0 +1,82 @@
+.production-sites-page {
+  width: 100%;
+}
+
+.sites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.site-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem !important;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.site-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-actions {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.site-content {
+  flex: 1;
+}
+
+.site-code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+}
+
+.site-name {
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.875rem;
+  letter-spacing: -0.01em;
+}
+
+.site-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.detail-value {
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
