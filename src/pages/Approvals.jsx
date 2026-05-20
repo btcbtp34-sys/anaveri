@@ -13,6 +13,7 @@ export default function Approvals({ materials, onApprove, onReject }) {
   const [selected, setSelected] = useState(null)
   const [comment, setComment] = useState('')
   const [successData, setSuccessData] = useState(null)
+  const [selectedIds, setSelectedIds] = useState([])
 
   // Onaycı2 için sadece belirli malzeme türlerini göster
   const pendingMaterials = materials.filter(m => {
@@ -25,6 +26,20 @@ export default function Approvals({ materials, onApprove, onReject }) {
     
     return true
   })
+
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === pendingMaterials.length) {
+      setSelectedIds([])
+    } else {
+      setSelectedIds(pendingMaterials.map(m => m.id))
+    }
+  }
 
   const openApproveModal = (material) => {
     setSelected(material)
@@ -45,7 +60,6 @@ export default function Approvals({ materials, onApprove, onReject }) {
     }
     onApprove(selected.id, comment, user)
     
-    // Başarı mesajı için veri hazırla
     setSuccessData({
       action: 'approved',
       material: selected
@@ -63,7 +77,6 @@ export default function Approvals({ materials, onApprove, onReject }) {
     }
     onReject(selected.id, comment, user)
     
-    // Başarı mesajı için veri hazırla
     setSuccessData({
       action: 'rejected',
       material: selected
@@ -71,6 +84,40 @@ export default function Approvals({ materials, onApprove, onReject }) {
     
     setModal('success')
     setSelected(null)
+    setComment('')
+  }
+
+  const handleBulkApprove = () => {
+    if (!comment.trim()) {
+      alert('Lütfen bir açıklama girin')
+      return
+    }
+    selectedIds.forEach(id => {
+      onApprove(id, comment, user)
+    })
+    setSuccessData({
+      action: 'bulkApproved',
+      count: selectedIds.length
+    })
+    setModal('success')
+    setSelectedIds([])
+    setComment('')
+  }
+
+  const handleBulkReject = () => {
+    if (!comment.trim()) {
+      alert('Lütfen bir açıklama girin')
+      return
+    }
+    selectedIds.forEach(id => {
+      onReject(id, comment, user)
+    })
+    setSuccessData({
+      action: 'bulkRejected',
+      count: selectedIds.length
+    })
+    setModal('success')
+    setSelectedIds([])
     setComment('')
   }
 
@@ -86,6 +133,19 @@ export default function Approvals({ materials, onApprove, onReject }) {
           <h1>Onay Bekleyen Malzemeler</h1>
           <p>{pendingMaterials.length} malzeme onay bekliyor</p>
         </div>
+        {selectedIds.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#2563eb', padding: '0.5rem 1rem', background: '#eff6ff', borderRadius: '8px' }}>
+              {selectedIds.length} seçildi
+            </span>
+            <Button variant="primary" size="medium" onClick={() => setModal('bulkApprove')}>
+              <CheckCircle size={16} /> Toplu Onayla
+            </Button>
+            <Button variant="danger" size="medium" onClick={() => setModal('bulkReject')}>
+              <XCircle size={16} /> Toplu Reddet
+            </Button>
+          </div>
+        )}
       </div>
 
       {pendingMaterials.length === 0 ? (
@@ -95,71 +155,104 @@ export default function Approvals({ materials, onApprove, onReject }) {
           <p>Tüm malzemeler onaylandı veya reddedildi</p>
         </div>
       ) : (
-        <div className="approvals-grid">
-          {pendingMaterials.map(material => (
-            <div key={material.id} className="approval-card">
-              <div className="approval-card-header">
-                <span className="approval-code">{material.code}</span>
-                <span className="approval-status">
-                  <Clock size={12} /> Kontrol Ediliyor
-                </span>
-              </div>
+        <>
+          {pendingMaterials.length > 1 && (
+            <div style={{ padding: '1rem 1.5rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', marginBottom: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '600', color: '#0f172a' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === pendingMaterials.length}
+                  onChange={toggleSelectAll}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563eb' }}
+                />
+                <span>Tümünü Seç</span>
+              </label>
+            </div>
+          )}
+          <div className="approvals-grid">
+            {pendingMaterials.map(material => (
+              <div 
+                key={material.id} 
+                className="approval-card" 
+                style={{ 
+                  position: 'relative', 
+                  paddingLeft: '3rem',
+                  border: selectedIds.includes(material.id) ? '2px solid #2563eb' : undefined,
+                  background: selectedIds.includes(material.id) ? '#eff6ff' : undefined
+                }}
+              >
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10 }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(material.id)}
+                    onChange={() => toggleSelect(material.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#2563eb' }}
+                  />
+                </div>
+                <div className="approval-card-header">
+                  <span className="approval-code">{material.code}</span>
+                  <span className="approval-status">
+                    <Clock size={12} /> Kontrol Ediliyor
+                  </span>
+                </div>
 
-              <h3 className="approval-name">{material.name}</h3>
+                <h3 className="approval-name">{material.name}</h3>
 
-              <div className="approval-details">
-                {material.tipModel && <div className="approval-detail"><strong>Tip:</strong> {material.tipModel}</div>}
-                {material.ozellik && <div className="approval-detail"><strong>Özellik:</strong> {material.ozellik}</div>}
-                {material.marka && <div className="approval-detail"><strong>Marka:</strong> {material.marka}</div>}
-                <div className="approval-detail"><strong>Mal Grubu:</strong> {material.malGrubu}</div>
-                <div className="approval-detail"><strong>Birim:</strong> {material.unit}</div>
-                {material.productionSites && material.productionSites.length > 0 && (
-                  <div className="approval-detail">
-                    <strong>Üretim Yerleri:</strong> {material.productionSites.join(', ')}
+                <div className="approval-details">
+                  {material.tipModel && <div className="approval-detail"><strong>Tip:</strong> {material.tipModel}</div>}
+                  {material.ozellik && <div className="approval-detail"><strong>Özellik:</strong> {material.ozellik}</div>}
+                  {material.marka && <div className="approval-detail"><strong>Marka:</strong> {material.marka}</div>}
+                  <div className="approval-detail"><strong>Mal Grubu:</strong> {material.malGrubu}</div>
+                  <div className="approval-detail"><strong>Birim:</strong> {material.unit}</div>
+                  {material.productionSites && material.productionSites.length > 0 && (
+                    <div className="approval-detail">
+                      <strong>Üretim Yerleri:</strong> {material.productionSites.join(', ')}
+                    </div>
+                  )}
+                </div>
+
+                {material.createdBy && (
+                  <div className="approval-creator">
+                    <User size={12} />
+                    <span>Oluşturan: {material.createdBy.name}</span>
                   </div>
                 )}
-              </div>
 
-              {material.createdBy && (
-                <div className="approval-creator">
-                  <User size={12} />
-                  <span>Oluşturan: {material.createdBy.name}</span>
+                {material.createdAt && (
+                  <div className="approval-date">
+                    <Calendar size={12} />
+                    <span>{new Date(material.createdAt).toLocaleString('tr-TR')}</span>
+                  </div>
+                )}
+
+                <div className="approval-actions">
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={() => navigate(`/materials/${material.id}`)}
+                  >
+                    <Eye size={14} /> Detay
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="small"
+                    onClick={() => openRejectModal(material)}
+                  >
+                    <XCircle size={14} /> Reddet
+                  </Button>
+                  <Button
+                    variant="success"
+                    size="small"
+                    onClick={() => openApproveModal(material)}
+                  >
+                    <CheckCircle size={14} /> Onayla
+                  </Button>
                 </div>
-              )}
-
-              {material.createdAt && (
-                <div className="approval-date">
-                  <Calendar size={12} />
-                  <span>{new Date(material.createdAt).toLocaleString('tr-TR')}</span>
-                </div>
-              )}
-
-              <div className="approval-actions">
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() => navigate(`/materials/${material.id}`)}
-                >
-                  <Eye size={14} /> Detay
-                </Button>
-                <Button
-                  variant="danger"
-                  size="small"
-                  onClick={() => openRejectModal(material)}
-                >
-                  <XCircle size={14} /> Reddet
-                </Button>
-                <Button
-                  variant="success"
-                  size="small"
-                  onClick={() => openApproveModal(material)}
-                >
-                  <CheckCircle size={14} /> Onayla
-                </Button>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       {/* Onay Modalı */}
@@ -216,14 +309,87 @@ export default function Approvals({ materials, onApprove, onReject }) {
         </div>
       </Modal>
 
+      {/* Toplu Onay Modalı */}
+      <Modal isOpen={modal === 'bulkApprove'} onClose={() => setModal(null)} title="Toplu Onaylama">
+        <div className="approval-modal">
+          <p className="approval-modal-text">
+            <strong>{selectedIds.length} malzeme</strong> onaylanacak.
+          </p>
+          <div className="form-group">
+            <label>Onay Açıklaması *</label>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Onay açıklamanızı girin..."
+              rows={4}
+              className="approval-textarea"
+            />
+          </div>
+          <div className="modal-actions">
+            <Button variant="secondary" size="medium" onClick={() => setModal(null)}>
+              İptal
+            </Button>
+            <Button variant="success" size="medium" onClick={handleBulkApprove}>
+              <CheckCircle size={16} /> Toplu Onayla
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Toplu Red Modalı */}
+      <Modal isOpen={modal === 'bulkReject'} onClose={() => setModal(null)} title="Toplu Reddetme">
+        <div className="approval-modal">
+          <p className="approval-modal-text">
+            <strong>{selectedIds.length} malzeme</strong> reddedilecek.
+          </p>
+          <div className="form-group">
+            <label>Red Açıklaması *</label>
+            <textarea
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Red sebebinizi açıklayın..."
+              rows={4}
+              className="approval-textarea"
+            />
+          </div>
+          <div className="modal-actions">
+            <Button variant="secondary" size="medium" onClick={() => setModal(null)}>
+              İptal
+            </Button>
+            <Button variant="danger" size="medium" onClick={handleBulkReject}>
+              <XCircle size={16} /> Toplu Reddet
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Başarı Modalı */}
       <Modal 
         isOpen={modal === 'success'} 
         onClose={closeSuccessModal} 
-        title={successData?.action === 'approved' ? 'Malzeme Onaylandı' : 'Malzeme Reddedildi'}
+        title={
+          successData?.action === 'bulkApproved' ? 'Toplu Onaylama Başarılı' :
+          successData?.action === 'bulkRejected' ? 'Toplu Reddetme Başarılı' :
+          successData?.action === 'approved' ? 'Malzeme Onaylandı' : 'Malzeme Reddedildi'
+        }
       >
         <div className="approval-success-modal">
-          {successData?.action === 'approved' ? (
+          {(successData?.action === 'bulkApproved' || successData?.action === 'bulkRejected') ? (
+            <>
+              <div className={`success-icon ${successData?.action === 'bulkApproved' ? 'approved' : 'rejected'}`}>
+                {successData?.action === 'bulkApproved' ? <CheckCircle size={48} /> : <XCircle size={48} />}
+              </div>
+              <h3>{successData?.count} Malzeme {successData?.action === 'bulkApproved' ? 'Onaylandı' : 'Reddedildi'}</h3>
+              <p className="success-message">
+                Seçilen malzemeler başarıyla {successData?.action === 'bulkApproved' ? 'onaylandı' : 'reddedildi'}.
+              </p>
+              <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
+                <Button variant="primary" size="medium" onClick={closeSuccessModal}>
+                  Tamam
+                </Button>
+              </div>
+            </>
+          ) : successData?.action === 'approved' ? (
             <>
               <div className="success-icon approved">
                 <CheckCircle size={48} />
@@ -264,6 +430,21 @@ export default function Approvals({ materials, onApprove, onReject }) {
                   <strong className="status-active">Aktif</strong>
                 </div>
               </div>
+              <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
+                <Button variant="secondary" size="medium" onClick={closeSuccessModal}>
+                  Kapat
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="medium" 
+                  onClick={() => {
+                    closeSuccessModal()
+                    navigate(`/materials/${successData?.material?.id}`)
+                  }}
+                >
+                  <Eye size={16} /> Detayları Gör
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -288,23 +469,23 @@ export default function Approvals({ materials, onApprove, onReject }) {
                   <strong className="status-passive">Pasif</strong>
                 </div>
               </div>
+              <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
+                <Button variant="secondary" size="medium" onClick={closeSuccessModal}>
+                  Kapat
+                </Button>
+                <Button 
+                  variant="primary" 
+                  size="medium" 
+                  onClick={() => {
+                    closeSuccessModal()
+                    navigate(`/materials/${successData?.material?.id}`)
+                  }}
+                >
+                  <Eye size={16} /> Detayları Gör
+                </Button>
+              </div>
             </>
           )}
-          <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
-            <Button variant="secondary" size="medium" onClick={closeSuccessModal}>
-              Kapat
-            </Button>
-            <Button 
-              variant="primary" 
-              size="medium" 
-              onClick={() => {
-                closeSuccessModal()
-                navigate(`/materials/${successData?.material?.id}`)
-              }}
-            >
-              <Eye size={16} /> Detayları Gör
-            </Button>
-          </div>
         </div>
       </Modal>
     </div>

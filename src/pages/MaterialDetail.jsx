@@ -74,9 +74,10 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
           </div>
           <h1 className="md-name">{material.name}</h1>
           <div className="md-tags">
-            {material.tipModel && <span className="md-tag-item"><b>Tip:</b> {material.tipModel}</span>}
-            {material.ozellik && <span className="md-tag-item"><b>Özellik:</b> {material.ozellik}</span>}
-            {material.olcu && <span className="md-tag-item"><b>Ölçü:</b> {material.olcu}</span>}
+            {material.urunAdi && <span className="md-tag-item"><b>Ürün Adı:</b> {material.urunAdi}</span>}
+            {material.tipModel && <span className="md-tag-item"><b>Tip/Model:</b> {material.tipModel}</span>}
+            {material.ozellik && <span className="md-tag-item"><b>Özellik/Materyal:</b> {material.ozellik}</span>}
+            {material.olcu && <span className="md-tag-item"><b>Ölçü/Kapasite:</b> {material.olcu}</span>}
             {material.marka && <span className="md-tag-item"><b>Marka:</b> {material.marka}</span>}
           </div>
           <div className="md-hero-meta">
@@ -116,10 +117,11 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
           <div className="md-section-grid">
             <InfoCard title="Temel Bilgiler" rows={[
               ['Malzeme Kodu', material.code],
-              ['Ürün Adı', material.name],
+              ['Tam Ürün Adı', material.name],
+              ['Ürün Adı', material.urunAdi],
               ['Tip / Model', material.tipModel],
-              ['Özellik', material.ozellik],
-              ['Ölçü', material.olcu],
+              ['Özellik / Materyal', material.ozellik],
+              ['Ölçü / Kapasite', material.olcu],
               ['Marka', material.marka],
               ['Ölçü Birimi', material.unit],
               ['Durum', material.status],

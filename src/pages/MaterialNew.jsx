@@ -206,7 +206,13 @@ export default function MaterialNew({ onSave }) {
     navigate('/materials')
   }
 
-  const tanim = [form.urunAdi, form.tipModel, form.ozellik, form.olcu, form.marka].filter(Boolean).join(' ').slice(0, 40)
+  const tanim = [
+    form.urunAdi || 'boş',
+    form.tipModel || 'boş',
+    form.ozellik || 'boş',
+    form.olcu || 'boş',
+    form.marka || 'boş'
+  ].join(' / ').slice(0, 40)
 
   // Eşleşen kısmı vurgula
   const highlight = (text, query) => {

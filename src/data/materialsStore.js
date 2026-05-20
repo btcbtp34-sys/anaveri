@@ -8,7 +8,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 1, code: 'MAT-001', name: 'Beton C30', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
     commodityKod: '0312', unit: 'm3', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'C30', ozellik: 'Hazir', olcu: '', marka: 'Akcansa', depoYeri: 'Depo-1',
+    tipModel: 'C30', ozellik: 'Hazir', olcu: '1m3', marka: 'Akcansa', depoYeri: 'Depo-1',
     ureticiParcaNo: 'AKC-C30-001', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
     createdAt: '2024-01-15T09:30:00',
@@ -30,7 +30,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 2, code: 'MAT-002', name: 'Beton C25', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
     commodityKod: '0312', unit: 'm3', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'C25', ozellik: 'Hazir', olcu: '', marka: 'Akcansa', depoYeri: 'Depo-1',
+    tipModel: 'C25', ozellik: 'Hazir', olcu: '1m3', marka: 'Akcansa', depoYeri: 'Depo-1',
     ureticiParcaNo: 'AKC-C25-001', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
     createdAt: '2024-01-16T11:20:00',
@@ -52,7 +52,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 3, code: 'MAT-003', name: 'Beton C35 Sulfa Dayanikli', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
     commodityKod: '0312', unit: 'm3', status: 'Kontrol Ediliyor', productionSite: 'Ankara Tesis',
-    tipModel: 'C35', ozellik: 'Sulfa Dayanikli', olcu: '', marka: 'Cimsa', depoYeri: 'Depo-2',
+    tipModel: 'C35', ozellik: 'Sulfa Dayanikli', olcu: '1m3', marka: 'Cimsa', depoYeri: 'Depo-2',
     ureticiParcaNo: 'CMS-C35-SD', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
     createdAt: '2024-02-10T08:45:00',
@@ -68,7 +68,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 4, code: 'MAT-004', name: 'Beton C40 Yuksek Mukavemetli', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
     commodityKod: '0312', unit: 'm3', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'C40', ozellik: 'Yuksek Mukavemetli', olcu: '', marka: 'Lafarge', depoYeri: 'Depo-1',
+    tipModel: 'C40', ozellik: 'Yuksek Mukavemetli', olcu: '1m3', marka: 'Lafarge', depoYeri: 'Depo-1',
     ureticiParcaNo: 'LFR-C40-YM', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
     createdAt: '2024-01-18T14:10:00',
@@ -90,7 +90,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 5, code: 'MAT-005', name: 'Beton C20 Grobeton', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
     commodityKod: '0312', unit: 'm3', status: 'Aktif', productionSite: 'Izmir Depo',
-    tipModel: 'C20', ozellik: 'Grobeton', olcu: '', marka: 'Akcansa', depoYeri: 'Depo-3',
+    tipModel: 'C20', ozellik: 'Grobeton', olcu: '1m3', marka: 'Akcansa', depoYeri: 'Depo-3',
     ureticiParcaNo: 'AKC-C20-GRB', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
     createdAt: '2024-01-20T10:30:00',
@@ -182,19 +182,19 @@ export const INITIAL_MATERIALS = [
   {
     id: 12, code: 'MAT-012', name: 'Cimento CEM I 42.5R', malzemeTuru: 'ZSRF', malGrubu: 'M002', urunHiyerarsisi: '0103017',
     commodityKod: '0311', unit: 'ton', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'CEM I', ozellik: '42.5R', olcu: '', marka: 'Cimsa', depoYeri: 'Depo-1',
+    tipModel: 'CEM I', ozellik: '42.5R', olcu: '50kg', marka: 'Cimsa', depoYeri: 'Depo-1',
     ureticiParcaNo: 'CMS-CEM1-425R', seriNo: '', valuationClass: 'P001', images: []
   },
   {
     id: 13, code: 'MAT-013', name: 'Cimento CEM II 32.5R', malzemeTuru: 'ZSRF', malGrubu: 'M002', urunHiyerarsisi: '0103017',
     commodityKod: '0311', unit: 'ton', status: 'Aktif', productionSite: 'Ankara Tesis',
-    tipModel: 'CEM II', ozellik: '32.5R', olcu: '', marka: 'Akcansa', depoYeri: 'Depo-2',
+    tipModel: 'CEM II', ozellik: '32.5R', olcu: '50kg', marka: 'Akcansa', depoYeri: 'Depo-2',
     ureticiParcaNo: 'AKC-CEM2-325R', seriNo: '', valuationClass: 'P001', images: []
   },
   {
     id: 14, code: 'MAT-014', name: 'Cimento CEM III Curuf', malzemeTuru: 'ZSRF', malGrubu: 'M002', urunHiyerarsisi: '0103017',
     commodityKod: '0311', unit: 'ton', status: 'Pasif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'CEM III', ozellik: 'Curuf Katkili', olcu: '', marka: 'Lafarge', depoYeri: 'Depo-1',
+    tipModel: 'CEM III', ozellik: 'Curuf Katkili', olcu: '50kg', marka: 'Lafarge', depoYeri: 'Depo-1',
     ureticiParcaNo: 'LFR-CEM3-CRF', seriNo: '', valuationClass: 'P001', images: []
   },
   {
@@ -344,7 +344,7 @@ export const INITIAL_MATERIALS = [
   {
     id: 39, code: 'MAT-039', name: 'Kablo UTP Cat6', malzemeTuru: 'ZTIC', malGrubu: 'M003', urunHiyerarsisi: '0337025',
     commodityKod: '0211', unit: 'm', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'UTP', ozellik: 'Cat6', olcu: '', marka: 'Belden', depoYeri: 'Depo-1',
+    tipModel: 'UTP', ozellik: 'Cat6', olcu: '305m', marka: 'Belden', depoYeri: 'Depo-1',
     ureticiParcaNo: 'BLD-UTP-CAT6', seriNo: '', valuationClass: 'P001', images: []
   },
   {
@@ -464,13 +464,13 @@ export const INITIAL_MATERIALS = [
   {
     id: 59, code: 'MAT-059', name: 'Baret Beyaz', malzemeTuru: 'ZTIC', malGrubu: 'M029', urunHiyerarsisi: '0826003',
     commodityKod: '0402', unit: 'adet', status: 'Aktif', productionSite: 'Istanbul Fabrika',
-    tipModel: 'Standart', ozellik: 'Beyaz', olcu: '', marka: 'MSA', depoYeri: 'Depo-1',
+    tipModel: 'Standart', ozellik: 'Beyaz', olcu: 'Tek Beden', marka: 'MSA', depoYeri: 'Depo-1',
     ureticiParcaNo: 'MSA-BRT-BYZ', seriNo: '', valuationClass: 'P001', images: []
   },
   {
     id: 60, code: 'MAT-060', name: 'Baret Sari', malzemeTuru: 'ZTIC', malGrubu: 'M029', urunHiyerarsisi: '0826003',
     commodityKod: '0402', unit: 'adet', status: 'Aktif', productionSite: 'Ankara Tesis',
-    tipModel: 'Standart', ozellik: 'Sari', olcu: '', marka: 'MSA', depoYeri: 'Depo-2',
+    tipModel: 'Standart', ozellik: 'Sari', olcu: 'Tek Beden', marka: 'MSA', depoYeri: 'Depo-2',
     ureticiParcaNo: 'MSA-BRT-SRI', seriNo: '', valuationClass: 'P001', images: []
   },
   {

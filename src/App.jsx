@@ -19,19 +19,56 @@ import './App.css'
 
 function AppContent() {
   const { user, loading } = useAuth()
+  
+  // Name formatını düzelt
+  const formatMaterialName = (material) => {
+    // Önce urunAdi varsa onu kullan, yoksa name'den ilk parçayı al
+    let urunAdi = material.urunAdi
+    if (!urunAdi && material.name) {
+      // Eğer name zaten formatlanmışsa ilk parçayı al
+      if (material.name.includes(' / ')) {
+        urunAdi = material.name.split(' / ')[0]
+      } else {
+        // Eski formattaysa ilk kelimeyi al
+        urunAdi = material.name.split(' ')[0]
+      }
+    }
+    if (!urunAdi) urunAdi = 'boş'
+    
+    const parts = [
+      urunAdi,
+      material.tipModel || 'boş',
+      material.ozellik || 'boş',
+      material.olcu || 'boş',
+      material.marka || 'boş'
+    ]
+    
+    // urunAdi'yi material'e ekle
+    material.urunAdi = urunAdi
+    
+    return parts.join(' / ').slice(0, 40)
+  }
+  
   const [materials, setMaterials] = useState(() => {
     const saved = localStorage.getItem('materials')
     const savedVersion = localStorage.getItem('materialsVersion')
-    const currentVersion = '2.0' // Versiyon numarasını artırarak yeni verileri zorla
+    const currentVersion = '3.2' // Versiyon numarasını artırarak yeni verileri zorla
     
     // Eğer versiyon eski ise veya yoksa, yeni verileri yükle
     if (savedVersion !== currentVersion) {
+      const formattedMaterials = INITIAL_MATERIALS.map(m => ({
+        ...m,
+        name: formatMaterialName(m)
+      }))
       localStorage.setItem('materialsVersion', currentVersion)
-      localStorage.setItem('materials', JSON.stringify(INITIAL_MATERIALS))
-      return INITIAL_MATERIALS
+      localStorage.setItem('materials', JSON.stringify(formattedMaterials))
+      return formattedMaterials
     }
     
-    return saved ? JSON.parse(saved) : INITIAL_MATERIALS
+    return saved ? JSON.parse(saved) : INITIAL_MATERIALS.map(m => ({
+      ...m,
+      name: formatMaterialName(m)
+    }))
   })
 
   useEffect(() => {

@@ -315,7 +315,8 @@ export default function Materials({ materials, onDelete }) {
                       </div>
                       <h3 className="mat-card-name">{m.name}</h3>
                       <div className="mat-card-attrs">
-                        {m.tipModel && <span className="mat-attr"><b>Tip:</b> {m.tipModel}</span>}
+                        {m.urunAdi && <span className="mat-attr"><b>Ürün Adı:</b> {m.urunAdi}</span>}
+                        {m.tipModel && <span className="mat-attr"><b>Tip/Model:</b> {m.tipModel}</span>}
                         {m.ozellik && <span className="mat-attr"><b>Özellik:</b> {m.ozellik}</span>}
                         {m.olcu && <span className="mat-attr"><b>Ölçü:</b> {m.olcu}</span>}
                         {m.marka && <span className="mat-attr"><b>Marka:</b> {m.marka}</span>}
