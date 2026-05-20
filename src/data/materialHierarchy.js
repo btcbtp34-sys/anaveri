@@ -1,3 +1,22 @@
+// Malzeme Türleri
+export const MALZEME_TURLERI = [
+  { kod: 'ZALT', tanim: 'Altyapı Poz Hizm Listesi' },
+  { kod: 'ZBDS', tanim: 'Miktar Takipli Malzemeler' },
+  { kod: 'ZDSM', tanim: 'Dönüşümlü Malzemeler' },
+  { kod: 'ZGKD', tanim: 'GKD Malzemeleri' },
+  { kod: 'ZHAM', tanim: 'Hammadde Malzemeleri' },
+  { kod: 'ZHRD', tanim: 'Hurda Malzemeleri' },
+  { kod: 'ZHZM', tanim: 'Hizmet Malzemeleri' },
+  { kod: 'ZISV', tanim: 'İşveren Malzemeleri' },
+  { kod: 'ZMML', tanim: 'Mamul Malzemeleri' },
+  { kod: 'ZPOZ', tanim: 'PS Proje Poz Hizm Listesi' },
+  { kod: 'ZPRJ', tanim: 'Proje Malzemeleri' },
+  { kod: 'ZRMG', tanim: 'RMG Malzemeleri' },
+  { kod: 'ZSRF', tanim: 'Sarf Malzemeleri' },
+  { kod: 'ZTC2', tanim: 'Ticari Malzemeler - Enerj' },
+  { kod: 'ZTIC', tanim: 'Ticari Malzemeler' }
+]
+
 // ZAR_002_T_COM - Mal Grubu / Ürün Hiyerarşisi eşleşme tablosu (örnek 100 kayıt)
 export const HIERARCHY_DATA = [
   { malGrubu: 'H001', malGrubuTanim: 'PROJE YAPIM İŞLERİ', urunHiyerarsisi: 'DD01241', urunHiyerarsiTanim: 'TANKER VE VİDANJÖR', commodityKod: '990608' },

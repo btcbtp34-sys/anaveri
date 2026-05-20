@@ -5,27 +5,25 @@ import Modal from './Modal'
 import './BulkUploadGrid.css'
 
 const COLUMNS = [
-  { key: 'code', label: 'Kod *', width: '120px' },
   { key: 'name', label: 'Ürün Adı *', width: '200px' },
   { key: 'tipModel', label: 'Tip/Model', width: '120px' },
   { key: 'ozellik', label: 'Özellik', width: '120px' },
-  { key: 'olcu', label: 'Ölçü', width: '100px' },
   { key: 'marka', label: 'Marka', width: '120px' },
-  { key: 'malGrubu', label: 'Mal Grubu *', width: '100px' },
-  { key: 'unit', label: 'Birim *', width: '80px' },
+  { key: 'unit', label: 'Ölçü Birimi *', width: '100px' },
+  { key: 'urunHiyerarsisi', label: 'Ürün Hiyerarşisi *', width: '150px' },
+  { key: 'malGrubu', label: 'Mal Grubu *', width: '120px' },
   { key: 'productionSite', label: 'Üretim Yeri *', width: '150px' },
   { key: 'status', label: 'Durum', width: '120px' },
 ]
 
 const EMPTY_ROW = {
-  code: '',
   name: '',
   tipModel: '',
   ozellik: '',
-  olcu: '',
   marka: '',
-  malGrubu: '',
   unit: '',
+  urunHiyerarsisi: '',
+  malGrubu: '',
   productionSite: '',
   status: 'Kontrol Ediliyor'
 }
@@ -99,10 +97,10 @@ export default function BulkUploadGrid({ onSave, onCancel }) {
 
     rows.forEach(row => {
       const rowErrors = {}
-      if (!row.code.trim()) rowErrors.code = 'Zorunlu'
       if (!row.name.trim()) rowErrors.name = 'Zorunlu'
-      if (!row.malGrubu.trim()) rowErrors.malGrubu = 'Zorunlu'
       if (!row.unit.trim()) rowErrors.unit = 'Zorunlu'
+      if (!row.urunHiyerarsisi.trim()) rowErrors.urunHiyerarsisi = 'Zorunlu'
+      if (!row.malGrubu.trim()) rowErrors.malGrubu = 'Zorunlu'
       if (!row.productionSite.trim()) rowErrors.productionSite = 'Zorunlu'
 
       if (Object.keys(rowErrors).length > 0) {
@@ -124,10 +122,10 @@ export default function BulkUploadGrid({ onSave, onCancel }) {
       })
       
       const fieldLabels = {
-        code: 'Kod',
         name: 'Ürün Adı',
+        unit: 'Ölçü Birimi',
+        urunHiyerarsisi: 'Ürün Hiyerarşisi',
         malGrubu: 'Mal Grubu',
-        unit: 'Birim',
         productionSite: 'Üretim Yeri'
       }
       

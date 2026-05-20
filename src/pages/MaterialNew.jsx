@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { MAL_GRUPLARI, getUrunHiyerarsileri, getCommodity } from '../data/materialHierarchy'
 import { INITIAL_MATERIALS } from '../data/materialsStore'
 import Button from '../components/Button'
+import Modal from '../components/Modal'
 import './MaterialNew.css'
 
 const PRODUCTION_SITES = ['Istanbul Fabrika', 'Ankara Tesis', 'Izmir Depo', 'Bursa Tesis', 'Antalya Depo', 'Kocaeli Fabrika']
@@ -35,6 +36,8 @@ export default function MaterialNew({ onSave }) {
   const [errors, setErrors] = useState({})
   const [similarity, setSimilarity] = useState(null)
   const [simChecked, setSimChecked] = useState(false)
+  const [showNoteModal, setShowNoteModal] = useState(false)
+  const [submitNote, setSubmitNote] = useState('')
 
   // Autocomplete state
   const [suggestions, setSuggestions] = useState([])
@@ -155,6 +158,10 @@ export default function MaterialNew({ onSave }) {
 
   const handleSave = () => {
     if (!validate()) return
+    setShowNoteModal(true)
+  }
+
+  const confirmSubmit = () => {
     const now = new Date().toISOString()
     const newMaterial = {
       ...form,
@@ -168,7 +175,7 @@ export default function MaterialNew({ onSave }) {
       approvalHistory: [
         {
           action: 'submitted',
-          comment: 'Onaya gönderildi',
+          comment: submitNote || 'Onaya gönderildi',
           user: user,
           timestamp: now
         }
@@ -438,6 +445,41 @@ export default function MaterialNew({ onSave }) {
           </div>
         </aside>
       </div>
+
+      {/* Not Ekleme Modalı */}
+      <Modal isOpen={showNoteModal} onClose={() => setShowNoteModal(false)} title="Onaya Gönder">
+        <div style={{ marginBottom: '1rem' }}>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' }}>
+            Malzeme onaya gönderilecektir. İsteğe bağlı olarak bir not ekleyebilirsiniz.
+          </p>
+          <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#475569', marginBottom: '0.5rem' }}>
+            Not (İsteğe Bağlı)
+          </label>
+          <textarea
+            value={submitNote}
+            onChange={e => setSubmitNote(e.target.value)}
+            placeholder="Onay için not ekleyin..."
+            rows={4}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              fontFamily: 'inherit',
+              resize: 'vertical'
+            }}
+          />
+        </div>
+        <div className="modal-actions">
+          <Button variant="secondary" size="medium" onClick={() => setShowNoteModal(false)}>
+            İptal
+          </Button>
+          <Button variant="primary" size="medium" onClick={confirmSubmit}>
+            <Check size={16} /> Onaya Gönder
+          </Button>
+        </div>
+      </Modal>
     </div>
   )
 }

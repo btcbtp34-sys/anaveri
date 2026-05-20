@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, Plus, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
-import { MAL_GRUPLARI } from '../data/materialHierarchy'
+import { MAL_GRUPLARI, MALZEME_TURLERI } from '../data/materialHierarchy'
 import './Materials.css'
 
 const PAGE_SIZE = 20
@@ -71,13 +71,13 @@ export default function Materials({ materials, onDelete }) {
   const [page, setPage] = useState(1)
 
   const [filters, setFilters] = useState({
-    malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
+    malzemeTuru: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
   })
   const [collapsed, setCollapsed] = useState({
-    malGrubu: false, tipModel: false, ozellik: false, olcu: true, productionSite: true, approvalStatus: false
+    malzemeTuru: false, malGrubu: false, tipModel: false, ozellik: false, olcu: true, productionSite: true, approvalStatus: false
   })
   const [groupSearches, setGroupSearches] = useState({
-    malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
+    malzemeTuru: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
   })
 
   const toggleFilter = (key, val) => {
@@ -111,6 +111,7 @@ export default function Materials({ materials, onDelete }) {
         m.name.toLowerCase().includes(s) ||
         m.code.toLowerCase().includes(s) ||
         (m.tipModel || '').toLowerCase().includes(s)
+      const matchMalzemeTuru = !filters.malzemeTuru.length || filters.malzemeTuru.includes(m.malzemeTuru || '')
       const matchMalGrubu = !filters.malGrubu.length || filters.malGrubu.includes(m.malGrubu)
       const matchApproval = !filters.approvalStatus.length || filters.approvalStatus.includes(m.status || 'Aktif')
       const matchSite = !filters.productionSite.length ||
@@ -121,7 +122,7 @@ export default function Materials({ materials, onDelete }) {
         filters.ozellik.includes(m.ozellik || '(Boş)')
       const matchOlcu = !filters.olcu.length ||
         filters.olcu.includes(m.olcu || '(Boş)')
-      return matchSearch && matchMalGrubu && matchApproval && matchSite && matchTip && matchOzellik && matchOlcu
+      return matchSearch && matchMalzemeTuru && matchMalGrubu && matchApproval && matchSite && matchTip && matchOzellik && matchOlcu
     })
   }, [materials, searchTerm, filters])
 
@@ -134,7 +135,7 @@ export default function Materials({ materials, onDelete }) {
 
   const activeFilterCount = Object.values(filters).flat().length
   const clearFilters = () => {
-    setFilters({ malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
+    setFilters({ malzemeTuru: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
     setPage(1)
   }
 
@@ -201,6 +202,14 @@ export default function Materials({ materials, onDelete }) {
             filters={filters} toggle={toggleFilter}
             collapsed={collapsed} toggleCollapse={toggleCollapse}
             materials={materials} valueKey="status"
+            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
+          />
+          <FilterGroup
+            title="Malzeme Türü" filterKey="malzemeTuru"
+            items={MALZEME_TURLERI.map(t => ({ val: t.kod, label: `${t.kod} - ${t.tanim}` }))}
+            filters={filters} toggle={toggleFilter}
+            collapsed={collapsed} toggleCollapse={toggleCollapse}
+            materials={materials} valueKey="malzemeTuru"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
           <FilterGroup
