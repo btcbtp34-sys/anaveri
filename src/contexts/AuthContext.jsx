@@ -6,6 +6,7 @@ const AuthContext = createContext()
 const USERS = [
   { id: 1, username: 'admin', password: 'admin123', name: 'Admin Kullanıcı', role: 'admin' },
   { id: 2, username: 'onayci', password: 'onay123', name: 'Onay Yöneticisi', role: 'approver' },
+  { id: 4, username: 'onayci2', password: 'onay123', name: 'Onay Yöneticisi 2', role: 'approver2' },
   { id: 3, username: 'kullanici', password: 'user123', name: 'Normal Kullanıcı', role: 'user' },
 ]
 
@@ -44,7 +45,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     loading,
-    isApprover: user?.role === 'approver' || user?.role === 'admin',
+    isApprover: user?.role === 'approver' || user?.role === 'approver2' || user?.role === 'admin',
     isAdmin: user?.role === 'admin',
   }
 

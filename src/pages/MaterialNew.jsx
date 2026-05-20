@@ -48,6 +48,11 @@ export default function MaterialNew({ onSave }) {
   
   // Production site search
   const [siteSearch, setSiteSearch] = useState('')
+  
+  // Mal grubu search
+  const [malGrubuSearch, setMalGrubuSearch] = useState('')
+  const [showMalGrubuDropdown, setShowMalGrubuDropdown] = useState(false)
+  const malGrubuRef = useRef(null)
   const [showSiteDropdown, setShowSiteDropdown] = useState(false)
   const siteDropdownRef = useRef(null)
   const siteInputRef = useRef(null)
@@ -132,10 +137,26 @@ export default function MaterialNew({ onSave }) {
           siteDropdownRef.current && !siteDropdownRef.current.contains(e.target)) {
         setShowSiteDropdown(false)
       }
+      if (malGrubuRef.current && !malGrubuRef.current.contains(e.target)) {
+        setShowMalGrubuDropdown(false)
+      }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  const filteredMalGruplari = malGrubuSearch
+    ? MAL_GRUPLARI.filter(g => 
+        g.kod.toLowerCase().includes(malGrubuSearch.toLowerCase()) ||
+        g.tanim.toLowerCase().includes(malGrubuSearch.toLowerCase())
+      )
+    : MAL_GRUPLARI
+
+  const handleMalGrubuSelect = (kod) => {
+    handleMalGrubu(kod)
+    setMalGrubuSearch('')
+    setShowMalGrubuDropdown(false)
+  }
 
   const checkSimilarity = () => {
     if (!form.urunAdi) return
@@ -363,10 +384,66 @@ export default function MaterialNew({ onSave }) {
             </div>
             <div className="mnp-row-2">
               <Field label="Mal Grubu *" error={errors.malGrubu}>
-                <select value={form.malGrubu} onChange={e => handleMalGrubu(e.target.value)}>
-                  <option value="">Seçin</option>
-                  {MAL_GRUPLARI.map(g => <option key={g.kod} value={g.kod}>{g.kod} — {g.tanim}</option>)}
-                </select>
+                <div className="mnp-autocomplete-wrap" ref={malGrubuRef}>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      value={form.malGrubu ? `${form.malGrubu} — ${MAL_GRUPLARI.find(g => g.kod === form.malGrubu)?.tanim || ''}` : malGrubuSearch}
+                      onChange={e => {
+                        setMalGrubuSearch(e.target.value)
+                        setShowMalGrubuDropdown(true)
+                        if (!e.target.value) {
+                          handleMalGrubu('')
+                        }
+                      }}
+                      onFocus={() => setShowMalGrubuDropdown(true)}
+                      placeholder="Mal grubu ara..."
+                      autoComplete="off"
+                    />
+                    {form.malGrubu && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleMalGrubu('')
+                          setMalGrubuSearch('')
+                        }}
+                        style={{
+                          position: 'absolute',
+                          right: '0.5rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          background: 'none',
+                          border: 'none',
+                          color: '#94a3b8',
+                          cursor: 'pointer',
+                          padding: '0.25rem',
+                          display: 'flex',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  {showMalGrubuDropdown && (
+                    <ul className="mnp-suggestions" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      {filteredMalGruplari.length > 0 ? (
+                        filteredMalGruplari.map(g => (
+                          <li
+                            key={g.kod}
+                            className="mnp-suggestion-item"
+                            onMouseDown={() => handleMalGrubuSelect(g.kod)}
+                          >
+                            <strong>{g.kod}</strong> — {g.tanim}
+                          </li>
+                        ))
+                      ) : (
+                        <li style={{ padding: '0.5rem', color: '#94a3b8', fontSize: '0.875rem' }}>
+                          Sonuç bulunamadı
+                        </li>
+                      )}
+                    </ul>
+                  )}
+                </div>
               </Field>
               <Field label="Ürün Hiyerarşisi">
                 <select value={form.urunHiyerarsisi} onChange={e => handleHiyerarsi(e.target.value)} disabled={!form.malGrubu}>

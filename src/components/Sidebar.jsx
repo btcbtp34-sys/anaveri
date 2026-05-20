@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Factory, FolderTree, Settings, ChevronRight, LogOut, CheckCircle } from 'lucide-react'
+import { LayoutDashboard, Package, Factory, FolderTree, Settings, ChevronRight, LogOut, CheckCircle, FileText } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import './Sidebar.css'
 
@@ -22,6 +22,7 @@ const Sidebar = () => {
   const roleLabels = {
     admin: 'Yönetici',
     approver: 'Onaycı',
+    approver2: 'Onaycı 2',
     user: 'Kullanıcı'
   }
 
@@ -30,14 +31,16 @@ const Sidebar = () => {
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials', icon: Package, label: 'Malzemeler' },
         { path: '/approvals', icon: CheckCircle, label: 'Onay Bekleyenler' },
-        { path: '/production-sites', icon: Factory, label: 'Uretim Yerleri' },
-        { path: '/product-groups', icon: FolderTree, label: 'Urun Gruplari' },
+        { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
+        { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
+        { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
       ]
     : [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials', icon: Package, label: 'Malzemeler' },
-        { path: '/production-sites', icon: Factory, label: 'Uretim Yerleri' },
-        { path: '/product-groups', icon: FolderTree, label: 'Urun Gruplari' },
+        { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
+        { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
+        { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
       ]
 
   return (
@@ -49,7 +52,7 @@ const Sidebar = () => {
           </div>
           <div className="logo-text">
             <span className="logo-title">MalzemeHub</span>
-            <span className="logo-subtitle">Ana Veri Yonetimi</span>
+            <span className="logo-subtitle">Ana Veri Yönetimi</span>
           </div>
         </div>
       </div>

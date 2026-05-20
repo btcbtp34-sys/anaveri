@@ -14,7 +14,17 @@ export default function Approvals({ materials, onApprove, onReject }) {
   const [comment, setComment] = useState('')
   const [successData, setSuccessData] = useState(null)
 
-  const pendingMaterials = materials.filter(m => m.status === 'Kontrol Ediliyor')
+  // Onaycı2 için sadece belirli malzeme türlerini göster
+  const pendingMaterials = materials.filter(m => {
+    if (m.status !== 'Kontrol Ediliyor') return false
+    
+    // Onaycı2 sadece ZTIC, ZSRF, ZHAM türlerini görsün
+    if (user.role === 'approver2') {
+      return ['ZTIC', 'ZSRF', 'ZHAM'].includes(m.malzemeTuru)
+    }
+    
+    return true
+  })
 
   const openApproveModal = (material) => {
     setSelected(material)

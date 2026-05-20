@@ -9,6 +9,7 @@ import MaterialNew from './pages/MaterialNew'
 import MaterialBulkUpload from './pages/MaterialBulkUpload'
 import MaterialDetail from './pages/MaterialDetail'
 import MaterialEdit from './pages/MaterialEdit'
+import MaterialRules from './pages/MaterialRules'
 import ProductionSites from './pages/ProductionSites'
 import ProductGroups from './pages/ProductGroups'
 import Settings from './pages/Settings'
@@ -109,6 +110,7 @@ function AppContent() {
           <Route path="/materials/bulk-upload" element={<MaterialBulkUpload onSave={handleAdd} />} />
           <Route path="/materials/:id" element={<MaterialDetail materials={materials} onUpdate={handleUpdate} onDelete={handleDelete} />} />
           <Route path="/materials/:id/edit" element={<MaterialEdit materials={materials} onUpdate={handleUpdate} />} />
+          <Route path="/material-rules" element={<MaterialRules />} />
           <Route path="/approvals" element={<Approvals materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
           <Route path="/production-sites" element={<ProductionSites />} />
           <Route path="/product-groups" element={<ProductGroups />} />

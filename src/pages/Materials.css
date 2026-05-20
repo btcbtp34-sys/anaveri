@@ -149,6 +149,26 @@
 .mat-filter-option span:nth-child(2) { flex: 1; }
 .mat-filter-count { color: #94a3b8; font-size: 0.7rem; }
 
+.mat-filter-show-more {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.mat-filter-show-more:hover {
+  background: #f8fafc;
+  color: #1d4ed8;
+}
+
 /* Content */
 .mat-content { flex: 1; min-width: 0; }
 

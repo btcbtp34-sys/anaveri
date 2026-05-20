@@ -71,13 +71,13 @@ export default function Materials({ materials, onDelete }) {
   const [page, setPage] = useState(1)
 
   const [filters, setFilters] = useState({
-    malzemeTuru: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
+    malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
   })
   const [collapsed, setCollapsed] = useState({
-    malzemeTuru: false, malGrubu: false, tipModel: false, ozellik: false, olcu: true, productionSite: true, approvalStatus: false
+    malzemeTuru: false, urunHiyerarsisi: false, malGrubu: false, tipModel: false, ozellik: false, olcu: true, productionSite: true, approvalStatus: false
   })
   const [groupSearches, setGroupSearches] = useState({
-    malzemeTuru: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
+    malzemeTuru: '', urunHiyerarsisi: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
   })
 
   const toggleFilter = (key, val) => {
@@ -112,17 +112,22 @@ export default function Materials({ materials, onDelete }) {
         m.code.toLowerCase().includes(s) ||
         (m.tipModel || '').toLowerCase().includes(s)
       const matchMalzemeTuru = !filters.malzemeTuru.length || filters.malzemeTuru.includes(m.malzemeTuru || '')
+      const matchUrunHiyerarsisi = !filters.urunHiyerarsisi.length || filters.urunHiyerarsisi.includes(m.urunHiyerarsisi || '')
       const matchMalGrubu = !filters.malGrubu.length || filters.malGrubu.includes(m.malGrubu)
       const matchApproval = !filters.approvalStatus.length || filters.approvalStatus.includes(m.status || 'Aktif')
       const matchSite = !filters.productionSite.length ||
-        filters.productionSite.includes(m.productionSite || '(Boş)')
+        filters.productionSite.includes(m.productionSite || '') ||
+        (filters.productionSite.includes('(Boş)') && !m.productionSite)
       const matchTip = !filters.tipModel.length ||
-        filters.tipModel.includes(m.tipModel || '(Boş)')
+        filters.tipModel.includes(m.tipModel || '') ||
+        (filters.tipModel.includes('(Boş)') && !m.tipModel)
       const matchOzellik = !filters.ozellik.length ||
-        filters.ozellik.includes(m.ozellik || '(Boş)')
+        filters.ozellik.includes(m.ozellik || '') ||
+        (filters.ozellik.includes('(Boş)') && !m.ozellik)
       const matchOlcu = !filters.olcu.length ||
-        filters.olcu.includes(m.olcu || '(Boş)')
-      return matchSearch && matchMalzemeTuru && matchMalGrubu && matchApproval && matchSite && matchTip && matchOzellik && matchOlcu
+        filters.olcu.includes(m.olcu || '') ||
+        (filters.olcu.includes('(Boş)') && !m.olcu)
+      return matchSearch && matchMalzemeTuru && matchUrunHiyerarsisi && matchMalGrubu && matchApproval && matchSite && matchTip && matchOzellik && matchOlcu
     })
   }, [materials, searchTerm, filters])
 
@@ -135,7 +140,7 @@ export default function Materials({ materials, onDelete }) {
 
   const activeFilterCount = Object.values(filters).flat().length
   const clearFilters = () => {
-    setFilters({ malzemeTuru: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
+    setFilters({ malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
     setPage(1)
   }
 
@@ -210,6 +215,14 @@ export default function Materials({ materials, onDelete }) {
             filters={filters} toggle={toggleFilter}
             collapsed={collapsed} toggleCollapse={toggleCollapse}
             materials={materials} valueKey="malzemeTuru"
+            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
+          />
+          <FilterGroup
+            title="Ürün Hiyerarşisi" filterKey="urunHiyerarsisi"
+            items={uniqWithEmpty('urunHiyerarsisi').map(v => ({ val: v, label: v || '(Boş)' }))}
+            filters={filters} toggle={toggleFilter}
+            collapsed={collapsed} toggleCollapse={toggleCollapse}
+            materials={materials} valueKey="urunHiyerarsisi"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
           <FilterGroup
@@ -292,11 +305,12 @@ export default function Materials({ materials, onDelete }) {
               <div className="mat-grid">
                 {paginated.map(m => {
                   const meta = getApprovalMeta(m.status)
+                  const showCode = m.status === 'Aktif'
                   return (
                     <div key={m.id} className="mat-card" onClick={() => navigate(`/materials/${m.id}`)}>
                       <MaterialImage material={m} />
                       <div className="mat-card-top">
-                        <span className="mat-card-code">{m.code}</span>
+                        <span className="mat-card-code">{showCode ? m.code : ''}</span>
                         <span className={`status-badge ${meta.cls}`}>{meta.label}</span>
                       </div>
                       <h3 className="mat-card-name">{m.name}</h3>
@@ -333,12 +347,13 @@ export default function Materials({ materials, onDelete }) {
                 {paginated.map(m => {
                   const meta = getApprovalMeta(m.status)
                   const imgSrc = m.images?.[0] || CATEGORY_IMAGES[m.malGrubu] || CATEGORY_IMAGES.default
+                  const showCode = m.status === 'Aktif'
                   return (
                     <div key={m.id} className="mat-list-row" onClick={() => navigate(`/materials/${m.id}`)}>
                       <span className="mat-list-thumb">
                         <ListImage src={imgSrc} alt={m.name} />
                       </span>
-                      <span className="mat-list-code">{m.code}</span>
+                      <span className="mat-list-code">{showCode ? m.code : '—'}</span>
                       <span className="mat-list-name">{m.name}</span>
                       <span>{m.tipModel || <span className="mat-empty-val">—</span>}</span>
                       <span>{m.ozellik || <span className="mat-empty-val">—</span>}</span>
@@ -447,6 +462,7 @@ function Pagination({ page, totalPages, total, goPage }) {
 }
 
 function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, toggleCollapse, materials, valueKey, groupSearches, setGroupSearches }) {
+  const [showAll, setShowAll] = useState(false)
   const isCollapsed = collapsed[filterKey]
   const key = valueKey || filterKey
   const counts = {}
@@ -461,6 +477,10 @@ function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, togg
   const filteredItems = searchTerm
     ? items.filter(({ label }) => label.toLowerCase().includes(searchTerm.toLowerCase()))
     : items
+
+  // İlk 5 veya tümünü göster
+  const displayItems = showAll || searchTerm ? filteredItems : filteredItems.slice(0, 5)
+  const hasMore = filteredItems.length > 5
 
   const updateSearch = (value) => {
     setGroupSearches(prev => ({ ...prev, [filterKey]: value }))
@@ -492,7 +512,7 @@ function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, togg
             </div>
           )}
           <div className="mat-filter-options">
-            {filteredItems.map(({ val, label }) => (
+            {displayItems.map(({ val, label }) => (
               <label key={val} className="mat-filter-option">
                 <input type="checkbox" checked={filters[filterKey].includes(val)} onChange={() => toggle(filterKey, val)} />
                 <span>{label}</span>
@@ -505,6 +525,14 @@ function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, togg
               </span>
             )}
           </div>
+          {hasMore && !searchTerm && (
+            <button 
+              className="mat-filter-show-more"
+              onClick={() => setShowAll(!showAll)}
+            >
+              {showAll ? 'Daha Az Göster' : `Daha Fazla Göster (${filteredItems.length - 5})`}
+            </button>
+          )}
         </>
       )}
     </div>
