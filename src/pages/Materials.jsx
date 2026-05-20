@@ -74,7 +74,7 @@ export default function Materials({ materials, onDelete }) {
     malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
   })
   const [collapsed, setCollapsed] = useState({
-    malzemeTuru: false, urunHiyerarsisi: false, malGrubu: false, tipModel: false, ozellik: false, olcu: true, productionSite: true, approvalStatus: false
+    approvalStatus: false, malzemeTuru: false, urunHiyerarsisi: false, malGrubu: true, tipModel: true, ozellik: true, olcu: true, productionSite: true
   })
   const [groupSearches, setGroupSearches] = useState({
     malzemeTuru: '', urunHiyerarsisi: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
