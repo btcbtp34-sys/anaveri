@@ -1,0 +1,338 @@
+.ticket-detail-page {
+  width: 100%;
+  padding: 0;
+}
+
+.ticket-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: #94a3b8;
+}
+
+/* Header */
+.ticket-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.ticket-detail-actions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+/* Layout */
+.ticket-detail-content {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.ticket-detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Ana kart */
+.ticket-detail-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ticket-detail-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-number-large {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.ticket-status-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ticket-type-large {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.ticket-note-large {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.ticket-meta-large {
+  display: flex;
+  gap: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ticket-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: #64748b;
+}
+
+.ticket-meta-item svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.ticket-meta-item .label {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ticket-meta-item .value {
+  display: block;
+  font-size: 0.875rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* Malzeme listesi */
+.ticket-items-section {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.ticket-items-section h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.ticket-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.ticket-item-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item-row {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  align-items: baseline;
+}
+
+.item-label {
+  color: #64748b;
+  font-weight: 500;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.item-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.item-value.highlight {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+/* Sidebar - Geçmiş */
+.ticket-detail-sidebar {
+  position: sticky;
+  top: 1rem;
+}
+
+.ticket-history-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.ticket-history-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1.25rem 0;
+}
+
+.ticket-history-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.history-entry {
+  display: flex;
+  gap: 0.875rem;
+  position: relative;
+}
+
+.history-entry:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 30px;
+  bottom: -20px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+.history-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #64748b;
+  position: relative;
+  z-index: 1;
+}
+
+.history-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.history-action {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.history-user {
+  font-size: 0.775rem;
+  color: #64748b;
+}
+
+.history-time {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.history-comment {
+  margin-top: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  background: #f8fafc;
+  border-left: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #475569;
+  font-style: italic;
+}
+
+/* Modal içi */
+.ticket-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ticket-modal p {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.ticket-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ticket-modal .form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.ticket-modal .form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: #1e293b;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.ticket-modal .form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.625rem;
+}
+
+@media (max-width: 1024px) {
+  .ticket-detail-content {
+    grid-template-columns: 1fr;
+  }
+  .ticket-detail-sidebar {
+    position: static;
+  }
+}

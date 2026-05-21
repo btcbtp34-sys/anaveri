@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, CheckCircle, FileText, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, CheckCircle, FileText, BarChart3, Ticket } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useState, useEffect } from 'react'
 import './Sidebar.css'
@@ -51,6 +51,7 @@ const Sidebar = () => {
     ? [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials', icon: Package, label: 'Malzemeler' },
+        { path: '/tickets', icon: Ticket, label: 'Ticketlar' },
         { path: '/approvals', icon: CheckCircle, label: 'Onay Bekleyenler', badge: pendingCount },
         { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
@@ -59,6 +60,7 @@ const Sidebar = () => {
     : [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials', icon: Package, label: 'Malzemeler' },
+        { path: '/tickets', icon: Ticket, label: 'Ticketlar' },
         { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
         { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },

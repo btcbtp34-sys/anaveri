@@ -1,0 +1,230 @@
+.tickets-page {
+  padding: 1.5rem;
+  width: 100%;
+}
+
+.tickets-header {
+  margin-bottom: 1.5rem;
+}
+
+.tickets-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.tickets-header p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.tickets-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.tickets-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: white;
+  transition: all 0.2s;
+}
+
+.tickets-search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.tickets-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.tickets-status-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.status-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.status-tab:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.status-tab.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+/* Liste görünümü */
+.tickets-list-wrap {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.tickets-list-header {
+  display: grid;
+  grid-template-columns: 200px 160px 1fr 90px 150px 110px 140px 90px;
+  padding: 0.625rem 1rem;
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tickets-list-row {
+  display: grid;
+  grid-template-columns: 200px 160px 1fr 90px 150px 110px 140px 90px;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+  color: #334155;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.tickets-list-row:hover {
+  background: #f8fafc;
+}
+
+.tl-number {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 0.775rem;
+}
+
+.tl-type {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #475569;
+  font-size: 0.775rem;
+}
+
+.tl-note {
+  color: #64748b;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tl-items {
+  font-size: 0.775rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tl-creator {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.775rem;
+  color: #475569;
+}
+
+.tl-date {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.775rem;
+  color: #64748b;
+}
+
+.tl-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tl-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Boş durum */
+.tickets-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  color: #94a3b8;
+}
+
+.tickets-empty svg {
+  margin-bottom: 1rem;
+}
+
+.tickets-empty h3 {
+  font-size: 1.125rem;
+  color: #475569;
+  margin: 0 0 0.5rem 0;
+}
+
+.tickets-empty p {
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .tickets-list-header,
+  .tickets-list-row {
+    grid-template-columns: 180px 140px 1fr 80px 130px 100px 130px 80px;
+  }
+}
+
+@media (max-width: 900px) {
+  .tickets-list-header { display: none; }
+  .tickets-list-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+  }
+  .tl-note { grid-column: 1 / -1; }
+}

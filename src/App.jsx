@@ -19,6 +19,8 @@ import ProductGroups from './pages/ProductGroups'
 import Settings from './pages/Settings'
 import ApprovalsTable from './pages/ApprovalsTable'
 import AdminReports from './pages/AdminReports'
+import Tickets from './pages/Tickets'
+import TicketDetail from './pages/TicketDetail'
 import { INITIAL_MATERIALS } from './data/materialsStore'
 import './App.css'
 
@@ -157,6 +159,8 @@ function AppContent() {
           <Route path="/materials/:id" element={<MaterialDetail materials={materials} onUpdate={handleUpdate} onDelete={handleDelete} />} />
           <Route path="/materials/:id/edit" element={<MaterialEdit materials={materials} onUpdate={handleUpdate} />} />
           <Route path="/material-rules" element={<MaterialRules />} />
+          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
           <Route path="/approvals" element={<ApprovalsTable materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/production-sites" element={<ProductionSites />} />

@@ -1,8 +1,6 @@
 .ar-page {
   padding: 1.5rem;
-  max-width: 100%;
   width: 100%;
-  margin: 0 auto;
 }
 
 .ar-header {
@@ -210,4 +208,98 @@
   text-align: center;
   color: #94a3b8;
   font-size: 0.875rem;
+}
+
+.ar-header-actions {
+  display: flex;
+  gap: 0.625rem;
+}
+
+/* Tabs */
+.ar-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.ar-tab {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: -2px;
+}
+
+.ar-tab:hover { color: #1e293b; }
+
+.ar-tab.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 600;
+}
+
+.ar-completed {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* Pagination */
+.ar-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0 0;
+  margin-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.ar-page-info {
+  font-size: 0.775rem;
+  color: #64748b;
+}
+
+.ar-page-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.ar-page-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.ar-page-btn:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+}
+
+.ar-page-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 700;
+}
+
+.ar-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
