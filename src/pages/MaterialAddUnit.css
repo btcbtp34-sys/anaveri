@@ -1,0 +1,294 @@
+.mau-page {
+  padding: 1.5rem;
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.mau-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.mau-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.mau-header p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.mau-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mau-section {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.mau-section h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.mau-search {
+  position: relative;
+}
+
+.mau-search-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.mau-search-input svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.mau-search-input input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.mau-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.mau-result-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s;
+}
+
+.mau-result-item:hover {
+  background: #f8fafc;
+}
+
+.mau-result-item:last-child {
+  border-bottom: none;
+}
+
+.mau-result-code {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.mau-result-name {
+  font-size: 0.875rem;
+  color: #1e293b;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.mau-result-meta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.mau-no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.mau-selected {
+  margin-top: 1.5rem;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mau-selected-header {
+  background: #3b82f6;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.mau-selected-content {
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.mau-selected-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.mau-selected-row:last-child {
+  border-bottom: none;
+}
+
+.mau-selected-row span {
+  color: #64748b;
+}
+
+.mau-selected-row strong {
+  color: #1e293b;
+}
+
+.mau-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  color: #1e40af;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.mau-info svg {
+  flex-shrink: 0;
+}
+
+.mau-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.mau-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.mau-table thead {
+  background: #f8fafc;
+}
+
+.mau-table th {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.mau-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.mau-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.mau-table input,
+.mau-table select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.mau-table input:focus,
+.mau-table select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.mau-conversion {
+  font-size: 0.875rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.mau-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mau-delete-btn:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.mau-delete-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.mau-note {
+  margin-top: 1.5rem;
+}
+
+.mau-note label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.mau-note textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.mau-note textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}

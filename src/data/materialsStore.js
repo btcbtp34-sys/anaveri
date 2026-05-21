@@ -51,7 +51,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 3, code: 'MAT-003', name: 'Beton C35 Sulfa Dayanikli', malzemeTuru: 'ZHAM', malGrubu: 'M002', urunHiyerarsisi: '0103006',
-    commodityKod: '0312', unit: 'm3', status: 'Kontrol Ediliyor', productionSite: 'Ankara Tesis',
+    commodityKod: '0312', unit: 'M3', status: 'Kontrol Ediliyor', productionSite: 'Ankara Tesis',
     tipModel: 'C35', ozellik: 'Sulfa Dayanikli', olcu: '1m3', marka: 'Cimsa', depoYeri: 'Depo-2',
     ureticiParcaNo: 'CMS-C35-SD', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
@@ -111,7 +111,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 6, code: 'MAT-006', name: 'Demir Cubuk 8mm', malzemeTuru: 'ZSRF', malGrubu: 'M002', urunHiyerarsisi: '0105003',
-    commodityKod: '0309', unit: 'kg', status: 'Aktif', productionSite: 'Istanbul Fabrika',
+    commodityKod: '0309', unit: 'KG', status: 'Kontrol Ediliyor', productionSite: 'Istanbul Fabrika',
     tipModel: 'Nervurlu', ozellik: '', olcu: '8mm', marka: 'Kardemir', depoYeri: 'Depo-1',
     ureticiParcaNo: 'KRD-8-NRV', seriNo: '', valuationClass: 'P001', images: [],
     createdBy: MOCK_CREATOR,
@@ -271,7 +271,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 27, code: 'MAT-027', name: 'Boru Galvaniz DN50', malzemeTuru: 'ZTIC', malGrubu: 'M004', urunHiyerarsisi: '0205004',
-    commodityKod: '0759', unit: 'm', status: 'Aktif', productionSite: 'Istanbul Fabrika',
+    commodityKod: '0759', unit: 'M', status: 'Kontrol Ediliyor', productionSite: 'Istanbul Fabrika',
     tipModel: 'Galvaniz', ozellik: '', olcu: 'DN50', marka: 'Borusan', depoYeri: 'Depo-1',
     ureticiParcaNo: 'BRS-GAL-DN50', seriNo: '', valuationClass: 'P001', images: []
   },
@@ -325,7 +325,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 36, code: 'MAT-036', name: 'Kablo NYY 3x2.5', malzemeTuru: 'ZTIC', malGrubu: 'M003', urunHiyerarsisi: '0337018',
-    commodityKod: '0211', unit: 'm', status: 'Aktif', productionSite: 'Izmir Depo',
+    commodityKod: '0211', unit: 'M', status: 'Kontrol Ediliyor', productionSite: 'Izmir Depo',
     tipModel: 'NYY', ozellik: '', olcu: '3x2.5mm', marka: 'Prysmian', depoYeri: 'Depo-3',
     ureticiParcaNo: 'PRY-NYY-3x25', seriNo: '', valuationClass: 'P001', images: []
   },
@@ -427,7 +427,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 53, code: 'MAT-053', name: 'Seramik Yer 60x60 Mat', malzemeTuru: 'ZTIC', malGrubu: 'M005', urunHiyerarsisi: '0424009',
-    commodityKod: '0379', unit: 'm2', status: 'Aktif', productionSite: 'Istanbul Fabrika',
+    commodityKod: '0379', unit: 'M2', status: 'Kontrol Ediliyor', productionSite: 'Istanbul Fabrika',
     tipModel: 'Mat', ozellik: 'Antikayma', olcu: '60x60cm', marka: 'Kaleseramik', depoYeri: 'Depo-1',
     ureticiParcaNo: 'KLS-YER-6060M', seriNo: '', valuationClass: 'P001', images: []
   },
@@ -445,7 +445,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 56, code: 'MAT-056', name: 'Kapi Ahsap Amerikan Panel', malzemeTuru: 'ZTIC', malGrubu: 'M005', urunHiyerarsisi: '0411001',
-    commodityKod: '0327', unit: 'adet', status: 'Aktif', productionSite: 'Istanbul Fabrika',
+    commodityKod: '0327', unit: 'ADT', status: 'Kontrol Ediliyor', productionSite: 'Istanbul Fabrika',
     tipModel: 'Amerikan Panel', ozellik: '', olcu: '90x210cm', marka: 'Kelebek', depoYeri: 'Depo-1',
     ureticiParcaNo: 'KLB-KAP-AMP90', seriNo: '', valuationClass: 'P001', images: []
   },
@@ -463,7 +463,7 @@ export const INITIAL_MATERIALS = [
   },
   {
     id: 59, code: 'MAT-059', name: 'Baret Beyaz', malzemeTuru: 'ZTIC', malGrubu: 'M029', urunHiyerarsisi: '0826003',
-    commodityKod: '0402', unit: 'adet', status: 'Aktif', productionSite: 'Istanbul Fabrika',
+    commodityKod: '0402', unit: 'ADT', status: 'Kontrol Ediliyor', productionSite: 'Istanbul Fabrika',
     tipModel: 'Standart', ozellik: 'Beyaz', olcu: 'Tek Beden', marka: 'MSA', depoYeri: 'Depo-1',
     ureticiParcaNo: 'MSA-BRT-BYZ', seriNo: '', valuationClass: 'P001', images: []
   },

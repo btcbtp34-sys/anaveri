@@ -1,10 +1,58 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle, XCircle, Eye, Clock, User, Calendar } from 'lucide-react'
+import { CheckCircle, XCircle, Eye, Clock, User, Calendar, Package } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import './Approvals.css'
+
+// Malzeme için gerçek görsel veya renkli placeholder
+const getMaterialVisual = (material) => {
+  const realImages = {
+    'Beton': 'https://images.pexels.com/photos/1117452/pexels-photo-1117452.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Demir': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Çimento': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Çelik': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Boru': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Kablo': 'https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Seramik': 'https://images.pexels.com/photos/1358900/pexels-photo-1358900.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Kapı': 'https://images.pexels.com/photos/277559/pexels-photo-277559.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Baret': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
+  }
+
+  const materialName = material.name.toLowerCase()
+  let imageUrl = null
+  
+  for (const [key, url] of Object.entries(realImages)) {
+    if (materialName.includes(key.toLowerCase())) {
+      imageUrl = url
+      break
+    }
+  }
+
+  const colors = [
+    { bg: '#dbeafe', icon: '#1e40af' },
+    { bg: '#dcfce7', icon: '#15803d' },
+    { bg: '#fef3c7', icon: '#d97706' },
+    { bg: '#fee2e2', icon: '#dc2626' },
+    { bg: '#f3e8ff', icon: '#7c3aed' },
+    { bg: '#fce7f3', icon: '#db2777' },
+    { bg: '#e0f2fe', icon: '#0369a1' },
+    { bg: '#d1fae5', icon: '#059669' },
+  ]
+  
+  const colorIndex = material.id % colors.length
+  const color = colors[colorIndex]
+  
+  const initials = material.name
+    .split(' ')
+    .slice(0, 2)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+  
+  return { color, initials, imageUrl }
+}
 
 export default function Approvals({ materials, onApprove, onReject }) {
   const navigate = useNavigate()
@@ -170,87 +218,127 @@ export default function Approvals({ materials, onApprove, onReject }) {
             </div>
           )}
           <div className="approvals-grid">
-            {pendingMaterials.map(material => (
-              <div 
-                key={material.id} 
-                className="approval-card" 
-                style={{ 
-                  position: 'relative', 
-                  paddingLeft: '3rem',
-                  border: selectedIds.includes(material.id) ? '2px solid #2563eb' : undefined,
-                  background: selectedIds.includes(material.id) ? '#eff6ff' : undefined
-                }}
-              >
-                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10 }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(material.id)}
-                    onChange={() => toggleSelect(material.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#2563eb' }}
-                  />
-                </div>
-                <div className="approval-card-header">
-                  <span className="approval-code">{material.code}</span>
-                  <span className="approval-status">
-                    <Clock size={12} /> Kontrol Ediliyor
-                  </span>
-                </div>
+            {pendingMaterials.map(material => {
+              const visual = getMaterialVisual(material)
+              return (
+                <div 
+                  key={material.id} 
+                  className="approval-card" 
+                  style={{ 
+                    position: 'relative', 
+                    paddingLeft: '3rem',
+                    border: selectedIds.includes(material.id) ? '2px solid #2563eb' : undefined,
+                    background: selectedIds.includes(material.id) ? '#eff6ff' : undefined
+                  }}
+                >
+                  <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 10 }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(material.id)}
+                      onChange={() => toggleSelect(material.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#2563eb' }}
+                    />
+                  </div>
 
-                <h3 className="approval-name">{material.name}</h3>
+                  {/* Malzeme Görseli */}
+                  <div style={{ 
+                    width: '100%', 
+                    height: '160px', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden',
+                    marginBottom: '1rem',
+                    background: visual.imageUrl ? 'transparent' : visual.color.bg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {visual.imageUrl ? (
+                      <img 
+                        src={visual.imageUrl} 
+                        alt={material.name}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover' 
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.parentElement.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: ${visual.color.bg}"><span style="font-size: 3rem; font-weight: 700; color: ${visual.color.icon}">${visual.initials}</span></div>`
+                        }}
+                      />
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Package size={48} style={{ color: visual.color.icon }} />
+                        <span style={{ fontSize: '3rem', fontWeight: '700', color: visual.color.icon }}>
+                          {visual.initials}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="approval-details">
-                  {material.tipModel && <div className="approval-detail"><strong>Tip:</strong> {material.tipModel}</div>}
-                  {material.ozellik && <div className="approval-detail"><strong>Özellik:</strong> {material.ozellik}</div>}
-                  {material.marka && <div className="approval-detail"><strong>Marka:</strong> {material.marka}</div>}
-                  <div className="approval-detail"><strong>Mal Grubu:</strong> {material.malGrubu}</div>
-                  <div className="approval-detail"><strong>Birim:</strong> {material.unit}</div>
-                  {material.productionSites && material.productionSites.length > 0 && (
-                    <div className="approval-detail">
-                      <strong>Üretim Yerleri:</strong> {material.productionSites.join(', ')}
+                  <div className="approval-card-header">
+                    <span className="approval-code">{material.code}</span>
+                    <span className="approval-status">
+                      <Clock size={12} /> Kontrol Ediliyor
+                    </span>
+                  </div>
+
+                  <h3 className="approval-name">{material.name}</h3>
+
+                  <div className="approval-details">
+                    {material.tipModel && <div className="approval-detail"><strong>Tip:</strong> {material.tipModel}</div>}
+                    {material.ozellik && <div className="approval-detail"><strong>Özellik:</strong> {material.ozellik}</div>}
+                    {material.marka && <div className="approval-detail"><strong>Marka:</strong> {material.marka}</div>}
+                    <div className="approval-detail"><strong>Mal Grubu:</strong> {material.malGrubu}</div>
+                    <div className="approval-detail"><strong>Birim:</strong> {material.unit}</div>
+                    {material.productionSites && material.productionSites.length > 0 && (
+                      <div className="approval-detail">
+                        <strong>Üretim Yerleri:</strong> {material.productionSites.join(', ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {material.createdBy && (
+                    <div className="approval-creator">
+                      <User size={12} />
+                      <span>Oluşturan: {material.createdBy.name}</span>
                     </div>
                   )}
-                </div>
 
-                {material.createdBy && (
-                  <div className="approval-creator">
-                    <User size={12} />
-                    <span>Oluşturan: {material.createdBy.name}</span>
+                  {material.createdAt && (
+                    <div className="approval-date">
+                      <Calendar size={12} />
+                      <span>{new Date(material.createdAt).toLocaleString('tr-TR')}</span>
+                    </div>
+                  )}
+
+                  <div className="approval-actions">
+                    <Button
+                      variant="secondary"
+                      size="small"
+                      onClick={() => navigate(`/materials/${material.id}`)}
+                    >
+                      <Eye size={14} /> Detay
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="small"
+                      onClick={() => openRejectModal(material)}
+                    >
+                      <XCircle size={14} /> Reddet
+                    </Button>
+                    <Button
+                      variant="success"
+                      size="small"
+                      onClick={() => openApproveModal(material)}
+                    >
+                      <CheckCircle size={14} /> Onayla
+                    </Button>
                   </div>
-                )}
-
-                {material.createdAt && (
-                  <div className="approval-date">
-                    <Calendar size={12} />
-                    <span>{new Date(material.createdAt).toLocaleString('tr-TR')}</span>
-                  </div>
-                )}
-
-                <div className="approval-actions">
-                  <Button
-                    variant="secondary"
-                    size="small"
-                    onClick={() => navigate(`/materials/${material.id}`)}
-                  >
-                    <Eye size={14} /> Detay
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="small"
-                    onClick={() => openRejectModal(material)}
-                  >
-                    <XCircle size={14} /> Reddet
-                  </Button>
-                  <Button
-                    variant="success"
-                    size="small"
-                    onClick={() => openApproveModal(material)}
-                  >
-                    <CheckCircle size={14} /> Onayla
-                  </Button>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </>
       )}

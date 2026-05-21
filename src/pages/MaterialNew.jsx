@@ -4,12 +4,49 @@ import { ChevronLeft, Check, AlertCircle, Package, AlertTriangle, X, Search } fr
 import { useAuth } from '../contexts/AuthContext'
 import { MAL_GRUPLARI, getUrunHiyerarsileri, getCommodity } from '../data/materialHierarchy'
 import { INITIAL_MATERIALS } from '../data/materialsStore'
+import { createTicket, TICKET_TYPES } from '../data/ticketStore'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import './MaterialNew.css'
 
 const PRODUCTION_SITES = ['Istanbul Fabrika', 'Ankara Tesis', 'Izmir Depo', 'Bursa Tesis', 'Antalya Depo', 'Kocaeli Fabrika']
-const UNITS = ['adet', 'kg', 'm', 'm2', 'm3', 'lt', 'ton', 'set']
+
+// Ölçü birimleri - SAP formatında (Dahili Ölçü Birimi ve Metni)
+const UNITS = [
+  { code: 'ADT', label: 'Adet' },
+  { code: 'PAK', label: 'Paket' },
+  { code: 'RUL', label: 'Rulo' },
+  { code: 'SET', label: 'Set' },
+  { code: 'GR', label: 'Gram' },
+  { code: 'KG', label: 'Kilogram' },
+  { code: 'TON', label: 'Ton' },
+  { code: 'MM', label: 'Milimetre' },
+  { code: 'CM', label: 'Santimetre' },
+  { code: 'M', label: 'Metre' },
+  { code: 'M2', label: 'Metre kare' },
+  { code: 'M3', label: 'Metre küp' },
+  { code: 'ML', label: 'Mililitre' },
+  { code: 'L', label: 'Litre' },
+  { code: 'GLN', label: 'Galon-ABD' },
+]
+
+// Eski format -> Yeni format dönüşümü (geriye uyumluluk için)
+const UNIT_MAPPING = {
+  'adet': 'ADT',
+  'kg': 'KG',
+  'm': 'M',
+  'm2': 'M2',
+  'm3': 'M3',
+  'lt': 'L',
+  'ton': 'TON',
+  'set': 'SET',
+}
+
+// Ölçü birimi kodunu metne çevir
+const getUnitLabel = (code) => {
+  const unit = UNITS.find(u => u.code === code)
+  return unit ? unit.label : code
+}
 
 const getValuationClass = (malGrubu, productionSite) => {
   if (['VOLM', 'BALM', 'RETM', 'RMIZ'].includes(productionSite)) return 'T001'
@@ -26,9 +63,6 @@ const EMPTY = {
   malGrubu: '', urunHiyerarsisi: '', commodityKod: '', unit: '',
 }
 
-// Tüm ürün adlarını benzersiz olarak al
-const ALL_PRODUCT_NAMES = [...new Set(INITIAL_MATERIALS.map(m => m.name))]
-
 export default function MaterialNew({ onSave }) {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -37,9 +71,11 @@ export default function MaterialNew({ onSave }) {
   const [similarity, setSimilarity] = useState(null)
   const [simChecked, setSimChecked] = useState(false)
   const [showNoteModal, setShowNoteModal] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [ticketNumber, setTicketNumber] = useState('')
   const [submitNote, setSubmitNote] = useState('')
 
-  // Autocomplete state
+  // Autocomplete state - artık tam malzeme objelerini tutuyoruz
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(-1)
@@ -92,7 +128,8 @@ export default function MaterialNew({ onSave }) {
     setSimChecked(false)
     if (value.trim().length >= 2) {
       const q = value.trim().toLowerCase()
-      const filtered = ALL_PRODUCT_NAMES.filter(n => n.toLowerCase().includes(q))
+      // Tam malzeme objelerini filtrele
+      const filtered = INITIAL_MATERIALS.filter(m => m.name.toLowerCase().includes(q))
       setSuggestions(filtered.slice(0, 8))
       setShowSuggestions(filtered.length > 0)
     } else {
@@ -102,8 +139,24 @@ export default function MaterialNew({ onSave }) {
     setActiveSuggestion(-1)
   }
 
-  const handleSelectSuggestion = (name) => {
-    set('urunAdi', name)
+  const handleSelectSuggestion = (material) => {
+    // Eski formatı yeni formata çevir (geriye uyumluluk)
+    const normalizedUnit = UNIT_MAPPING[material.unit] || material.unit || ''
+    
+    // Kritik alanları otomatik doldur
+    setForm(f => ({
+      ...f,
+      urunAdi: material.name,
+      tipModel: material.tipModel || '',
+      ozellik: material.ozellik || '',
+      olcu: material.olcu || '',
+      marka: material.marka || '',
+      malGrubu: material.malGrubu || '',
+      urunHiyerarsisi: material.urunHiyerarsisi || '',
+      commodityKod: material.commodityKod || '',
+      unit: normalizedUnit,
+    }))
+    
     setSuggestions([])
     setShowSuggestions(false)
     setActiveSuggestion(-1)
@@ -183,27 +236,11 @@ export default function MaterialNew({ onSave }) {
   }
 
   const confirmSubmit = () => {
-    const now = new Date().toISOString()
-    const newMaterial = {
-      ...form,
-      name: tanim,
-      code: `MAT-${String(Date.now()).slice(-6)}`,
-      valuationClass,
-      id: Date.now(),
-      images: [],
-      createdBy: user,
-      createdAt: now,
-      approvalHistory: [
-        {
-          action: 'submitted',
-          comment: submitNote || 'Onaya gönderildi',
-          user: user,
-          timestamp: now
-        }
-      ]
-    }
-    if (onSave) onSave(newMaterial)
-    navigate('/materials')
+    // Ticket oluştur
+    const ticket = createTicket(TICKET_TYPES.NEW_MATERIAL, [form], user, submitNote)
+    setTicketNumber(ticket.ticketNumber)
+    setShowNoteModal(false)
+    setShowSuccessModal(true)
   }
 
   const tanim = [
@@ -331,14 +368,19 @@ export default function MaterialNew({ onSave }) {
                 </div>
                 {showSuggestions && suggestions.length > 0 && (
                   <ul className="mnp-suggestions" ref={suggestionsRef}>
-                    {suggestions.map((s, i) => (
+                    {suggestions.map((material, i) => (
                       <li
-                        key={s}
+                        key={material.id}
                         className={`mnp-suggestion-item ${i === activeSuggestion ? 'active' : ''}`}
-                        onMouseDown={() => handleSelectSuggestion(s)}
+                        onMouseDown={() => handleSelectSuggestion(material)}
                         onMouseEnter={() => setActiveSuggestion(i)}
                       >
-                        {highlight(s, form.urunAdi)}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          <div>{highlight(material.name, form.urunAdi)}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                            {[material.tipModel, material.ozellik, material.olcu, material.marka].filter(Boolean).join(' • ') || 'Detay yok'}
+                          </div>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -365,7 +407,7 @@ export default function MaterialNew({ onSave }) {
             )}
 
             <div className="mnp-row-2" style={{ marginTop: '0.875rem' }}>
-              <Field label="Üretici Parça No">
+              <Field label="Üretici Parça No" hint="Opsiyonel">
                 <input value={form.ureticiParcaNo} onChange={e => set('ureticiParcaNo', e.target.value)} placeholder="Üretici parça numarası" />
               </Field>
               <Field label="Seri No" hint="Opsiyonel">
@@ -463,7 +505,11 @@ export default function MaterialNew({ onSave }) {
               <Field label="Ölçü Birimi *" error={errors.unit}>
                 <select value={form.unit} onChange={e => set('unit', e.target.value)}>
                   <option value="">Seçin</option>
-                  {UNITS.map(u => <option key={u}>{u}</option>)}
+                  {UNITS.map(u => (
+                    <option key={u.code} value={u.code}>
+                      {u.code} - {u.label}
+                    </option>
+                  ))}
                 </select>
               </Field>
             </div>
@@ -512,8 +558,21 @@ export default function MaterialNew({ onSave }) {
           <div className="mnp-aside-card">
             <div className="mnp-aside-title">Özet</div>
             <div className="mnp-sum-list">
+              <div className="mnp-sum-row">
+                <span>Üretim Yerleri</span>
+                <strong>
+                  {form.productionSites.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
+                      {form.productionSites.map(site => (
+                        <span key={site} style={{ fontSize: '0.8rem' }}>{site}</span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span style={{ color: '#cbd5e1' }}>—</span>
+                  )}
+                </strong>
+              </div>
               {[
-                ['Üretim Yerleri', form.productionSites.length ? `${form.productionSites.length} adet` : ''],
                 ['Mal Grubu', form.malGrubu],
                 ['Birim', form.unit],
                 ['Değerleme', form.malGrubu ? valuationClass : ''],
@@ -561,6 +620,48 @@ export default function MaterialNew({ onSave }) {
           <Button variant="primary" size="medium" onClick={confirmSubmit}>
             <Check size={16} /> Onaya Gönder
           </Button>
+        </div>
+      </Modal>
+
+      {/* Başarı Modalı */}
+      <Modal isOpen={showSuccessModal} onClose={() => {}} title="">
+        <div style={{ textAlign: 'center', padding: '1rem' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 1rem',
+            background: '#dcfce7',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#16a34a'
+          }}>
+            <Check size={48} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b', margin: '0 0 1rem 0' }}>
+            Talebiniz onaya gönderilmiştir
+          </h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.5rem',
+            padding: '1rem',
+            background: '#f8fafc',
+            borderRadius: '8px',
+            margin: '1rem 0'
+          }}>
+            <span style={{ fontSize: '0.875rem', color: '#64748b' }}>Ticket Numarası</span>
+            <strong style={{ fontSize: '1.5rem', color: '#3b82f6', fontWeight: '700' }}>{ticketNumber}</strong>
+          </div>
+          <p style={{ fontSize: '0.875rem', color: '#64748b', margin: '0 0 1.5rem 0' }}>
+            Malzeme talebiniz oluşturuldu. Ticket numaranız ile takip edebilirsiniz.
+          </p>
+          <div className="modal-actions" style={{ justifyContent: 'center' }}>
+            <Button variant="primary" size="medium" onClick={() => navigate('/materials')}>
+              Tamam
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

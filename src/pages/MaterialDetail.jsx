@@ -14,6 +14,16 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
   const [lightbox, setLightbox] = useState(null)
   const fileRef = useRef()
 
+  // Geldiği sayfayı belirle
+  const goBack = () => {
+    // Eğer önceki sayfa varsa oraya dön, yoksa materials'e
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/materials')
+    }
+  }
+
   if (!material) return (
     <div className="md-notfound">
       <p>Malzeme bulunamadı.</p>
@@ -43,8 +53,8 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
     <div className="md-page">
       {/* Topbar */}
       <div className="md-topbar">
-        <button className="md-back" onClick={() => navigate('/materials')}>
-          <ChevronLeft size={16} /> Malzemeler
+        <button className="md-back" onClick={goBack}>
+          <ChevronLeft size={16} /> Geri Dön
         </button>
         <div className="md-topbar-actions">
           <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}/edit`)}>

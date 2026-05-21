@@ -7,13 +7,18 @@ import Dashboard from './pages/Dashboard'
 import Materials from './pages/Materials'
 import MaterialNew from './pages/MaterialNew'
 import MaterialBulkUpload from './pages/MaterialBulkUpload'
+import MaterialRequestBulk from './pages/MaterialRequestBulk'
+import MaterialExtend from './pages/MaterialExtend'
+import MaterialChangeDesc from './pages/MaterialChangeDesc'
+import MaterialAddUnit from './pages/MaterialAddUnit'
 import MaterialDetail from './pages/MaterialDetail'
 import MaterialEdit from './pages/MaterialEdit'
 import MaterialRules from './pages/MaterialRules'
 import ProductionSites from './pages/ProductionSites'
 import ProductGroups from './pages/ProductGroups'
 import Settings from './pages/Settings'
-import Approvals from './pages/Approvals'
+import ApprovalsTable from './pages/ApprovalsTable'
+import AdminReports from './pages/AdminReports'
 import { INITIAL_MATERIALS } from './data/materialsStore'
 import './App.css'
 
@@ -145,10 +150,15 @@ function AppContent() {
           <Route path="/materials" element={<Materials materials={materials} onDelete={handleDelete} />} />
           <Route path="/materials/new" element={<MaterialNew onSave={handleAdd} />} />
           <Route path="/materials/bulk-upload" element={<MaterialBulkUpload onSave={handleAdd} />} />
+          <Route path="/materials/request-bulk" element={<MaterialRequestBulk />} />
+          <Route path="/materials/extend" element={<MaterialExtend />} />
+          <Route path="/materials/change-desc" element={<MaterialChangeDesc />} />
+          <Route path="/materials/add-unit" element={<MaterialAddUnit />} />
           <Route path="/materials/:id" element={<MaterialDetail materials={materials} onUpdate={handleUpdate} onDelete={handleDelete} />} />
           <Route path="/materials/:id/edit" element={<MaterialEdit materials={materials} onUpdate={handleUpdate} />} />
           <Route path="/material-rules" element={<MaterialRules />} />
-          <Route path="/approvals" element={<Approvals materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
+          <Route path="/approvals" element={<ApprovalsTable materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/production-sites" element={<ProductionSites />} />
           <Route path="/product-groups" element={<ProductGroups />} />
           <Route path="/settings" element={<Settings />} />

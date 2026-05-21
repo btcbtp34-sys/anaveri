@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Plus, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
+import { Search, Plus, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter, ArrowRightLeft, FileEdit, Layers, Package as PackageIcon } from 'lucide-react'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import { MAL_GRUPLARI, MALZEME_TURLERI } from '../data/materialHierarchy'
@@ -12,23 +12,120 @@ const BULK_TEMPLATE = `Kod\tÜrün Adı\tTip/Model\tÖzellik\tÖlçü\tMarka\tMa
 MAT-010\tOrnek Malzeme 1\tTip A\tOzellik 1\t10mm\tMarka X\tM002\tadet\tIstanbul Fabrika\tAktif
 MAT-011\tOrnek Malzeme 2\tTip B\t\t20mm\tMarka Y\tM003\tm\tAnkara Tesis\tAktif`
 
-// Kırık fotoğraf için fallback placeholder
-const PLACEHOLDER_IMG = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="220" height="120" viewBox="0 0 220 120"><rect width="220" height="120" fill="%23f1f5f9"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="12" fill="%2394a3b8">Fotoğraf Yok</text></svg>'
+// Malzeme için gerçek görsel veya renkli placeholder
+const getMaterialVisual = (material) => {
+  // Gerçek ürün görselleri - Pixabay ve Pexels'den ücretsiz görseller
+  const realImages = {
+    // Beton
+    'Beton': 'https://images.pexels.com/photos/1117452/pexels-photo-1117452.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Demir
+    'Demir': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Çimento
+    'Cimento': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Çelik
+    'Celik': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Tuğla
+    'Tugla': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Gazbeton
+    'Gazbeton': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Alçıpan
+    'Alcipan': 'https://images.pexels.com/photos/8961183/pexels-photo-8961183.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Boru
+    'Boru': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Vana
+    'Vana': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Kablo
+    'Kablo': 'https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Plywood
+    'Plywood': 'https://images.pexels.com/photos/4792509/pexels-photo-4792509.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Sac
+    'Sac': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Su Yalıtım
+    'Su': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Cam Yünü
+    'Cam': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Taş Yünü
+    'Tas': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Seramik
+    'Seramik': 'https://images.pexels.com/photos/1358900/pexels-photo-1358900.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Kapı
+    'Kapi': 'https://images.pexels.com/photos/277559/pexels-photo-277559.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Baret
+    'Baret': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
+    // Notebook
+    'Notebook': 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400',
+  }
 
-// İnşaat sektörü ürün görselleri (Unsplash - güvenilir URL'ler)
-const CATEGORY_IMAGES = {
-  M002: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70',
-  M003: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&q=70',
-  M004: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&q=70',
-  M005: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70',
-  M006: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70',
-  M007: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=70',
-  M008: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=70',
-  M017: 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&q=70',
-  M027: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70',
-  M029: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70',
-  Y001: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&q=70',
-  default: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&q=70',
+  // Malzeme adından anahtar kelime bul
+  const materialName = material.name.toLowerCase()
+  let imageUrl = null
+  
+  for (const [key, url] of Object.entries(realImages)) {
+    if (materialName.includes(key.toLowerCase())) {
+      imageUrl = url
+      break
+    }
+  }
+
+  const colors = [
+    { bg: '#dbeafe', icon: '#1e40af' }, // Mavi
+    { bg: '#dcfce7', icon: '#15803d' }, // Yeşil
+    { bg: '#fef3c7', icon: '#d97706' }, // Sarı
+    { bg: '#fee2e2', icon: '#dc2626' }, // Kırmızı
+    { bg: '#f3e8ff', icon: '#7c3aed' }, // Mor
+    { bg: '#fce7f3', icon: '#db2777' }, // Pembe
+    { bg: '#e0f2fe', icon: '#0369a1' }, // Açık Mavi
+    { bg: '#d1fae5', icon: '#059669' }, // Açık Yeşil
+  ]
+  
+  // Malzeme ID'sine göre renk seç
+  const colorIndex = material.id % colors.length
+  const color = colors[colorIndex]
+  
+  // İlk harfleri al
+  const initials = material.name
+    .split(' ')
+    .slice(0, 2)
+    .map(word => word[0])
+    .join('')
+    .toUpperCase()
+  
+  return { color, initials, imageUrl }
+}
+
+function MaterialImage({ material }) {
+  const visual = getMaterialVisual(material)
+  const [imgError, setImgError] = useState(false)
+  
+  // Eğer gerçek görsel varsa ve hata olmadıysa göster
+  if (visual.imageUrl && !imgError) {
+    return (
+      <div className="mat-card-img">
+        <img 
+          src={visual.imageUrl} 
+          alt={material.name}
+          onError={() => setImgError(true)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        {material.images?.length > 0 && (
+          <span className="mat-card-img-count">+{material.images.length}</span>
+        )}
+      </div>
+    )
+  }
+  
+  // Yoksa renkli placeholder göster
+  return (
+    <div className="mat-card-img" style={{ background: visual.color.bg }}>
+      <div className="mat-card-img-placeholder" style={{ color: visual.color.icon }}>
+        <span className="mat-card-initials">{visual.initials}</span>
+        <PackageIcon size={32} style={{ opacity: 0.3 }} />
+      </div>
+      {material.images?.length > 0 && (
+        <span className="mat-card-img-count">+{material.images.length}</span>
+      )}
+    </div>
+  )
 }
 
 // Onay durumu renk/etiket
@@ -42,23 +139,6 @@ function getApprovalMeta(status) {
   return APPROVAL_META[status] || { label: status, cls: 'status-approved' }
 }
 
-function MaterialImage({ material }) {
-  const src = material.images?.[0] || CATEGORY_IMAGES[material.malGrubu] || CATEGORY_IMAGES.default
-  const [imgSrc, setImgSrc] = useState(src)
-  return (
-    <div className="mat-card-img">
-      <img
-        src={imgSrc}
-        alt={material.name}
-        onError={() => setImgSrc(PLACEHOLDER_IMG)}
-      />
-      {material.images?.length > 1 && (
-        <span className="mat-card-img-count">+{material.images.length - 1}</span>
-      )}
-    </div>
-  )
-}
-
 export default function Materials({ materials, onDelete }) {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
@@ -66,6 +146,8 @@ export default function Materials({ materials, onDelete }) {
   const [modal, setModal] = useState(null)
   const [selected, setSelected] = useState(null)
   const [bulkText, setBulkText] = useState(BULK_TEMPLATE)
+  const [showNewMenu, setShowNewMenu] = useState(false)
+  const newMenuRef = useRef(null)
   const [bulkError, setBulkError] = useState('')
   const [nextId, setNextId] = useState(100)
   const [page, setPage] = useState(1)
@@ -148,6 +230,17 @@ export default function Materials({ materials, onDelete }) {
   const closeModal = () => { setModal(null); setSelected(null) }
   const handleDelete = () => { onDelete(selected.id); closeModal() }
 
+  // Dropdown menü dışına tıklayınca kapat
+  useEffect(() => {
+    const handler = (e) => {
+      if (newMenuRef.current && !newMenuRef.current.contains(e.target)) {
+        setShowNewMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
   const handleBulkImport = () => {
     setBulkError('')
     const lines = bulkText.trim().split('\n').slice(1)
@@ -180,12 +273,40 @@ export default function Materials({ materials, onDelete }) {
           <p>{filtered.length} / {materials.length} malzeme</p>
         </div>
         <div className="mat-header-actions">
-          <Button variant="secondary" size="medium" onClick={() => navigate('/materials/bulk-upload')}>
-            <Upload size={16} /> Toplu Ekle
-          </Button>
-          <Button variant="primary" size="medium" onClick={() => navigate('/materials/new')}>
-            <Plus size={16} /> Yeni Malzeme
-          </Button>
+          <div className="mat-new-dropdown" ref={newMenuRef}>
+            <Button 
+              variant="primary" 
+              size="medium" 
+              onClick={() => setShowNewMenu(!showNewMenu)}
+            >
+              <Plus size={16} /> Yeni Talep <ChevronDown size={14} />
+            </Button>
+            {showNewMenu && (
+              <div className="mat-dropdown-menu">
+                <button onClick={() => { navigate('/materials/new'); setShowNewMenu(false) }}>
+                  <Plus size={16} />
+                  <span>Yeni Malzeme</span>
+                </button>
+                <button onClick={() => { navigate('/materials/request-bulk'); setShowNewMenu(false) }}>
+                  <Layers size={16} />
+                  <span>Toplu Malzeme</span>
+                </button>
+                <div className="mat-dropdown-divider" />
+                <button onClick={() => { navigate('/materials/extend'); setShowNewMenu(false) }}>
+                  <ArrowRightLeft size={16} />
+                  <span>Malzeme Genişletme</span>
+                </button>
+                <button onClick={() => { navigate('/materials/change-desc'); setShowNewMenu(false) }}>
+                  <FileEdit size={16} />
+                  <span>Tanım Değişikliği</span>
+                </button>
+                <button onClick={() => { navigate('/materials/add-unit'); setShowNewMenu(false) }}>
+                  <PackageIcon size={16} />
+                  <span>Ek Ölçü Birimi</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

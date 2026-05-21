@@ -1,0 +1,190 @@
+.mrb-page {
+  padding: 1.5rem;
+  max-width: 100%;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.mrb-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.mrb-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.mrb-header p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.mrb-note {
+  margin-bottom: 1.5rem;
+}
+
+.mrb-note label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.mrb-note textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.mrb-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.mrb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: white;
+}
+
+.mrb-table thead {
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.mrb-table th {
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.mrb-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+.mrb-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.mrb-table input,
+.mrb-table select,
+.mrb-table textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.mrb-table input:focus,
+.mrb-table select:focus,
+.mrb-table textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.mrb-table textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.mrb-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.mrb-delete-btn:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.mrb-delete-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.mrb-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.mrb-success {
+  text-align: center;
+  padding: 1rem;
+}
+
+.mrb-success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: #dcfce7;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #16a34a;
+}
+
+.mrb-success h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.mrb-ticket-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.mrb-ticket-info span {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.mrb-ticket-info strong {
+  font-size: 1.5rem;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.mrb-success p {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}

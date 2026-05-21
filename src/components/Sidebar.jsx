@@ -1,21 +1,42 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Factory, FolderTree, Settings, ChevronRight, LogOut, CheckCircle, FileText } from 'lucide-react'
+import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, CheckCircle, FileText, BarChart3 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useState, useEffect } from 'react'
 import './Sidebar.css'
-
-const menuItems = [
-  { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/materials', icon: Package, label: 'Malzemeler' },
-  { path: '/production-sites', icon: Factory, label: 'Uretim Yerleri' },
-  { path: '/product-groups', icon: FolderTree, label: 'Urun Gruplari' },
-]
-
-const bottomItems = [
-  { path: '/settings', icon: Settings, label: 'Ayarlar' },
-]
 
 const Sidebar = () => {
   const { user, logout, isApprover } = useAuth()
+  const [pendingCount, setPendingCount] = useState(0)
+
+  useEffect(() => {
+    const updatePendingCount = () => {
+      const materials = JSON.parse(localStorage.getItem('materials') || '[]')
+      const pending = materials.filter(m => {
+        if (m.status !== 'Kontrol Ediliyor') return false
+        
+        // Onaycı2 sadece ZTIC, ZSRF, ZHAM türlerini görsün
+        if (user.role === 'approver2') {
+          return ['ZTIC', 'ZSRF', 'ZHAM'].includes(m.malzemeTuru)
+        }
+        
+        return true
+      })
+      setPendingCount(pending.length)
+    }
+
+    updatePendingCount()
+    
+    // LocalStorage değişikliklerini dinle
+    window.addEventListener('storage', updatePendingCount)
+    
+    // Her 2 saniyede bir kontrol et (aynı sekmede değişiklikler için)
+    const interval = setInterval(updatePendingCount, 2000)
+    
+    return () => {
+      window.removeEventListener('storage', updatePendingCount)
+      clearInterval(interval)
+    }
+  }, [user.role])
   
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
@@ -30,7 +51,7 @@ const Sidebar = () => {
     ? [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials', icon: Package, label: 'Malzemeler' },
-        { path: '/approvals', icon: CheckCircle, label: 'Onay Bekleyenler' },
+        { path: '/approvals', icon: CheckCircle, label: 'Onay Bekleyenler', badge: pendingCount },
         { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
         { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
@@ -41,6 +62,15 @@ const Sidebar = () => {
         { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
         { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
+      ]
+
+  const bottomItemsWithReports = isApprover
+    ? [
+        { path: '/admin/reports', icon: BarChart3, label: 'Raporlar' },
+        { path: '/settings', icon: Settings, label: 'Ayarlar' },
+      ]
+    : [
+        { path: '/settings', icon: Settings, label: 'Ayarlar' },
       ]
 
   return (
@@ -60,7 +90,7 @@ const Sidebar = () => {
       <div className="sidebar-divider" />
 
       <nav className="sidebar-nav">
-        <div className="nav-section-label">Menu</div>
+        <div className="nav-section-label">Menü</div>
         {menuItemsWithApproval.map((item) => (
           <NavLink
             key={item.path}
@@ -69,11 +99,14 @@ const Sidebar = () => {
           >
             <item.icon size={18} className="nav-icon" />
             <span>{item.label}</span>
+            {item.badge !== undefined && item.badge > 0 && (
+              <span className="nav-badge">{item.badge}</span>
+            )}
           </NavLink>
         ))}
 
         <div className="nav-section-label" style={{ marginTop: '1.25rem' }}>Sistem</div>
-        {bottomItems.map((item) => (
+        {bottomItemsWithReports.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
