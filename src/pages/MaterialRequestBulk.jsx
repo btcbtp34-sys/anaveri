@@ -37,7 +37,7 @@ const EMPTY_ROW = {
   ureticiParcaNo: '',
 }
 
-export default function MaterialRequestBulk() {
+export default function MaterialRequestBulk({ onSave }) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [rows, setRows] = useState([{ ...EMPTY_ROW, id: Date.now() }])
@@ -75,6 +75,41 @@ export default function MaterialRequestBulk() {
 
     // Ticket oluştur
     const ticket = createTicket(TICKET_TYPES.NEW_MATERIAL, rows, user, submitNote)
+
+    // Her satır için malzeme objesi oluştur ve kaydet
+    const newMaterials = rows.map(row => {
+      const tanim = [row.urunAdi, row.tipModel, row.ozellik, row.olcu, row.marka].filter(Boolean).join(' / ').slice(0, 40)
+      const mat = {
+        id: Date.now() + Math.random(),
+        code: `PEND-${Date.now()}`,
+        name: tanim || row.urunAdi,
+        urunAdi: row.urunAdi,
+        tipModel: row.tipModel,
+        ozellik: row.ozellik,
+        olcu: row.olcu,
+        marka: row.marka,
+        malGrubu: row.malGrubu,
+        unit: row.unit,
+        productionSite: row.productionSites[0] || '',
+        productionSites: row.productionSites,
+        status: 'Kontrol Ediliyor',
+        images: [],
+        createdBy: user,
+        createdAt: new Date().toISOString(),
+      }
+      return mat
+    })
+
+    // materialIds'i ticket'a ekle
+    ticket.materialIds = newMaterials.map(m => m.id)
+
+    // Ticket'ı localStorage'a kaydet
+    const existingTickets = JSON.parse(localStorage.getItem('tickets') || '[]')
+    localStorage.setItem('tickets', JSON.stringify([...existingTickets, ticket]))
+
+    // Malzemeleri listeye ekle
+    if (onSave) newMaterials.forEach(m => onSave(m))
+
     setTicketNumber(ticket.ticketNumber)
     setShowSuccessModal(true)
   }
@@ -277,8 +312,11 @@ export default function MaterialRequestBulk() {
             {rows.length} adet malzeme talebi oluşturuldu. Ticket numaranız ile takip edebilirsiniz.
           </p>
           <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '1.5rem' }}>
-            <Button variant="primary" size="medium" onClick={handleCloseSuccess}>
-              Tamam
+            <Button variant="secondary" size="medium" onClick={handleCloseSuccess}>
+              Malzemelere Dön
+            </Button>
+            <Button variant="primary" size="medium" onClick={() => { setShowSuccessModal(false); navigate('/tickets') }}>
+              Ticketlarıma Git
             </Button>
           </div>
         </div>

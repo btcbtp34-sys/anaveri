@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft, Edit2, Trash2, Image, Plus, X, ZoomIn, CheckCircle, XCircle, Clock, User, Send } from 'lucide-react'
 import Button from '../components/Button'
+import { useAuth } from '../contexts/AuthContext'
 import './MaterialDetail.css'
 
 const TABS = ['Genel Bilgiler', 'Sınıflandırma', 'Media', 'Onay Akışı']
@@ -9,6 +10,7 @@ const TABS = ['Genel Bilgiler', 'Sınıflandırma', 'Media', 'Onay Akışı']
 export default function MaterialDetail({ materials, onUpdate, onDelete }) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const material = materials.find(m => m.id === Number(id))
   const [tab, setTab] = useState(0)
   const [lightbox, setLightbox] = useState(null)
@@ -57,12 +59,16 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
           <ChevronLeft size={16} /> Geri Dön
         </button>
         <div className="md-topbar-actions">
-          <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}/edit`)}>
-            <Edit2 size={14} /> Düzenle
-          </Button>
-          <Button variant="danger" size="medium" onClick={handleDelete}>
-            <Trash2 size={14} /> Sil
-          </Button>
+          {isAdmin && (
+            <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}/edit`)}>
+              <Edit2 size={14} /> Düzenle
+            </Button>
+          )}
+          {isAdmin && (
+            <Button variant="danger" size="medium" onClick={handleDelete}>
+              <Trash2 size={14} /> Sil
+            </Button>
+          )}
         </div>
       </div>
 

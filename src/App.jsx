@@ -152,7 +152,7 @@ function AppContent() {
           <Route path="/materials" element={<Materials materials={materials} onDelete={handleDelete} />} />
           <Route path="/materials/new" element={<MaterialNew onSave={handleAdd} />} />
           <Route path="/materials/bulk-upload" element={<MaterialBulkUpload onSave={handleAdd} />} />
-          <Route path="/materials/request-bulk" element={<MaterialRequestBulk />} />
+          <Route path="/materials/request-bulk" element={<MaterialRequestBulk onSave={handleAdd} />} />
           <Route path="/materials/extend" element={<MaterialExtend />} />
           <Route path="/materials/change-desc" element={<MaterialChangeDesc />} />
           <Route path="/materials/add-unit" element={<MaterialAddUnit />} />
@@ -160,7 +160,7 @@ function AppContent() {
           <Route path="/materials/:id/edit" element={<MaterialEdit materials={materials} onUpdate={handleUpdate} />} />
           <Route path="/material-rules" element={<MaterialRules />} />
           <Route path="/tickets" element={<Tickets />} />
-          <Route path="/tickets/:id" element={<TicketDetail />} />
+          <Route path="/tickets/:id" element={<TicketDetail onApprove={handleApprove} onReject={handleReject} />} />
           <Route path="/approvals" element={<ApprovalsTable materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/production-sites" element={<ProductionSites />} />

@@ -42,111 +42,122 @@ const MAY_DEMO_TICKETS = [
   {
     id: 8001, ticketNumber: 'TKT-202605-2001', type: 'new_material',
     items: [{ urunAdi: 'Beton', tipModel: 'C30/37' }, { urunAdi: 'Demir', tipModel: 'Nervürlü 12mm' }],
-    status: 'completed', createdBy: { name: 'Ahmet Yılmaz' }, note: 'Şantiye A için acil malzeme',
+    status: 'completed', spentHours: 5, extraHours: 1,
+    createdBy: { name: 'Ahmet Yılmaz' }, note: 'Şantiye A için acil malzeme',
     createdAt: '2026-05-02T08:00:00',
     history: [
-      { action: 'created', user: { name: 'Ahmet Yılmaz' }, timestamp: '2026-05-02T08:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-02T14:00:00', comment: 'Onaylandı' },
-      { action: 'completed', user: { name: 'Sistem' }, timestamp: '2026-05-03T09:00:00', comment: 'SAP aktarıldı' },
+      { action: 'created',   user: { name: 'Ahmet Yılmaz' }, timestamp: '2026-05-02T08:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved',  user: { name: 'Ayşe Kaya' },    timestamp: '2026-05-02T14:00:00', comment: 'Onaylandı' },
+      { action: 'completed', user: { name: 'Sistem' },        timestamp: '2026-05-03T09:00:00', comment: 'SAP aktarıldı' },
     ]
   },
   {
     id: 8002, ticketNumber: 'TKT-202605-2002', type: 'extend_material',
     items: [{ materialCode: '100000123', materialName: 'Çimento CEM I 42.5' }],
-    status: 'approved', createdBy: { name: 'Mehmet Demir' }, note: 'Yeni şantiyeye genişletme',
+    status: 'approved', spentHours: 2, extraHours: 0,
+    createdBy: { name: 'Mehmet Demir' }, note: 'Yeni şantiyeye genişletme',
     createdAt: '2026-05-05T09:00:00',
     history: [
-      { action: 'created', user: { name: 'Mehmet Demir' }, timestamp: '2026-05-05T09:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Can Öztürk' }, timestamp: '2026-05-06T10:30:00', comment: 'Onaylandı' },
+      { action: 'created',  user: { name: 'Mehmet Demir' }, timestamp: '2026-05-05T09:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved', user: { name: 'Can Öztürk' },   timestamp: '2026-05-06T10:30:00', comment: 'Onaylandı' },
     ]
   },
   {
     id: 8003, ticketNumber: 'TKT-202605-2003', type: 'new_material',
     items: [{ urunAdi: 'Seramik', tipModel: 'Yer 60x60' }, { urunAdi: 'Seramik', tipModel: 'Duvar 30x60' }, { urunAdi: 'Fayans', tipModel: 'Banyo 25x40' }],
-    status: 'rejected', createdBy: { name: 'Fatma Şahin' }, note: 'Kaplama malzemeleri talebi',
+    status: 'rejected', spentHours: 1, extraHours: 0,
+    createdBy: { name: 'Fatma Şahin' }, note: 'Kaplama malzemeleri talebi',
     createdAt: '2026-05-06T10:00:00',
     history: [
-      { action: 'created', user: { name: 'Fatma Şahin' }, timestamp: '2026-05-06T10:00:00', comment: 'Oluşturuldu' },
-      { action: 'rejected', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-07T11:00:00', comment: 'Benzer malzeme mevcut' },
+      { action: 'created',  user: { name: 'Fatma Şahin' }, timestamp: '2026-05-06T10:00:00', comment: 'Oluşturuldu' },
+      { action: 'rejected', user: { name: 'Ayşe Kaya' },   timestamp: '2026-05-07T11:00:00', comment: 'Benzer malzeme mevcut' },
     ]
   },
   {
     id: 8004, ticketNumber: 'TKT-202605-2004', type: 'change_description',
     items: [{ materialCode: '100000456', currentDescription: 'PVC Boru', newDescription: 'PVC Boru - Yüksek Dayanımlı' }],
-    status: 'completed', createdBy: { name: 'Ali Veli' }, note: 'Teknik özellik güncelleme',
+    status: 'completed', spentHours: 3, extraHours: 0,
+    createdBy: { name: 'Ali Veli' }, note: 'Teknik özellik güncelleme',
     createdAt: '2026-05-07T08:30:00',
     history: [
-      { action: 'created', user: { name: 'Ali Veli' }, timestamp: '2026-05-07T08:30:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Can Öztürk' }, timestamp: '2026-05-08T09:00:00', comment: 'Onaylandı' },
-      { action: 'completed', user: { name: 'Sistem' }, timestamp: '2026-05-08T15:00:00', comment: 'Tamamlandı' },
+      { action: 'created',   user: { name: 'Ali Veli' },    timestamp: '2026-05-07T08:30:00', comment: 'Oluşturuldu' },
+      { action: 'approved',  user: { name: 'Can Öztürk' },  timestamp: '2026-05-08T09:00:00', comment: 'Onaylandı' },
+      { action: 'completed', user: { name: 'Sistem' },       timestamp: '2026-05-08T15:00:00', comment: 'Tamamlandı' },
     ]
   },
   {
     id: 8005, ticketNumber: 'TKT-202605-2005', type: 'new_material',
     items: [{ urunAdi: 'Kablo', tipModel: 'NYY 3x2.5' }, { urunAdi: 'Kablo', tipModel: 'NYY 4x10' }],
-    status: 'approved', createdBy: { name: 'Zeynep Arslan' }, note: 'Elektrik tesisatı için',
+    status: 'approved', spentHours: 4, extraHours: 2,
+    createdBy: { name: 'Zeynep Arslan' }, note: 'Elektrik tesisatı için',
     createdAt: '2026-05-08T11:00:00',
     history: [
-      { action: 'created', user: { name: 'Zeynep Arslan' }, timestamp: '2026-05-08T11:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-09T10:00:00', comment: 'Onaylandı' },
+      { action: 'created',  user: { name: 'Zeynep Arslan' }, timestamp: '2026-05-08T11:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved', user: { name: 'Ayşe Kaya' },     timestamp: '2026-05-09T10:00:00', comment: 'Onaylandı' },
     ]
   },
   {
     id: 8006, ticketNumber: 'TKT-202605-2006', type: 'add_unit',
     items: [{ materialCode: '100000789', currentUnits: ['M'], newUnit: 'KM', conversionFactor: 1000 }],
-    status: 'approved', createdBy: { name: 'Hasan Çelik' }, note: 'Büyük proje siparişleri için',
+    status: 'approved', spentHours: 1.5, extraHours: 0,
+    createdBy: { name: 'Hasan Çelik' }, note: 'Büyük proje siparişleri için',
     createdAt: '2026-05-09T09:00:00',
     history: [
-      { action: 'created', user: { name: 'Hasan Çelik' }, timestamp: '2026-05-09T09:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Can Öztürk' }, timestamp: '2026-05-12T08:30:00', comment: 'Onaylandı' },
+      { action: 'created',  user: { name: 'Hasan Çelik' }, timestamp: '2026-05-09T09:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved', user: { name: 'Can Öztürk' },  timestamp: '2026-05-12T08:30:00', comment: 'Onaylandı' },
     ]
   },
   {
     id: 8007, ticketNumber: 'TKT-202605-2007', type: 'new_material',
     items: [{ urunAdi: 'Boru', tipModel: 'PPR 32mm' }, { urunAdi: 'Vana', tipModel: 'Kelebek DN80' }, { urunAdi: 'Vana', tipModel: 'Küresel DN50' }],
-    status: 'completed', createdBy: { name: 'Ahmet Yılmaz' }, note: 'Mekanik tesisat paketi',
+    status: 'completed', spentHours: 6, extraHours: 1.5,
+    createdBy: { name: 'Ahmet Yılmaz' }, note: 'Mekanik tesisat paketi',
     createdAt: '2026-05-12T10:00:00',
     history: [
-      { action: 'created', user: { name: 'Ahmet Yılmaz' }, timestamp: '2026-05-12T10:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-13T09:00:00', comment: 'Onaylandı' },
-      { action: 'completed', user: { name: 'Sistem' }, timestamp: '2026-05-13T16:00:00', comment: 'SAP aktarıldı' },
+      { action: 'created',   user: { name: 'Ahmet Yılmaz' }, timestamp: '2026-05-12T10:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved',  user: { name: 'Ayşe Kaya' },    timestamp: '2026-05-13T09:00:00', comment: 'Onaylandı' },
+      { action: 'completed', user: { name: 'Sistem' },        timestamp: '2026-05-13T16:00:00', comment: 'SAP aktarıldı' },
     ]
   },
   {
     id: 8008, ticketNumber: 'TKT-202605-2008', type: 'new_material',
     items: [{ urunAdi: 'Çelik Profil', tipModel: 'HEA 200' }, { urunAdi: 'Çelik Profil', tipModel: 'IPE 240' }],
-    status: 'rejected', createdBy: { name: 'Mehmet Demir' }, note: 'Çelik konstrüksiyon',
+    status: 'rejected', spentHours: 2, extraHours: 0,
+    createdBy: { name: 'Mehmet Demir' }, note: 'Çelik konstrüksiyon',
     createdAt: '2026-05-13T08:00:00',
     history: [
-      { action: 'created', user: { name: 'Mehmet Demir' }, timestamp: '2026-05-13T08:00:00', comment: 'Oluşturuldu' },
-      { action: 'rejected', user: { name: 'Can Öztürk' }, timestamp: '2026-05-14T10:00:00', comment: 'Stokta mevcut' },
+      { action: 'created',  user: { name: 'Mehmet Demir' }, timestamp: '2026-05-13T08:00:00', comment: 'Oluşturuldu' },
+      { action: 'rejected', user: { name: 'Can Öztürk' },   timestamp: '2026-05-14T10:00:00', comment: 'Stokta mevcut' },
     ]
   },
   {
     id: 8009, ticketNumber: 'TKT-202605-2009', type: 'extend_material',
     items: [{ materialCode: '100000321', materialName: 'Demir Nervürlü 16mm' }],
-    status: 'approved', createdBy: { name: 'Fatma Şahin' }, note: 'Ankara şantiyesine genişletme',
+    status: 'approved', spentHours: 2.5, extraHours: 0,
+    createdBy: { name: 'Fatma Şahin' }, note: 'Ankara şantiyesine genişletme',
     createdAt: '2026-05-14T09:30:00',
     history: [
-      { action: 'created', user: { name: 'Fatma Şahin' }, timestamp: '2026-05-14T09:30:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-15T11:00:00', comment: 'Onaylandı' },
+      { action: 'created',  user: { name: 'Fatma Şahin' }, timestamp: '2026-05-14T09:30:00', comment: 'Oluşturuldu' },
+      { action: 'approved', user: { name: 'Ayşe Kaya' },   timestamp: '2026-05-15T11:00:00', comment: 'Onaylandı' },
     ]
   },
   {
     id: 8010, ticketNumber: 'TKT-202605-2010', type: 'new_material',
     items: [{ urunAdi: 'Taş Yünü', tipModel: 'Levha 5cm' }, { urunAdi: 'Su Yalıtım', tipModel: 'Membran 4mm' }],
-    status: 'completed', createdBy: { name: 'Ali Veli' }, note: 'Yalıtım malzemeleri',
+    status: 'completed', spentHours: 4, extraHours: 1,
+    createdBy: { name: 'Ali Veli' }, note: 'Yalıtım malzemeleri',
     createdAt: '2026-05-15T08:00:00',
     history: [
-      { action: 'created', user: { name: 'Ali Veli' }, timestamp: '2026-05-15T08:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Can Öztürk' }, timestamp: '2026-05-16T09:00:00', comment: 'Onaylandı' },
-      { action: 'completed', user: { name: 'Sistem' }, timestamp: '2026-05-16T14:00:00', comment: 'SAP aktarıldı' },
+      { action: 'created',   user: { name: 'Ali Veli' },   timestamp: '2026-05-15T08:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved',  user: { name: 'Can Öztürk' }, timestamp: '2026-05-16T09:00:00', comment: 'Onaylandı' },
+      { action: 'completed', user: { name: 'Sistem' },      timestamp: '2026-05-16T14:00:00', comment: 'SAP aktarıldı' },
     ]
   },
   {
     id: 8011, ticketNumber: 'TKT-202605-2011', type: 'new_material',
     items: [{ urunAdi: 'Kapı', tipModel: 'Yangın EI60' }],
-    status: 'pending', createdBy: { name: 'Zeynep Arslan' }, note: 'Yangın kapısı talebi',
+    status: 'pending', spentHours: null, extraHours: null,
+    createdBy: { name: 'Zeynep Arslan' }, note: 'Yangın kapısı talebi',
     createdAt: '2026-05-19T10:00:00',
     history: [
       { action: 'created', user: { name: 'Zeynep Arslan' }, timestamp: '2026-05-19T10:00:00', comment: 'Oluşturuldu' },
@@ -155,17 +166,19 @@ const MAY_DEMO_TICKETS = [
   {
     id: 8012, ticketNumber: 'TKT-202605-2012', type: 'change_description',
     items: [{ materialCode: '100000654', currentDescription: 'Baret Beyaz', newDescription: 'Baret Beyaz - EN397 Sertifikalı' }],
-    status: 'approved', createdBy: { name: 'Hasan Çelik' }, note: 'Sertifika bilgisi ekleme',
+    status: 'approved', spentHours: 1, extraHours: 0,
+    createdBy: { name: 'Hasan Çelik' }, note: 'Sertifika bilgisi ekleme',
     createdAt: '2026-05-20T09:00:00',
     history: [
-      { action: 'created', user: { name: 'Hasan Çelik' }, timestamp: '2026-05-20T09:00:00', comment: 'Oluşturuldu' },
-      { action: 'approved', user: { name: 'Ayşe Kaya' }, timestamp: '2026-05-21T10:00:00', comment: 'Onaylandı' },
+      { action: 'created',  user: { name: 'Hasan Çelik' }, timestamp: '2026-05-20T09:00:00', comment: 'Oluşturuldu' },
+      { action: 'approved', user: { name: 'Ayşe Kaya' },   timestamp: '2026-05-21T10:00:00', comment: 'Onaylandı' },
     ]
   },
   {
     id: 8013, ticketNumber: 'TKT-202605-2013', type: 'new_material',
     items: [{ urunAdi: 'Plywood', tipModel: '18mm' }, { urunAdi: 'Sac', tipModel: 'Trapez T35' }],
-    status: 'pending', createdBy: { name: 'Ahmet Yılmaz' }, note: 'Kalıp malzemeleri',
+    status: 'pending', spentHours: null, extraHours: null,
+    createdBy: { name: 'Ahmet Yılmaz' }, note: 'Kalıp malzemeleri',
     createdAt: '2026-05-21T08:30:00',
     history: [
       { action: 'created', user: { name: 'Ahmet Yılmaz' }, timestamp: '2026-05-21T08:30:00', comment: 'Oluşturuldu' },
@@ -274,6 +287,46 @@ export default function AdminReports() {
     openTickets: filteredTickets.filter(t => ['pending', 'returned'].includes(t.status)).length,
   }), [filteredMaterials, filteredTickets, closedTickets])
 
+  // Her malzeme için ilişkili ticketi bul (malzeme adı veya kodu üzerinden eşleşme)
+  const materialTicketMap = useMemo(() => {
+    const map = {}
+    allTickets.forEach(ticket => {
+      ticket.items?.forEach(item => {
+        // Eşleşme: materialCode veya urunAdi/materialName
+        const keys = [
+          item.materialCode,
+          item.urunAdi,
+          item.materialName,
+        ].filter(Boolean)
+        keys.forEach(key => {
+          if (!map[key]) map[key] = ticket
+        })
+      })
+    })
+    return map
+  }, [allTickets])
+
+  // Malzeme için eşleşen ticketi döndürür
+  const findTicketForMaterial = (m) => {
+    return materialTicketMap[m.code] ||
+      materialTicketMap[m.name] ||
+      materialTicketMap[m.urunAdi] ||
+      null
+  }
+
+  // Ticket için geçen süre etiketi
+  const elapsedLabel = (ticket) => {
+    if (!ticket) return '—'
+    const closedEntry = ticket.history?.slice().reverse().find(h =>
+      ['approved', 'rejected', 'completed', 'partially_approved'].includes(h.action)
+    )
+    const endTime = closedEntry ? new Date(closedEntry.timestamp) : new Date()
+    const h = (endTime - new Date(ticket.createdAt)) / (1000 * 60 * 60)
+    if (h < 1) return `${Math.round(h * 60)} dk`
+    if (h < 24) return `${Math.round(h * 10) / 10} sa`
+    return `${Math.floor(h / 24)}g ${Math.round(h % 24)}sa`
+  }
+
   // Günlük malzeme dağılımı
   const dailyMaterialStats = useMemo(() => {
     const daily = {}
@@ -307,28 +360,43 @@ export default function AdminReports() {
 
   // Excel: Malzeme raporu
   const exportMaterialsExcel = () => {
-    const headers = ['Tarih', 'Kod', 'Ürün Adı', 'Mal Grubu', 'Birim', 'Durum', 'Oluşturan', 'Oluşturma Tarihi']
-    const rows = filteredMaterials.map(m => [
-      new Date(m.createdAt).toLocaleDateString('tr-TR'),
-      m.code,
-      m.name,
-      m.malGrubu,
-      m.unit,
-      m.status,
-      m.createdBy?.name || '—',
-      new Date(m.createdAt).toLocaleString('tr-TR'),
-    ])
+    const headers = ['Tarih', 'Kod', 'Ürün Adı', 'Mal Grubu', 'Birim', 'Durum', 'Oluşturan', 'Geçen Süre', 'Harcanan Süre (sa)', 'Oluşturma Tarihi']
+    const rows = filteredMaterials.map(m => {
+      const t = findTicketForMaterial(m)
+      return [
+        new Date(m.createdAt).toLocaleDateString('tr-TR'),
+        m.code,
+        m.name,
+        m.malGrubu,
+        m.unit,
+        m.status,
+        m.createdBy?.name || '—',
+        elapsedLabel(t),
+        t?.spentHours != null ? t.spentHours : '—',
+        new Date(m.createdAt).toLocaleString('tr-TR'),
+      ]
+    })
     downloadCsv([headers, ...rows], `malzeme_raporu_${dateRange.start}_${dateRange.end}.csv`)
   }
 
   // Excel: Ticket raporu
   const exportTicketsExcel = () => {
-    const headers = ['Ticket No', 'Tür', 'Durum', 'Malzeme Sayısı', 'Oluşturan', 'Oluşturma Tarihi', 'Kapatılma Tarihi', 'Not']
+    const headers = ['Ticket No', 'Tür', 'Durum', 'Malzeme Sayısı', 'Oluşturan', 'Oluşturma Tarihi', 'Kapatılma Tarihi', 'Geçen Süre', 'Harcanan Süre (sa)', 'Ekstra Süre (sa)', 'Not']
     const rows = filteredTickets.map(t => {
       const lastEntry = t.history?.[t.history.length - 1]
       const closedAt = ['approved', 'rejected', 'completed'].includes(t.status) && lastEntry
         ? new Date(lastEntry.timestamp).toLocaleString('tr-TR')
         : '—'
+      const closedEntry = t.history?.slice().reverse().find(h =>
+        ['approved', 'rejected', 'completed', 'partially_approved'].includes(h.action)
+      )
+      const endTime = closedEntry ? new Date(closedEntry.timestamp) : new Date()
+      const elapsedH = (endTime - new Date(t.createdAt)) / (1000 * 60 * 60)
+      const elapsedLabel = elapsedH < 1
+        ? `${Math.round(elapsedH * 60)} dk`
+        : elapsedH < 24
+          ? `${Math.round(elapsedH * 10) / 10} sa`
+          : `${Math.floor(elapsedH / 24)}g ${Math.round(elapsedH % 24)}sa`
       return [
         t.ticketNumber,
         TICKET_TYPE_LABELS[t.type] || t.type,
@@ -337,6 +405,9 @@ export default function AdminReports() {
         t.createdBy?.name || '—',
         new Date(t.createdAt).toLocaleString('tr-TR'),
         closedAt,
+        elapsedLabel,
+        t.spentHours != null ? t.spentHours : '—',
+        t.extraHours != null && t.extraHours > 0 ? t.extraHours : '—',
         t.note || '—',
       ]
     })
@@ -513,10 +584,14 @@ export default function AdminReports() {
                         <th>Birim</th>
                         <th>Durum</th>
                         <th>Oluşturan</th>
+                        <th>Geçen Süre</th>
+                        <th>Harcanan Süre (sa)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredMaterials.slice((matPage - 1) * PAGE_SIZE, matPage * PAGE_SIZE).map(m => (
+                      {filteredMaterials.slice((matPage - 1) * PAGE_SIZE, matPage * PAGE_SIZE).map(m => {
+                        const t = findTicketForMaterial(m)
+                        return (
                         <tr key={m.id}>
                           <td>{new Date(m.createdAt).toLocaleDateString('tr-TR')}</td>
                           <td>{m.code}</td>
@@ -529,8 +604,13 @@ export default function AdminReports() {
                             </span>
                           </td>
                           <td>{m.createdBy?.name || '—'}</td>
+                          <td style={{ fontWeight: 500 }}>{elapsedLabel(t)}</td>
+                          <td style={{ textAlign: 'center' }}>
+                            {t?.spentHours != null ? `${t.spentHours} sa` : '—'}
+                          </td>
                         </tr>
-                      ))}
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -596,29 +676,53 @@ export default function AdminReports() {
                         <th>Oluşturan</th>
                         <th>Oluşturma Tarihi</th>
                         <th>Durum</th>
+                        <th>Geçen Süre</th>
+                        <th>Harcanan Süre (sa)</th>
+                        <th>Ekstra Süre (sa)</th>
                         <th>Not</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTickets.slice((ticketPage - 1) * PAGE_SIZE, ticketPage * PAGE_SIZE).map(t => (
-                        <tr key={t.id}>
-                          <td style={{ fontWeight: 700, color: '#2563eb', fontFamily: 'monospace' }}>{t.ticketNumber}</td>
-                          <td>{TICKET_TYPE_LABELS[t.type] || t.type}</td>
-                          <td>{t.items?.length || 0}</td>
-                          <td>{t.createdBy?.name || '—'}</td>
-                          <td>{new Date(t.createdAt).toLocaleDateString('tr-TR')}</td>
-                          <td>
-                            <span className={`ar-status ar-status-${
-                              t.status === 'approved' || t.status === 'completed' ? 'approved'
-                              : t.status === 'rejected' ? 'rejected'
-                              : 'pending'
-                            }`}>
-                              {TICKET_STATUS_LABELS[t.status] || t.status}
-                            </span>
-                          </td>
-                          <td style={{ color: '#64748b', fontSize: '0.8rem' }}>{t.note || '—'}</td>
-                        </tr>
-                      ))}
+                      {filteredTickets.slice((ticketPage - 1) * PAGE_SIZE, ticketPage * PAGE_SIZE).map(t => {
+                        // Geçen süre: oluşturma → kapanış (veya şimdi)
+                        const closedEntry = t.history?.slice().reverse().find(h =>
+                          ['approved', 'rejected', 'completed', 'partially_approved'].includes(h.action)
+                        )
+                        const endTime = closedEntry ? new Date(closedEntry.timestamp) : new Date()
+                        const elapsedH = (endTime - new Date(t.createdAt)) / (1000 * 60 * 60)
+                        const elapsedLabel = elapsedH < 1
+                          ? `${Math.round(elapsedH * 60)} dk`
+                          : elapsedH < 24
+                            ? `${Math.round(elapsedH * 10) / 10} sa`
+                            : `${Math.floor(elapsedH / 24)}g ${Math.round(elapsedH % 24)}sa`
+
+                        return (
+                          <tr key={t.id}>
+                            <td style={{ fontWeight: 700, color: '#2563eb', fontFamily: 'monospace' }}>{t.ticketNumber}</td>
+                            <td>{TICKET_TYPE_LABELS[t.type] || t.type}</td>
+                            <td>{t.items?.length || 0}</td>
+                            <td>{t.createdBy?.name || '—'}</td>
+                            <td>{new Date(t.createdAt).toLocaleDateString('tr-TR')}</td>
+                            <td>
+                              <span className={`ar-status ar-status-${
+                                t.status === 'approved' || t.status === 'completed' ? 'approved'
+                                : t.status === 'rejected' ? 'rejected'
+                                : 'pending'
+                              }`}>
+                                {TICKET_STATUS_LABELS[t.status] || t.status}
+                              </span>
+                            </td>
+                            <td style={{ fontWeight: 500 }}>{elapsedLabel}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              {t.spentHours != null ? `${t.spentHours} sa` : '—'}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {t.extraHours != null && t.extraHours > 0 ? `${t.extraHours} sa` : '—'}
+                            </td>
+                            <td style={{ color: '#64748b', fontSize: '0.8rem' }}>{t.note || '—'}</td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

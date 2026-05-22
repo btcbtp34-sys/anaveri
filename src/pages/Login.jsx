@@ -69,6 +69,7 @@ export default function Login() {
             <li><strong>Onaycı:</strong> onayci / onay123</li>
             <li><strong>Onaycı 2:</strong> onayci2 / onay123 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>(Sınırlı erişim)</span></li>
             <li><strong>Kullanıcı:</strong> kullanici / user123</li>
+            <li><strong>Kullanıcı 1:</strong> kullanici1 / user123</li>
             <li><strong>Admin:</strong> admin / admin123</li>
           </ul>
         </div>

@@ -1,43 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, CheckCircle, FileText, BarChart3, Ticket } from 'lucide-react'
+import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, FileText, BarChart3, Ticket } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
-import { useState, useEffect } from 'react'
 import './Sidebar.css'
 
 const Sidebar = () => {
   const { user, logout, isApprover } = useAuth()
-  const [pendingCount, setPendingCount] = useState(0)
-
-  useEffect(() => {
-    const updatePendingCount = () => {
-      const materials = JSON.parse(localStorage.getItem('materials') || '[]')
-      const pending = materials.filter(m => {
-        if (m.status !== 'Kontrol Ediliyor') return false
-        
-        // Onaycı2 sadece ZTIC, ZSRF, ZHAM türlerini görsün
-        if (user.role === 'approver2') {
-          return ['ZTIC', 'ZSRF', 'ZHAM'].includes(m.malzemeTuru)
-        }
-        
-        return true
-      })
-      setPendingCount(pending.length)
-    }
-
-    updatePendingCount()
-    
-    // LocalStorage değişikliklerini dinle
-    window.addEventListener('storage', updatePendingCount)
-    
-    // Her 2 saniyede bir kontrol et (aynı sekmede değişiklikler için)
-    const interval = setInterval(updatePendingCount, 2000)
-    
-    return () => {
-      window.removeEventListener('storage', updatePendingCount)
-      clearInterval(interval)
-    }
-  }, [user.role])
-  
   const initials = user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   const roleLabels = {
@@ -47,23 +14,22 @@ const Sidebar = () => {
     user: 'Kullanıcı'
   }
 
-  const menuItemsWithApproval = isApprover 
+  const menuItemsWithApproval = isApprover
     ? [
-        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/materials', icon: Package, label: 'Malzemeler' },
-        { path: '/tickets', icon: Ticket, label: 'Ticketlar' },
-        { path: '/approvals', icon: CheckCircle, label: 'Onay Bekleyenler', badge: pendingCount },
-        { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
-        { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
-        { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
+        { path: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/materials',      icon: Package,         label: 'Malzemeler' },
+        { path: '/tickets',        icon: Ticket,          label: 'Ticketlar' },
+        { path: '/production-sites', icon: Factory,       label: 'Üretim Yerleri' },
+        { path: '/product-groups', icon: FolderTree,      label: 'Ürün Grupları' },
+        { path: '/material-rules', icon: FileText,        label: 'Malzeme Talep Kuralları' },
       ]
     : [
-        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/materials', icon: Package, label: 'Malzemeler' },
-        { path: '/tickets', icon: Ticket, label: 'Ticketlar' },
-        { path: '/production-sites', icon: Factory, label: 'Üretim Yerleri' },
-        { path: '/product-groups', icon: FolderTree, label: 'Ürün Grupları' },
-        { path: '/material-rules', icon: FileText, label: 'Malzeme Talep Kuralları' },
+        { path: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/materials',      icon: Package,         label: 'Malzemeler' },
+        { path: '/tickets',        icon: Ticket,          label: 'Ticketlar' },
+        { path: '/production-sites', icon: Factory,       label: 'Üretim Yerleri' },
+        { path: '/product-groups', icon: FolderTree,      label: 'Ürün Grupları' },
+        { path: '/material-rules', icon: FileText,        label: 'Malzeme Talep Kuralları' },
       ]
 
   const bottomItemsWithReports = isApprover

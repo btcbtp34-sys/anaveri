@@ -3,14 +3,27 @@ import { useNavigate } from 'react-router-dom'
 import { Search, Plus, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter, ArrowRightLeft, FileEdit, Layers, Package as PackageIcon } from 'lucide-react'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
+import { useAuth } from '../contexts/AuthContext'
 import { MAL_GRUPLARI, MALZEME_TURLERI } from '../data/materialHierarchy'
 import './Materials.css'
 
-const PAGE_SIZE = 20
+const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23f1f5f9"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="16" fill="%2394a3b8"%3E📦%3C/text%3E%3C/svg%3E'
+
+const CATEGORY_IMAGES = {
+  'İnşaat Malzemeleri': 'https://images.pexels.com/photos/1117452/pexels-photo-1117452.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Elektrik Malzemeleri': 'https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Mekanik Malzemeler': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Kaplama Malzemeleri': 'https://images.pexels.com/photos/1358900/pexels-photo-1358900.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Yalıtım Malzemeleri': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Boya ve Kimyasallar': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=80',
+  default: PLACEHOLDER_IMG,
+}
 
 const BULK_TEMPLATE = `Kod\tÜrün Adı\tTip/Model\tÖzellik\tÖlçü\tMarka\tMal Grubu\tBirim\tÜretim Yeri\tDurum
 MAT-010\tOrnek Malzeme 1\tTip A\tOzellik 1\t10mm\tMarka X\tM002\tadet\tIstanbul Fabrika\tAktif
 MAT-011\tOrnek Malzeme 2\tTip B\t\t20mm\tMarka Y\tM003\tm\tAnkara Tesis\tAktif`
+
+const PAGE_SIZE = 20
 
 // Malzeme için gerçek görsel veya renkli placeholder
 const getMaterialVisual = (material) => {
@@ -141,6 +154,7 @@ function getApprovalMeta(status) {
 
 export default function Materials({ materials, onDelete }) {
   const navigate = useNavigate()
+  const { user, isAdmin } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [viewMode, setViewMode] = useState('grid')
   const [modal, setModal] = useState(null)
@@ -156,7 +170,7 @@ export default function Materials({ materials, onDelete }) {
     malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
   })
   const [collapsed, setCollapsed] = useState({
-    approvalStatus: false, malzemeTuru: false, urunHiyerarsisi: false, malGrubu: true, tipModel: true, ozellik: true, olcu: true, productionSite: true
+    approvalStatus: false, malzemeTuru: false, urunHiyerarsisi: false, malGrubu: true, tipModel: true, ozellik: true, olcu: true, productionSite: false
   })
   const [groupSearches, setGroupSearches] = useState({
     malzemeTuru: '', urunHiyerarsisi: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
@@ -331,6 +345,14 @@ export default function Materials({ materials, onDelete }) {
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
           <FilterGroup
+            title="Üretim Yeri" filterKey="productionSite"
+            items={productionSites.map(v => ({ val: v, label: v || '(Boş)' }))}
+            filters={filters} toggle={toggleFilter}
+            collapsed={collapsed} toggleCollapse={toggleCollapse}
+            materials={materials} valueKey="productionSite"
+            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
+          />
+          <FilterGroup
             title="Malzeme Türü" filterKey="malzemeTuru"
             items={MALZEME_TURLERI.map(t => ({ val: t.kod, label: `${t.kod} - ${t.tanim}` }))}
             filters={filters} toggle={toggleFilter}
@@ -376,14 +398,6 @@ export default function Materials({ materials, onDelete }) {
             filters={filters} toggle={toggleFilter}
             collapsed={collapsed} toggleCollapse={toggleCollapse}
             materials={materials} valueKey="olcu"
-            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
-          />
-          <FilterGroup
-            title="Üretim Yeri" filterKey="productionSite"
-            items={productionSites.map(v => ({ val: v, label: v || '(Boş)' }))}
-            filters={filters} toggle={toggleFilter}
-            collapsed={collapsed} toggleCollapse={toggleCollapse}
-            materials={materials} valueKey="productionSite"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
         </aside>
@@ -448,8 +462,8 @@ export default function Materials({ materials, onDelete }) {
                       </div>
                       <div className="mat-card-actions" onClick={e => e.stopPropagation()}>
                         <button className="action-btn view" onClick={() => navigate(`/materials/${m.id}`)}><Eye size={14} /></button>
-                        <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>
-                        <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>
+                        {isAdmin && <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>}
+                        {isAdmin && <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>}
                       </div>
                     </div>
                   )
@@ -468,12 +482,12 @@ export default function Materials({ materials, onDelete }) {
                 </div>
                 {paginated.map(m => {
                   const meta = getApprovalMeta(m.status)
-                  const imgSrc = m.images?.[0] || CATEGORY_IMAGES[m.malGrubu] || CATEGORY_IMAGES.default
+                  const visual = getMaterialVisual(m)
                   const showCode = m.status === 'Aktif'
                   return (
                     <div key={m.id} className="mat-list-row" onClick={() => navigate(`/materials/${m.id}`)}>
                       <span className="mat-list-thumb">
-                        <ListImage src={imgSrc} alt={m.name} />
+                        <ListImage material={m} visual={visual} />
                       </span>
                       <span className="mat-list-code">{showCode ? m.code : '—'}</span>
                       <span className="mat-list-name">{m.name}</span>
@@ -485,8 +499,8 @@ export default function Materials({ materials, onDelete }) {
                       <span><span className={`status-badge ${meta.cls}`}>{meta.label}</span></span>
                       <span className="mat-list-acts" onClick={e => e.stopPropagation()}>
                         <button className="action-btn view" onClick={() => navigate(`/materials/${m.id}`)}><Eye size={14} /></button>
-                        <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>
-                        <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>
+                        {isAdmin && <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>}
+                        {isAdmin && <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>}
                       </span>
                     </div>
                   )
@@ -528,15 +542,27 @@ export default function Materials({ materials, onDelete }) {
 }
 
 // Liste görünümü için küçük resim
-function ListImage({ src, alt }) {
-  const [imgSrc, setImgSrc] = useState(src)
+function ListImage({ material, visual }) {
+  const [imgError, setImgError] = useState(false)
+
+  if (visual.imageUrl && !imgError) {
+    return (
+      <img
+        src={visual.imageUrl}
+        alt={material.name}
+        className="mat-list-img"
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+
   return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      className="mat-list-img"
-      onError={() => setImgSrc(PLACEHOLDER_IMG)}
-    />
+    <div
+      className="mat-list-img mat-list-img-placeholder"
+      style={{ background: visual.color.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <span style={{ color: visual.color.icon, fontWeight: 700, fontSize: '0.7rem' }}>{visual.initials}</span>
+    </div>
   )
 }
 

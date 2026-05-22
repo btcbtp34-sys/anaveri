@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronLeft, Check, AlertCircle, Package, AlertTriangle, X, Search } from 'lucide-react'
+import { ChevronLeft, Check, AlertCircle, Package, AlertTriangle, X, Search, Upload, Trash2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { MAL_GRUPLARI, getUrunHiyerarsileri, getCommodity } from '../data/materialHierarchy'
 import { INITIAL_MATERIALS } from '../data/materialsStore'
@@ -42,12 +42,6 @@ const UNIT_MAPPING = {
   'set': 'SET',
 }
 
-// Ölçü birimi kodunu metne çevir
-const getUnitLabel = (code) => {
-  const unit = UNITS.find(u => u.code === code)
-  return unit ? unit.label : code
-}
-
 const getValuationClass = (malGrubu, productionSite) => {
   if (['VOLM', 'BALM', 'RETM', 'RMIZ'].includes(productionSite)) return 'T001'
   if (malGrubu === 'Y001') return 'Y001'
@@ -74,6 +68,8 @@ export default function MaterialNew({ onSave }) {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [ticketNumber, setTicketNumber] = useState('')
   const [submitNote, setSubmitNote] = useState('')
+  const [mediaFiles, setMediaFiles] = useState([])
+  const mediaInputRef = useRef(null)
 
   // Autocomplete state - artık tam malzeme objelerini tutuyoruz
   const [suggestions, setSuggestions] = useState([])
@@ -93,7 +89,13 @@ export default function MaterialNew({ onSave }) {
   const siteDropdownRef = useRef(null)
   const siteInputRef = useRef(null)
 
+  // Ürün Hiyerarşisi search
+  const [hiyerarsiSearch, setHiyerarsiSearch] = useState('')
+
   const hiyerarsiler = form.malGrubu ? getUrunHiyerarsileri(form.malGrubu) : []
+  const filteredHiyerarsiler = hiyerarsiSearch
+    ? hiyerarsiler.filter(h => h.urunHiyerarsisi.toLowerCase().includes(hiyerarsiSearch.toLowerCase()) || h.urunHiyerarsiTanim.toLowerCase().includes(hiyerarsiSearch.toLowerCase()))
+    : hiyerarsiler
   const valuationClass = getValuationClass(form.malGrubu, form.productionSites[0] || '')
 
   const set = (name, value) => {
@@ -114,6 +116,7 @@ export default function MaterialNew({ onSave }) {
   const handleMalGrubu = (val) => {
     setForm(f => ({ ...f, malGrubu: val, urunHiyerarsisi: '', commodityKod: '' }))
     setErrors(e => ({ ...e, malGrubu: '' }))
+    setHiyerarsiSearch('')
   }
 
   const handleHiyerarsi = (val) => {
@@ -211,6 +214,20 @@ export default function MaterialNew({ onSave }) {
     setShowMalGrubuDropdown(false)
   }
 
+  const handleMediaUpload = (e) => {
+    const files = Array.from(e.target.files)
+    files.forEach(file => {
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        setMediaFiles(prev => [...prev, { id: Date.now() + Math.random(), name: file.name, url: ev.target.result, size: file.size }])
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const removeMedia = (id) => setMediaFiles(prev => prev.filter(f => f.id !== id))
+
   const checkSimilarity = () => {
     if (!form.urunAdi) return
     setSimilarity(Math.floor(Math.random() * 50) + 10)
@@ -236,20 +253,54 @@ export default function MaterialNew({ onSave }) {
   }
 
   const confirmSubmit = () => {
+    // Yeni malzeme objesi oluştur
+    const newMaterial = {
+      id: Date.now(),
+      code: `PEND-${Date.now()}`,
+      name: tanim,
+      urunAdi: form.urunAdi,
+      tipModel: form.tipModel,
+      ozellik: form.ozellik,
+      olcu: form.olcu,
+      marka: form.marka,
+      malGrubu: form.malGrubu,
+      urunHiyerarsisi: form.urunHiyerarsisi,
+      commodityKod: form.commodityKod,
+      unit: form.unit,
+      productionSite: form.productionSites[0] || '',
+      productionSites: form.productionSites,
+      depoYeri: form.depoYeri,
+      ureticiParcaNo: form.ureticiParcaNo,
+      seriNo: form.seriNo,
+      status: 'Kontrol Ediliyor',
+      images: mediaFiles.map(f => f.url),
+      createdBy: user,
+      createdAt: new Date().toISOString(),
+    }
+
     // Ticket oluştur
-    const ticket = createTicket(TICKET_TYPES.NEW_MATERIAL, [form], user, submitNote)
+    const ticket = createTicket(TICKET_TYPES.NEW_MATERIAL, [{ ...form, materialRef: newMaterial.id }], user, submitNote)
+    ticket.materialIds = [newMaterial.id]
+
+    // Ticket'ı localStorage'a kaydet
+    const existingTickets = JSON.parse(localStorage.getItem('tickets') || '[]')
+    localStorage.setItem('tickets', JSON.stringify([...existingTickets, ticket]))
+
+    // Malzemeyi listeye ekle
+    onSave(newMaterial)
+
     setTicketNumber(ticket.ticketNumber)
     setShowNoteModal(false)
     setShowSuccessModal(true)
   }
 
   const tanim = [
-    form.urunAdi || 'boş',
-    form.tipModel || 'boş',
-    form.ozellik || 'boş',
-    form.olcu || 'boş',
-    form.marka || 'boş'
-  ].join(' / ').slice(0, 40)
+    form.urunAdi,
+    form.tipModel,
+    form.ozellik,
+    form.olcu,
+    form.marka
+  ].filter(Boolean).join(' / ').slice(0, 40)
 
   // Eşleşen kısmı vurgula
   const highlight = (text, query) => {
@@ -494,10 +545,24 @@ export default function MaterialNew({ onSave }) {
                 </div>
               </Field>
               <Field label="Ürün Hiyerarşisi">
-                <select value={form.urunHiyerarsisi} onChange={e => handleHiyerarsi(e.target.value)} disabled={!form.malGrubu}>
-                  <option value="">Seçin</option>
-                  {hiyerarsiler.map(h => <option key={h.urunHiyerarsisi} value={h.urunHiyerarsisi}>{h.urunHiyerarsisi} — {h.urunHiyerarsiTanim}</option>)}
-                </select>
+                <div className="mnp-hiyerarsi-wrap">
+                  {form.malGrubu && hiyerarsiler.length > 5 && (
+                    <div className="mnp-hiyerarsi-search">
+                      <Search size={12} />
+                      <input
+                        type="text"
+                        placeholder="Hiyerarşi ara..."
+                        value={hiyerarsiSearch}
+                        onChange={e => setHiyerarsiSearch(e.target.value)}
+                      />
+                      {hiyerarsiSearch && <button type="button" onClick={() => setHiyerarsiSearch('')}><X size={10} /></button>}
+                    </div>
+                  )}
+                  <select value={form.urunHiyerarsisi} onChange={e => handleHiyerarsi(e.target.value)} disabled={!form.malGrubu}>
+                    <option value="">Seçin</option>
+                    {filteredHiyerarsiler.map(h => <option key={h.urunHiyerarsisi} value={h.urunHiyerarsisi}>{h.urunHiyerarsisi} — {h.urunHiyerarsiTanim}</option>)}
+                  </select>
+                </div>
               </Field>
               <Field label="Commodity Kodu">
                 <input value={form.commodityKod} readOnly className="mnp-readonly" placeholder="Otomatik" />
@@ -518,6 +583,46 @@ export default function MaterialNew({ onSave }) {
                 <span>Değerleme Sınıfı</span>
                 <strong>{valuationClass}</strong>
                 <span className="mnp-val-hint">Prosedüre göre otomatik</span>
+              </div>
+            )}
+          </section>
+
+          {/* Bölüm 4: Medya */}
+          <section className="mnp-section">
+            <div className="mnp-section-head">
+              <span className="mnp-section-num">4</span>
+              <h2>Medya</h2>
+            </div>
+            <div
+              className="mnp-media-dropzone"
+              onClick={() => mediaInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault()
+                const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'))
+                files.forEach(file => {
+                  const reader = new FileReader()
+                  reader.onload = (ev) => setMediaFiles(prev => [...prev, { id: Date.now() + Math.random(), name: file.name, url: ev.target.result, size: file.size }])
+                  reader.readAsDataURL(file)
+                })
+              }}
+            >
+              <Upload size={28} />
+              <p>Fotoğraf yüklemek için tıklayın veya sürükleyin</p>
+              <span>PNG, JPG, WEBP — Maks 10MB</span>
+              <input ref={mediaInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={handleMediaUpload} />
+            </div>
+            {mediaFiles.length > 0 && (
+              <div className="mnp-media-grid">
+                {mediaFiles.map(f => (
+                  <div key={f.id} className="mnp-media-item">
+                    <img src={f.url} alt={f.name} />
+                    <div className="mnp-media-overlay">
+                      <button type="button" onClick={() => removeMedia(f.id)}><Trash2 size={14} /></button>
+                    </div>
+                    <span className="mnp-media-name">{f.name}</span>
+                  </div>
+                ))}
               </div>
             )}
           </section>
@@ -658,8 +763,11 @@ export default function MaterialNew({ onSave }) {
             Malzeme talebiniz oluşturuldu. Ticket numaranız ile takip edebilirsiniz.
           </p>
           <div className="modal-actions" style={{ justifyContent: 'center' }}>
-            <Button variant="primary" size="medium" onClick={() => navigate('/materials')}>
-              Tamam
+            <Button variant="secondary" size="medium" onClick={() => navigate('/materials')}>
+              Malzemelere Dön
+            </Button>
+            <Button variant="primary" size="medium" onClick={() => navigate('/tickets')}>
+              Ticketlarıma Git
             </Button>
           </div>
         </div>
