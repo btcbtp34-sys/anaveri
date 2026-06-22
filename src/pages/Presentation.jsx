@@ -25,6 +25,10 @@ import {
 } from 'lucide-react'
 import './Presentation.css'
 
+// Logo URLs
+const btcLogo = 'https://www.btc-ag.com.tr/css/BTC-AG/images/BTC-AG-Logo.svg'
+const ronesansLogo = 'https://upload.wikimedia.org/wikipedia/tr/d/d7/Ronesans_holding.png'
+
 // Ekran görüntülerini dinamik import ile yükle
 let dashboardImg, materialsImg, materialNewImg, materialBulkImg, materialDetailImg, 
     materialExtendImg, materialChangeImg, approvalsImg, reportsImg, rulesImg
@@ -381,7 +385,11 @@ export default function Presentation() {
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                   className="slide-hero-icon"
                 >
-                  <slide.icon size={80} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '3rem' }}>
+                    <img src={btcLogo} alt="BTC-AG Logo" style={{ height: '80px', width: 'auto' }} />
+                    <div style={{ width: '2px', height: '60px', background: 'rgba(255,255,255,0.2)' }}></div>
+                    <img src={ronesansLogo} alt="Rönesans Holding Logo" style={{ height: '80px', width: 'auto' }} />
+                  </div>
                 </motion.div>
                 <motion.h1
                   initial={{ y: 20, opacity: 0 }}
