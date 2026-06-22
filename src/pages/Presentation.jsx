@@ -436,14 +436,6 @@ export default function Presentation() {
             {slide.type === 'feature' && (
               <div className="slide-feature">
                 <div className="slide-feature-content">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.1, type: "spring" }}
-                    className="slide-feature-icon"
-                  >
-                    <slide.icon size={48} />
-                  </motion.div>
                   <motion.h2
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -527,19 +519,6 @@ export default function Presentation() {
                       </motion.div>
                     ))}
                   </motion.div>
-
-                  <motion.button
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: (slide.screenshot ? 0.8 : 0.6) + slide.features.length * 0.1 + 0.2 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="slide-goto-app"
-                    onClick={() => navigate(slide.targetPage || '/dashboard')}
-                  >
-                    {slide.title === 'Dashboard' ? 'Dashboard\'a Git' : `${slide.title} Sayfasına Git`}
-                    <ChevronRight size={18} />
-                  </motion.button>
                 </div>
               </div>
             )}
@@ -547,14 +526,6 @@ export default function Presentation() {
             {/* Workflow Slide */}
             {slide.type === 'workflow' && (
               <div className="slide-workflow">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1, type: "spring" }}
-                  className="slide-feature-icon"
-                >
-                  <slide.icon size={48} />
-                </motion.div>
                 <motion.h2
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -638,19 +609,6 @@ export default function Presentation() {
                     </motion.div>
                   ))}
                 </motion.div>
-
-                <motion.button
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: (slide.screenshot ? 0.8 : 0.6) + slide.steps.length * 0.1 + 0.2 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="slide-goto-app"
-                  onClick={() => navigate(slide.targetPage || '/dashboard')}
-                >
-                  {slide.title} Sayfasına Git
-                  <ChevronRight size={18} />
-                </motion.button>
               </div>
             )}
 
@@ -682,18 +640,6 @@ export default function Presentation() {
                     </motion.div>
                   ))}
                 </div>
-                <motion.button
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="slide-goto-app"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  Dashboard'a Git
-                  <ChevronRight size={18} />
-                </motion.button>
               </div>
             )}
 
@@ -760,6 +706,20 @@ export default function Presentation() {
           />
         ))}
       </div>
+
+      {/* Fixed Footer with Page Link */}
+      {slide.targetPage && slide.type !== 'hero' && slide.type !== 'cta' && (
+        <div className="presentation-footer">
+          <button
+            className="presentation-goto-page"
+            onClick={() => navigate(slide.targetPage)}
+          >
+            <Eye size={16} />
+            {slide.title === 'Dashboard' ? 'Dashboard\'a Git' : `${slide.title} Sayfasına Git`}
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Instructions */}
       <div className="presentation-instructions">
