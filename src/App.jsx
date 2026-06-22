@@ -21,6 +21,7 @@ import ApprovalsTable from './pages/ApprovalsTable'
 import AdminReports from './pages/AdminReports'
 import Tickets from './pages/Tickets'
 import TicketDetail from './pages/TicketDetail'
+import Presentation from './pages/Presentation'
 import { INITIAL_MATERIALS } from './data/materialsStore'
 import './App.css'
 
@@ -176,7 +177,11 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <AppContent />
+        <Routes>
+          {/* Presentation route - login gerektirmeden erişilebilir */}
+          <Route path="/slayt" element={<Presentation />} />
+          <Route path="/*" element={<AppContent />} />
+        </Routes>
       </Router>
     </AuthProvider>
   )

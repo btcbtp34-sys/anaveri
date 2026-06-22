@@ -7,34 +7,36 @@ import './AdminReports.css'
 
 // Mayıs 2026 demo malzemeleri
 const MAY_DEMO_MATERIALS = [
-  { id: 9001, code: 'MAT-M01', name: 'Beton / C30/37 / Hazır / 1m³ / Limak', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-02T08:30:00' },
-  { id: 9002, code: 'MAT-M02', name: 'Demir / Nervürlü / S420 / 12mm / Kardemir', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-02T09:15:00' },
-  { id: 9003, code: 'MAT-M03', name: 'Çimento / CEM I / 42.5R / 50kg / Nuh', malGrubu: 'İnşaat', unit: 'TON', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-02T10:00:00' },
-  { id: 9004, code: 'MAT-M04', name: 'Seramik / Yer / Mat / 60x60cm / Kale', malGrubu: 'Kaplama', unit: 'M2', status: 'Kontrol Ediliyor', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-05T08:45:00' },
-  { id: 9005, code: 'MAT-M05', name: 'Kablo / NYY / 3x2.5mm² / 100m / Prysmian', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-05T11:20:00' },
-  { id: 9006, code: 'MAT-M06', name: 'Boru / PPR / PN20 / 32mm / Vesbo', malGrubu: 'Mekanik', unit: 'M', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-06T09:00:00' },
-  { id: 9007, code: 'MAT-M07', name: 'Alçıpan / Standart / 12.5mm / 1200x2700 / Rigips', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-06T14:30:00' },
-  { id: 9008, code: 'MAT-M08', name: 'Vana / Kelebek / DN80 / PN16 / Crane', malGrubu: 'Mekanik', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-07T10:10:00' },
-  { id: 9009, code: 'MAT-M09', name: 'Çelik Profil / HEA / 200mm / S235 / Kardemir', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-08T08:00:00' },
-  { id: 9010, code: 'MAT-M10', name: 'Boya / Dış Cephe / Silikonlu / 15L / Marshall', malGrubu: 'Kimyasal', unit: 'LT', status: 'Kontrol Ediliyor', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-08T13:45:00' },
-  { id: 9011, code: 'MAT-M11', name: 'Taş Yünü / Levha / 5cm / 1200x600 / Rockwool', malGrubu: 'Yalıtım', unit: 'M2', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-09T09:30:00' },
-  { id: 9012, code: 'MAT-M12', name: 'Kapı / Yangın / EI60 / 90x210cm / Hormann', malGrubu: 'Doğrama', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-09T11:00:00' },
-  { id: 9013, code: 'MAT-M13', name: 'Kablo / UTP / Cat6 / 305m / Belden', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-12T08:20:00' },
-  { id: 9014, code: 'MAT-M14', name: 'Gazbeton / Blok / 20cm / D400 / Ytong', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-12T10:50:00' },
-  { id: 9015, code: 'MAT-M15', name: 'Sac / Trapez / T35 / 0.5mm / Ruukki', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-13T09:15:00' },
-  { id: 9016, code: 'MAT-M16', name: 'Boru / Galvaniz / DN100 / PN10 / Borusan', malGrubu: 'Mekanik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-13T14:00:00' },
-  { id: 9017, code: 'MAT-M17', name: 'Demir / Nervürlü / S420 / 16mm / Erdemir', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-14T08:30:00' },
-  { id: 9018, code: 'MAT-M18', name: 'Çelik Hasır / Q188 / 2x3m / S500 / Habas', malGrubu: 'İnşaat', unit: 'M2', status: 'Kontrol Ediliyor', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-14T11:45:00' },
-  { id: 9019, code: 'MAT-M19', name: 'Su Yalıtım / Membran / 4mm / Polimer / Sika', malGrubu: 'Yalıtım', unit: 'M2', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-15T09:00:00' },
-  { id: 9020, code: 'MAT-M20', name: 'Plywood / Standart / 18mm / 1220x2440 / Kastamonu', malGrubu: 'İnşaat', unit: 'M2', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-15T13:20:00' },
-  { id: 9021, code: 'MAT-M21', name: 'Baret / Standart / Beyaz / Tek Beden / MSA', malGrubu: 'İş Güvenliği', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-16T08:10:00' },
-  { id: 9022, code: 'MAT-M22', name: 'Kablo / Fiber Optik / SM / 12 Damar / Prysmian', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-16T10:30:00' },
-  { id: 9023, code: 'MAT-M23', name: 'Vana / Küresel / DN50 / Bronz / Watts', malGrubu: 'Mekanik', unit: 'ADT', status: 'Kontrol Ediliyor', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-19T09:45:00' },
-  { id: 9024, code: 'MAT-M24', name: 'Beton / C25 / Hazır / 1m³ / Akcansa', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-19T11:00:00' },
-  { id: 9025, code: 'MAT-M25', name: 'Seramik / Duvar / Parlak / 30x60cm / Kaleseramik', malGrubu: 'Kaplama', unit: 'M2', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-20T08:30:00' },
-  { id: 9026, code: 'MAT-M26', name: 'Çimento / CEM II / 32.5R / 50kg / Akcansa', malGrubu: 'İnşaat', unit: 'TON', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-20T10:15:00' },
-  { id: 9027, code: 'MAT-M27', name: 'Alçıpan / Yangın Dayanıklı / 15mm / F30 / Knauf', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-21T09:00:00' },
-  { id: 9028, code: 'MAT-M28', name: 'Kablo / NYY / 4x10mm² / 100m / Nexans', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-21T13:30:00' },
+  { id: 9001, code: 'MAT-M01', name: 'BETON / C30/37 / HAZIR / 1M3 / LIMAK', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-02T08:30:00' },
+  { id: 9002, code: 'MAT-M02', name: 'DEMIR / NERVURLU / S420 / 12MM / KARDEMIR', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-02T09:15:00' },
+  { id: 9003, code: 'MAT-M03', name: 'CIMENTO / CEM I / 42.5R / 50KG / NUH', malGrubu: 'İnşaat', unit: 'TON', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-02T10:00:00' },
+  { id: 9004, code: 'MAT-M04', name: 'SERAMIK / YER / MAT / 60X60CM / KALE', malGrubu: 'Kaplama', unit: 'M2', status: 'Kontrol Ediliyor', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-05T08:45:00' },
+  { id: 9005, code: 'MAT-M05', name: 'KABLO / NYY / 3X2.5MM2 / 100M / PRYSMIAN', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-05T11:20:00' },
+  { id: 9006, code: 'MAT-M06', name: 'BORU / PPR / PN20 / 32MM / VESBO', malGrubu: 'Mekanik', unit: 'M', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-06T09:00:00' },
+  { id: 9007, code: 'MAT-M07', name: 'ALCIPAN / STANDART / 12.5MM / 1200X2700 / RIGIPS', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-06T14:30:00' },
+  { id: 9008, code: 'MAT-M08', name: 'VANA / KELEBEK / DN80 / PN16 / CRANE', malGrubu: 'Mekanik', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-07T10:10:00' },
+  { id: 9009, code: 'MAT-M09', name: 'CELIK PROFIL / HEA / 200MM / S235 / KARDEMIR', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-08T08:00:00' },
+  { id: 9010, code: 'MAT-M10', name: 'BOYA / DIS CEPHE / SILIKONLU / 15L / MARSHALL', malGrubu: 'Kimyasal', unit: 'LT', status: 'Kontrol Ediliyor', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-08T13:45:00' },
+  { id: 9011, code: 'MAT-M11', name: 'TAS YUNU / LEVHA / 5CM / 1200X600 / ROCKWOOL', malGrubu: 'Yalıtım', unit: 'M2', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-09T09:30:00' },
+  { id: 9012, code: 'MAT-M12', name: 'KAPI / YANGIN / EI60 / 90X210CM / HORMANN', malGrubu: 'Doğrama', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-09T11:00:00' },
+  { id: 9013, code: 'MAT-M13', name: 'KABLO / UTP / CAT6 / 305M / BELDEN', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-12T08:20:00' },
+  { id: 9014, code: 'MAT-M14', name: 'GAZBETON / BLOK / 20CM / D400 / YTONG', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-12T10:50:00' },
+  { id: 9015, code: 'MAT-M15', name: 'SAC / TRAPEZ / T35 / 0.5MM / RUUKKI', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-13T09:15:00' },
+  { id: 9016, code: 'MAT-M16', name: 'BORU / GALVANIZ / DN100 / PN10 / BORUSAN', malGrubu: 'Mekanik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-13T14:00:00' },
+  { id: 9017, code: 'MAT-M17', name: 'DEMIR / NERVURLU / S420 / 16MM / ERDEMIR', malGrubu: 'İnşaat', unit: 'KG', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-14T08:30:00' },
+  { id: 9018, code: 'MAT-M18', name: 'CELIK HASIR / Q188 / 2X3M / S500 / HABAS', malGrubu: 'İnşaat', unit: 'M2', status: 'Kontrol Ediliyor', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-14T11:45:00' },
+  { id: 9019, code: 'MAT-M19', name: 'SU YALITIM / MEMBRAN / 4MM / POLIMER / SIKA', malGrubu: 'Yalıtım', unit: 'M2', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-15T09:00:00' },
+  { id: 9020, code: 'MAT-M20', name: 'PLYWOOD / STANDART / 18MM / 1220X2440 / KASTAMONU', malGrubu: 'İnşaat', unit: 'M2', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-15T13:20:00' },
+  { id: 9021, code: 'MAT-M21', name: 'BARET / STANDART / BEYAZ / / MSA', malGrubu: 'İş Güvenliği', unit: 'ADT', status: 'Aktif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-16T08:10:00' },
+  { id: 9022, code: 'MAT-M22', name: 'KABLO / FIBER OPTIK / SM / 12 DAMAR / PRYSMIAN', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-16T10:30:00' },
+  { id: 9023, code: 'MAT-M23', name: 'VANA / KURESEL / DN50 / BRONZ / WATTS', malGrubu: 'Mekanik', unit: 'ADT', status: 'Kontrol Ediliyor', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-19T09:45:00' },
+  { id: 9024, code: 'MAT-M24', name: 'BETON / C25 / HAZIR / 1M3 / AKCANSA', malGrubu: 'İnşaat', unit: 'M3', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-19T11:00:00' },
+  { id: 9025, code: 'MAT-M25', name: 'SERAMIK / DUVAR / PARLAK / 30X60CM / KALESERAMIK', malGrubu: 'Kaplama', unit: 'M2', status: 'Aktif', createdBy: { name: 'Ahmet Yılmaz' }, createdAt: '2026-05-20T08:30:00' },
+  { id: 9026, code: 'MAT-M26', name: 'CIMENTO / CEM II / 32.5R / 50KG / AKCANSA', malGrubu: 'İnşaat', unit: 'TON', status: 'Aktif', createdBy: { name: 'Mehmet Demir' }, createdAt: '2026-05-20T10:15:00' },
+  { id: 9027, code: 'MAT-M27', name: 'ALCIPAN / YANGIN DAYANIKLI / 15MM / F30 / KNAUF', malGrubu: 'İnşaat', unit: 'M2', status: 'Pasif', createdBy: { name: 'Fatma Şahin' }, createdAt: '2026-05-21T09:00:00' },
+  { id: 9028, code: 'MAT-M28', name: 'KABLO / NYY / 4X10MM2 / 100M / NEXANS', malGrubu: 'Elektrik', unit: 'M', status: 'Aktif', createdBy: { name: 'Ali Veli' }, createdAt: '2026-05-21T13:30:00' },
+  { id: 9029, code: 'MAT-M29', name: 'BORU / PVC / / 50MM / /', malGrubu: 'Mekanik', unit: 'M', status: 'Aktif', createdBy: { name: 'Zeynep Arslan' }, createdAt: '2026-05-22T08:15:00' },
+  { id: 9030, code: 'MAT-M30', name: 'PROFIL / OMEGA / / 0.7MM / /', malGrubu: 'İnşaat', unit: 'M', status: 'Aktif', createdBy: { name: 'Hasan Çelik' }, createdAt: '2026-05-22T10:45:00' },
 ]
 
 // Mayıs 2026 demo ticketları
@@ -306,6 +308,20 @@ export default function AdminReports() {
     return map
   }, [allTickets])
 
+  // Türkçe karakterleri temizle
+  const removeTurkishChars = (str) => {
+    if (!str) return str
+    const charMap = {
+      'ç': 'c', 'Ç': 'C',
+      'ğ': 'g', 'Ğ': 'G',
+      'ı': 'i', 'İ': 'I',
+      'ö': 'o', 'Ö': 'O',
+      'ş': 's', 'Ş': 'S',
+      'ü': 'u', 'Ü': 'U'
+    }
+    return str.replace(/[çÇğĞıİöÖşŞüÜ]/g, char => charMap[char] || char)
+  }
+
   // Malzeme için eşleşen ticketi döndürür
   const findTicketForMaterial = (m) => {
     return materialTicketMap[m.code] ||
@@ -360,17 +376,17 @@ export default function AdminReports() {
 
   // Excel: Malzeme raporu
   const exportMaterialsExcel = () => {
-    const headers = ['Tarih', 'Kod', 'Ürün Adı', 'Mal Grubu', 'Birim', 'Durum', 'Oluşturan', 'Geçen Süre', 'Harcanan Süre (sa)', 'Oluşturma Tarihi']
+    const headers = ['Tarih', 'Kod', 'Urun Adi', 'Mal Grubu', 'Birim', 'Durum', 'Olusturan', 'Gecen Sure', 'Harcanan Sure (sa)', 'Olusturma Tarihi']
     const rows = filteredMaterials.map(m => {
       const t = findTicketForMaterial(m)
       return [
         new Date(m.createdAt).toLocaleDateString('tr-TR'),
         m.code,
-        m.name,
-        m.malGrubu,
+        removeTurkishChars(m.name),
+        removeTurkishChars(m.malGrubu),
         m.unit,
-        m.status,
-        m.createdBy?.name || '—',
+        removeTurkishChars(m.status),
+        removeTurkishChars(m.createdBy?.name || '—'),
         elapsedLabel(t),
         t?.spentHours != null ? t.spentHours : '—',
         new Date(m.createdAt).toLocaleString('tr-TR'),
@@ -381,7 +397,7 @@ export default function AdminReports() {
 
   // Excel: Ticket raporu
   const exportTicketsExcel = () => {
-    const headers = ['Ticket No', 'Tür', 'Durum', 'Malzeme Sayısı', 'Oluşturan', 'Oluşturma Tarihi', 'Kapatılma Tarihi', 'Geçen Süre', 'Harcanan Süre (sa)', 'Ekstra Süre (sa)', 'Not']
+    const headers = ['Ticket No', 'Tur', 'Durum', 'Malzeme Sayisi', 'Olusturan', 'Olusturma Tarihi', 'Kapatilma Tarihi', 'Gecen Sure', 'Harcanan Sure (sa)', 'Ekstra Sure (sa)', 'Not']
     const rows = filteredTickets.map(t => {
       const lastEntry = t.history?.[t.history.length - 1]
       const closedAt = ['approved', 'rejected', 'completed'].includes(t.status) && lastEntry
@@ -399,16 +415,16 @@ export default function AdminReports() {
           : `${Math.floor(elapsedH / 24)}g ${Math.round(elapsedH % 24)}sa`
       return [
         t.ticketNumber,
-        TICKET_TYPE_LABELS[t.type] || t.type,
-        TICKET_STATUS_LABELS[t.status] || t.status,
+        removeTurkishChars(TICKET_TYPE_LABELS[t.type] || t.type),
+        removeTurkishChars(TICKET_STATUS_LABELS[t.status] || t.status),
         t.items?.length || 0,
-        t.createdBy?.name || '—',
+        removeTurkishChars(t.createdBy?.name || '—'),
         new Date(t.createdAt).toLocaleString('tr-TR'),
         closedAt,
         elapsedLabel,
         t.spentHours != null ? t.spentHours : '—',
         t.extraHours != null && t.extraHours > 0 ? t.extraHours : '—',
-        t.note || '—',
+        removeTurkishChars(t.note || '—'),
       ]
     })
     downloadCsv([headers, ...rows], `ticket_raporu_${dateRange.start}_${dateRange.end}.csv`)
