@@ -31,7 +31,7 @@ const ronesansLogo = 'https://upload.wikimedia.org/wikipedia/tr/d/d7/Ronesans_ho
 
 // Ekran görüntülerini dinamik import ile yükle
 let dashboardImg, materialsImg, materialNewImg, materialBulkImg, materialDetailImg, 
-    materialExtendImg, materialChangeImg, approvalsImg, reportsImg, rulesImg
+    materialExtendImg, materialChangeImg, approvalsImg, reportsImg, rulesImg, ticketsImg, ticketDetailImg
 
 try { dashboardImg = new URL('../assets/screenshots/dashboard.png', import.meta.url).href } catch {}
 try { materialsImg = new URL('../assets/screenshots/materials.png', import.meta.url).href } catch {}
@@ -43,6 +43,8 @@ try { materialChangeImg = new URL('../assets/screenshots/material-change.png', i
 try { approvalsImg = new URL('../assets/screenshots/approvals.png', import.meta.url).href } catch {}
 try { reportsImg = new URL('../assets/screenshots/reports.png', import.meta.url).href } catch {}
 try { rulesImg = new URL('../assets/screenshots/rules.png', import.meta.url).href } catch {}
+try { ticketsImg = new URL('../assets/screenshots/tickets.png', import.meta.url).href } catch {}
+try { ticketDetailImg = new URL('../assets/screenshots/ticket-detail.png', import.meta.url).href } catch {}
 
 const slides = [
   {
@@ -193,26 +195,46 @@ const slides = [
   },
   {
     id: 9,
-    type: 'workflow',
-    title: 'Onay Süreci',
-    subtitle: 'Malzemeleri onayla veya reddet',
-    description: 'Onaycı rolündeki kullanıcılar bekleyen malzemeleri inceler, toplu onay veya red işlemi yapar.',
+    type: 'feature',
+    title: 'Ticket Yönetimi',
+    subtitle: 'Malzeme talep ve değişikliklerini merkezi takip',
+    description: 'Tüm malzeme işlemleri ticket sistemi ile takip edilir. Ticket listesinde durumları görebilir, filtreleyebilir ve detaya gidebilirsiniz.',
     bgColor: '#0f172a',
-    icon: CheckCircle,
+    icon: FileText,
     screenshot: true,
-    screenshotUrl: approvalsImg,
-    targetPage: '/approvals',
-    steps: [
-      { number: 1, title: 'Onay Listesi', desc: 'Kontrol ediliyor durumundaki malzemeler görüntülenir' },
-      { number: 2, title: 'Detay İnceleme', desc: 'Her malzemenin tüm bilgilerini görüntüleyin' },
-      { number: 3, title: 'Toplu Seçim', desc: 'Birden fazla malzeme seçerek toplu işlem yapın' },
-      { number: 4, title: 'Açıklama Girin', desc: 'Onay veya red için açıklama zorunludur' },
-      { number: 5, title: 'SAP Simülasyonu', desc: 'Onaylanan malzemeler "SAP\'de oluşturuldu" mesajı gösterir' },
-      { number: 6, title: 'Durum Güncelleme', desc: 'Malzeme Aktif veya Pasif duruma geçer' }
+    screenshotUrl: ticketsImg,
+    targetPage: '/tickets',
+    features: [
+      'Ticket türleri: Yeni malzeme, genişletme, tanım değişikliği, birim ekleme',
+      'Durum takibi: Beklemede, Onaylandı, Reddedildi, İade Edildi',
+      'Geçen süre hesaplama ve gecikme uyarıları (48 saat+)',
+      'Güçlü filtreleme: Durum, tür, tarih aralığı, geçen süre',
+      'Ticket numarası, oluşturan ve not ile arama',
+      'Durum tabları ile hızlı görüntüleme'
     ]
   },
   {
     id: 10,
+    type: 'workflow',
+    title: 'Ticket Detay ve Onay',
+    subtitle: 'Ticket içindeki malzemeleri incele ve işlem yap',
+    description: 'Bir ticket\'a tıklayarak detay sayfasına gidilir. Burada ticket içindeki tüm malzemeler görüntülenir ve onay/red işlemi yapılır.',
+    bgColor: '#0f172a',
+    icon: CheckCircle,
+    screenshot: true,
+    screenshotUrl: ticketDetailImg,
+    targetPage: '/tickets',
+    steps: [
+      { number: 1, title: 'Ticket Aç', desc: 'Ticket listesinden bir ticket\'a tıklayın' },
+      { number: 2, title: 'Malzemeleri İncele', desc: 'Ticket içindeki tüm malzemeleri ve bilgilerini görüntüleyin' },
+      { number: 3, title: 'Geçmişi Gör', desc: 'Ticket geçmişi ve yorumları kontrol edin' },
+      { number: 4, title: 'Karar Verin', desc: 'Onayla, Reddet veya İade Et butonlarından birini seçin' },
+      { number: 5, title: 'Açıklama Girin', desc: 'İşlem gerekçesini yazın (zorunlu)' },
+      { number: 6, title: 'SAP ve Durum', desc: 'SAP simülasyonu çalışır, ticket ve malzemeler güncellenir' }
+    ]
+  },
+  {
+    id: 11,
     type: 'feature',
     title: 'Admin Raporları',
     subtitle: 'Detaylı analiz ve istatistikler',
@@ -232,7 +254,7 @@ const slides = [
     ]
   },
   {
-    id: 11,
+    id: 12,
     type: 'feature',
     title: 'Malzeme Kuralları',
     subtitle: 'Master veri yönetimi',
@@ -252,7 +274,7 @@ const slides = [
     ]
   },
   {
-    id: 12,
+    id: 13,
     type: 'highlights',
     title: 'Neden Bu Sistem?',
     bgColor: '#1e293b',
@@ -280,7 +302,7 @@ const slides = [
     ]
   },
   {
-    id: 13,
+    id: 14,
     type: 'cta',
     title: 'Hemen Başlayın',
     subtitle: 'Malzeme yönetiminizi bir üst seviyeye taşıyın',
