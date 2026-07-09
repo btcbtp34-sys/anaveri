@@ -22,6 +22,9 @@ import AdminReports from './pages/AdminReports'
 import Tickets from './pages/Tickets'
 import TicketDetail from './pages/TicketDetail'
 import Presentation from './pages/Presentation'
+import Reservations from './pages/Reservations'
+import ReservationNew from './pages/ReservationNew'
+import ReservationDetail from './pages/ReservationDetail'
 import { INITIAL_MATERIALS } from './data/materialsStore'
 import './App.css'
 
@@ -163,6 +166,9 @@ function AppContent() {
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/tickets/:id" element={<TicketDetail onApprove={handleApprove} onReject={handleReject} />} />
           <Route path="/approvals" element={<ApprovalsTable materials={materials} onApprove={handleApprove} onReject={handleReject} />} />
+          <Route path="/reservations" element={<Reservations materials={materials} />} />
+          <Route path="/reservations/new" element={<ReservationNew materials={materials} />} />
+          <Route path="/reservations/:id" element={<ReservationDetail />} />
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/production-sites" element={<ProductionSites />} />
           <Route path="/product-groups" element={<ProductGroups />} />

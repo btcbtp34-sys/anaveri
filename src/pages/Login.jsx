@@ -15,7 +15,7 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault()
     setError('')
-    
+
     const result = login(username, password)
     if (result.success) {
       navigate('/')
@@ -65,9 +65,11 @@ export default function Login() {
 
         <div className="login-demo-info">
           <p><strong>Demo Hesaplar:</strong></p>
-          <ul>
+          <ul style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.25rem 1rem', paddingLeft: '1.25rem' }}>
+            <li><strong>Yönetici 1:</strong> yonetici1 / user123</li>
+            <li><strong>Yönetici 2:</strong> yonetici2 / user123</li>
             <li><strong>Onaycı:</strong> onayci / onay123</li>
-            <li><strong>Onaycı 2:</strong> onayci2 / onay123 <span style={{ fontSize: '0.75rem', color: '#64748b' }}>(Sınırlı erişim)</span></li>
+            <li><strong>Onaycı 2:</strong> onayci2 / onay123</li>
             <li><strong>Kullanıcı:</strong> kullanici / user123</li>
             <li><strong>Kullanıcı 1:</strong> kullanici1 / user123</li>
             <li><strong>Admin:</strong> admin / admin123</li>

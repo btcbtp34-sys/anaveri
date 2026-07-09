@@ -7,6 +7,8 @@ const USERS = [
   { id: 1, username: 'admin', password: 'admin123', name: 'Admin Kullanıcı', role: 'admin' },
   { id: 2, username: 'onayci', password: 'onay123', name: 'Onay Yöneticisi', role: 'approver' },
   { id: 4, username: 'onayci2', password: 'onay123', name: 'Onay Yöneticisi 2', role: 'approver2' },
+  { id: 6, username: 'yonetici1', password: 'user123', name: 'Yönetici 1', role: 'yonetici1' },
+  { id: 7, username: 'yonetici2', password: 'user123', name: 'Yönetici 2', role: 'yonetici2' },
   { id: 3, username: 'kullanici', password: 'user123', name: 'Kullanıcı', role: 'user' },
   { id: 5, username: 'kullanici1', password: 'user123', name: 'Kullanıcı 1', role: 'user' },
 ]
@@ -46,7 +48,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     loading,
-    isApprover: user?.role === 'approver' || user?.role === 'approver2' || user?.role === 'admin',
+    isApprover: user?.role === 'approver' || user?.role === 'approver2' || user?.role === 'admin' || user?.role === 'yonetici1' || user?.role === 'yonetici2',
     isAdmin: user?.role === 'admin',
   }
 

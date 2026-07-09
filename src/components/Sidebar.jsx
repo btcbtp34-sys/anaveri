@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, FileText, BarChart3, Ticket } from 'lucide-react'
+import { LayoutDashboard, Package, Factory, FolderTree, Settings, LogOut, FileText, BarChart3, Ticket, ClipboardList } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import './Sidebar.css'
 
@@ -11,6 +11,8 @@ const Sidebar = () => {
     admin: 'Yönetici',
     approver: 'Onaycı',
     approver2: 'Onaycı 2',
+    yonetici1: 'Yönetici 1',
+    yonetici2: 'Yönetici 2',
     user: 'Kullanıcı'
   }
 
@@ -18,6 +20,7 @@ const Sidebar = () => {
     ? [
         { path: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials',      icon: Package,         label: 'Malzemeler' },
+        { path: '/reservations',   icon: ClipboardList,   label: 'Rezervasyon Talepleri' },
         { path: '/tickets',        icon: Ticket,          label: 'Ticketlar' },
         { path: '/production-sites', icon: Factory,       label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree,      label: 'Ürün Grupları' },
@@ -26,6 +29,7 @@ const Sidebar = () => {
     : [
         { path: '/dashboard',      icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/materials',      icon: Package,         label: 'Malzemeler' },
+        { path: '/reservations',   icon: ClipboardList,   label: 'Rezervasyon Talepleri' },
         { path: '/tickets',        icon: Ticket,          label: 'Ticketlar' },
         { path: '/production-sites', icon: Factory,       label: 'Üretim Yerleri' },
         { path: '/product-groups', icon: FolderTree,      label: 'Ürün Grupları' },
