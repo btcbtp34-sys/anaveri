@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Download, Calendar, TrendingUp, CheckCircle, XCircle, Clock, Ticket } from 'lucide-react'
 import { INITIAL_MATERIALS } from '../data/materialsStore'
 import { INITIAL_TICKETS } from '../data/ticketStore'
@@ -223,22 +223,47 @@ function Pagination({ total, page, onPage }) {
   )
 }
 
-export default function AdminReports() {
-  const [activeTab, setActiveTab] = useState('materials')
-  const [dateRange, setDateRange] = useState({
-    start: new Date(new Date().setDate(1)).toISOString().split('T')[0],
-    end: new Date().toISOString().split('T')[0],
-  })
-  const [matPage, setMatPage] = useState(1)
-  const [dailyMatPage, setDailyMatPage] = useState(1)
-  const [ticketPage, setTicketPage] = useState(1)
-  const [dailyTicketPage, setDailyTicketPage] = useState(1)
+const MONTHS = [
+  { value: '01', label: 'Ocak' },
+  { value: '02', label: 'Şubat' },
+  { value: '03', label: 'Mart' },
+  { value: '04', label: 'Nisan' },
+  { value: '05', label: 'Mayıs' },
+  { value: '06', label: 'Haziran' },
+  { value: '07', label: 'Temmuz' },
+  { value: '08', label: 'Ağustos' },
+  { value: '09', label: 'Eylül' },
+  { value: '10', label: 'Ekim' },
+  { value: '11', label: 'Kasım' },
+  { value: '12', label: 'Aralık' },
+]
 
+const YEARS = ['2025', '2026', '2027']
+
+const getTimelineMonths = (endMonth, endYear) => {
+  const list = []
+  let m = parseInt(endMonth)
+  let y = parseInt(endYear)
+  for (let i = 0; i < 9; i++) {
+    list.unshift({
+      monthStr: String(m).padStart(2, '0'),
+      yearStr: String(y),
+      label: `${m}.${y}`
+    })
+    m--
+    if (m === 0) {
+      m = 12
+      y--
+    }
+  }
+  return list
+}
+
+export default function AdminReports() {
   // LocalStorage + demo verisini birleştir
   const allMaterials = useMemo(() => {
     const saved = localStorage.getItem('materials')
     const base = saved ? JSON.parse(saved) : INITIAL_MATERIALS
-    // Demo verisini ekle (id çakışmasını önle)
     const existingIds = new Set(base.map(m => m.id))
     const extra = MAY_DEMO_MATERIALS.filter(m => !existingIds.has(m.id))
     return [...base, ...extra]
@@ -251,6 +276,58 @@ export default function AdminReports() {
     const extra = MAY_DEMO_TICKETS.filter(t => !existingIds.has(t.id))
     return [...base, ...extra]
   }, [])
+
+  const initialMonthYear = useMemo(() => {
+    const sorted = allMaterials.filter(m => m.createdAt).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    if (sorted.length > 0) {
+      const latestDate = new Date(sorted[0].createdAt)
+      return {
+        month: String(latestDate.getMonth() + 1).padStart(2, '0'),
+        year: String(latestDate.getFullYear())
+      }
+    }
+    return { month: '05', year: '2026' }
+  }, [allMaterials])
+
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [selectedMonth, setSelectedMonth] = useState(initialMonthYear.month)
+  const [selectedYear, setSelectedYear] = useState(initialMonthYear.year)
+
+  // Sync selectedMonth and selectedYear if initialMonthYear changes
+  useEffect(() => {
+    setSelectedMonth(initialMonthYear.month)
+    setSelectedYear(initialMonthYear.year)
+  }, [initialMonthYear])
+
+  const dateRange = useMemo(() => {
+    const lastDay = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate()
+    return {
+      start: `${selectedYear}-${selectedMonth}-01`,
+      end: `${selectedYear}-${selectedMonth}-${String(lastDay).padStart(2, '0')}`,
+    }
+  }, [selectedMonth, selectedYear])
+
+  const handleMonthChange = (e) => {
+    setSelectedMonth(e.target.value)
+    setMatPage(1)
+    setDailyMatPage(1)
+    setTicketPage(1)
+    setDailyTicketPage(1)
+  }
+
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value)
+    setMatPage(1)
+    setDailyMatPage(1)
+    setTicketPage(1)
+    setDailyTicketPage(1)
+  }
+  const [matPage, setMatPage] = useState(1)
+  const [dailyMatPage, setDailyMatPage] = useState(1)
+  const [ticketPage, setTicketPage] = useState(1)
+  const [dailyTicketPage, setDailyTicketPage] = useState(1)
+
+  // Remapped state declarations below initialization to prevent duplicates
 
   const filteredMaterials = useMemo(() => {
     return allMaterials.filter(m => {
@@ -278,6 +355,186 @@ export default function AdminReports() {
     filteredTickets.filter(t => ['approved', 'rejected', 'completed'].includes(t.status)),
     [filteredTickets]
   )
+
+  // Calculate newly added items for the selected month/year
+  const addedMaterials = useMemo(() => {
+    return filteredMaterials.filter(m => {
+      // Exclude May demo materials if the selected month is May 2026
+      if (selectedMonth === '05' && selectedYear === '2026') {
+        return !MAY_DEMO_MATERIALS.some(dm => dm.id === m.id)
+      }
+      return true
+    })
+  }, [filteredMaterials, selectedMonth, selectedYear])
+
+  const newStoklu = useMemo(() => {
+    return addedMaterials.filter(m => ['ZSRF', 'ZHAM', 'ZMML', 'ZTIC'].includes(m.malzemeTuru || '')).length
+  }, [addedMaterials])
+
+  const newStoksuz = useMemo(() => {
+    return addedMaterials.length - newStoklu
+  }, [addedMaterials, newStoklu])
+
+  const addedTickets = useMemo(() => {
+    return filteredTickets.filter(t => {
+      if (selectedMonth === '05' && selectedYear === '2026') {
+        return !MAY_DEMO_TICKETS.some(dt => dt.id === t.id)
+      }
+      return true
+    })
+  }, [filteredTickets, selectedMonth, selectedYear])
+
+  const addedCompletedTickets = useMemo(() => {
+    return addedTickets.filter(t => ['completed', 'approved'].includes(t.status)).length
+  }, [addedTickets])
+
+  const addedPendingTickets = useMemo(() => {
+    return addedTickets.filter(t => ['pending', 'returned'].includes(t.status)).length
+  }, [addedTickets])
+
+  const addedEffort = useMemo(() => {
+    return addedTickets.reduce((sum, t) => sum + (t.spentHours || 0), 0)
+  }, [addedTickets])
+
+  const kpiData = useMemo(() => {
+    const isMay2026 = selectedMonth === '05' && selectedYear === '2026'
+    
+    const matCount = isMay2026 ? 4855 + addedMaterials.length : (filteredMaterials.length > 0 ? filteredMaterials.length : 240)
+    const stokluCount = isMay2026 ? 4187 + newStoklu : (filteredMaterials.length > 0 ? filteredMaterials.filter(m => ['ZSRF', 'ZHAM', 'ZMML', 'ZTIC'].includes(m.malzemeTuru || '')).length : 190)
+    const changedCount = isMay2026 ? 97778 + newStoklu : 4520 + (filteredMaterials.length > 0 ? filteredMaterials.length * 3 : 0)
+    const ticketCount = isMay2026 ? 550 + addedTickets.length : (filteredTickets.length > 0 ? filteredTickets.length : 35)
+    const effortVal = isMay2026 ? 82.97 + addedEffort : (filteredTickets.length > 0 ? filteredTickets.reduce((sum, t) => sum + (t.spentHours || 0), 0) : 45.5)
+    
+    let avgClosedTime = 27.23
+    if (isMay2026) {
+      if (addedTickets.length > 0) {
+        avgClosedTime = Math.round(((27.23 * 550 + addedTickets.reduce((sum, t) => sum + (t.spentHours || 0), 0)) / (550 + addedTickets.length)) * 100) / 100
+      }
+    } else {
+      const closed = filteredTickets.filter(t => ['completed', 'approved'].includes(t.status))
+      if (closed.length > 0) {
+        avgClosedTime = Math.round((closed.reduce((sum, t) => sum + (t.spentHours || 0), 0) / closed.length) * 100) / 100
+      } else {
+        avgClosedTime = 18.5
+      }
+    }
+
+    return {
+      matCount,
+      stokluCount,
+      changedCount,
+      ticketCount,
+      effortVal,
+      avgClosedTime
+    }
+  }, [selectedMonth, selectedYear, addedMaterials, newStoklu, addedTickets, addedEffort, filteredMaterials, filteredTickets])
+
+  const timelineData = useMemo(() => {
+    const months = getTimelineMonths(selectedMonth, selectedYear)
+    const standardCreated = [
+      { label: '9.2025', v1: 6137, v2: 8788 },
+      { label: '10.2025', v1: 1623, v2: 5051 },
+      { label: '11.2025', v1: 1619, v2: 4937 },
+      { label: '12.2025', v1: 1338, v2: 8196 },
+      { label: '1.2026', v1: 1996, v2: 5788 },
+      { label: '2.2026', v1: 4400, v2: 9952 },
+      { label: '3.2026', v1: 932, v2: 6037 },
+      { label: '4.2026', v1: 8396, v2: 17875 },
+      { label: '5.2026', v1: 668, v2: 4855 },
+    ]
+
+    const standardChanged = [
+      { label: '09.2025', v: 3913 },
+      { label: '10.2025', v: 5330 },
+      { label: '11.2025', v: 40482 },
+      { label: '12.2025', v: 18104 },
+      { label: '01.2026', v: 32658 },
+      { label: '02.2026', v: 41413 },
+      { label: '03.2026', v: 6429 },
+      { label: '04.2026', v: 13265 },
+      { label: '05.2026', v: 97778 },
+    ]
+
+    const standardTickets = [
+      { label: '9.2025', v1: 664, v2: 0 },
+      { label: '10.2025', v1: 820, v2: 0 },
+      { label: '11.2025', v1: 759, v2: 0 },
+      { label: '12.2025', v1: 865, v2: 0 },
+      { label: '1.2026', v1: 733, v2: 0 },
+      { label: '2.2026', v1: 708, v2: 0 },
+      { label: '3.2026', v1: 716, v2: 0 },
+      { label: '4.2026', v1: 843, v2: 0 },
+      { label: '5.2026', v1: 511, v2: 0 },
+    ]
+
+    const standardEffort = [
+      { label: '9.2025', v1: 146.0, v2: 23.9 },
+      { label: '10.2025', v1: 193.2, v2: 27.9 },
+      { label: '11.2025', v1: 158.4, v2: 30.5 },
+      { label: '12.2025', v1: 192.1, v2: 22.6 },
+      { label: '1.2026', v1: 131.9, v2: 12.5 },
+      { label: '2.2026', v1: 115.7, v2: 13.5 },
+      { label: '3.2026', v1: 114.6, v2: 14.1 },
+      { label: '4.2026', v1: 126.0, v2: 16.7 },
+      { label: '5.2026', v1: 82.97, v2: 27.2 },
+    ]
+
+    return months.map((month, idx) => {
+      let created = { v1: 0, v2: 0 }
+      let changed = { v: 0 }
+      let tickets = { v1: 0, v2: 0 }
+      let effort = { v1: 0, v2: 0 }
+
+      if (selectedMonth === '05' && selectedYear === '2026') {
+        created = { ...standardCreated[idx] }
+        changed = { ...standardChanged[idx] }
+        tickets = { ...standardTickets[idx] }
+        effort = { ...standardEffort[idx] }
+
+        if (idx === 8) {
+          created.v1 += newStoksuz
+          created.v2 = created.v1 + 4187 + newStoklu
+          changed.v += newStoklu
+          tickets.v1 += addedCompletedTickets
+          tickets.v2 += addedPendingTickets
+          effort.v1 += addedEffort
+          if (addedTickets.length > 0) {
+            effort.v2 = Math.round(((27.2 * 550 + addedTickets.reduce((sum, t) => sum + (t.spentHours || 0), 0)) / (550 + addedTickets.length)) * 10) / 10
+          }
+        }
+      } else {
+        const stdIdx = (idx + parseInt(selectedMonth) - 5 + 9) % 9
+        created = { ...standardCreated[stdIdx] }
+        changed = { ...standardChanged[stdIdx] }
+        tickets = { ...standardTickets[stdIdx] }
+        effort = { ...standardEffort[stdIdx] }
+
+        if (idx === 8) {
+          const monthStoklu = filteredMaterials.filter(m => ['ZSRF', 'ZHAM', 'ZMML', 'ZTIC'].includes(m.malzemeTuru || '')).length
+          const monthStoksuz = filteredMaterials.length - monthStoklu
+          const monthCompletedTickets = filteredTickets.filter(t => ['completed', 'approved'].includes(t.status)).length
+          const monthPendingTickets = filteredTickets.filter(t => ['pending', 'returned'].includes(t.status)).length
+          const monthEffort = filteredTickets.reduce((sum, t) => sum + (t.spentHours || 0), 0)
+
+          created.v1 = monthStoksuz > 0 ? monthStoksuz : Math.floor(Math.random() * 50) + 10
+          created.v2 = monthStoklu + monthStoksuz > 0 ? monthStoklu + monthStoksuz : Math.floor(Math.random() * 200) + 50
+          changed.v = monthStoklu > 0 ? monthStoklu : Math.floor(Math.random() * 40) + 5
+          tickets.v1 = monthCompletedTickets > 0 ? monthCompletedTickets : Math.floor(Math.random() * 100) + 10
+          tickets.v2 = monthPendingTickets
+          effort.v1 = monthEffort > 0 ? monthEffort : Math.floor(Math.random() * 30) + 5
+          effort.v2 = filteredTickets.length > 0 ? Math.round((monthEffort / filteredTickets.length) * 10) / 10 : 15.4
+        }
+      }
+
+      return {
+        label: month.label,
+        created,
+        changed,
+        tickets,
+        effort
+      }
+    })
+  }, [selectedMonth, selectedYear, newStoklu, newStoksuz, addedCompletedTickets, addedPendingTickets, addedEffort, filteredMaterials, filteredTickets])
 
   const stats = useMemo(() => ({
     totalMaterials: filteredMaterials.length,
@@ -439,12 +696,425 @@ export default function AdminReports() {
     link.click()
   }
 
+  const renderDashboard = () => {
+    return (
+      <div className="ar-dashboard">
+        {/* Row 1 of Charts */}
+        <div className="ar-chart-grid">
+          {/* Chart 1: Yaratılan Malzemeler */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">Yaratılan malzemeler</span>
+            <div className="ar-bar-chart">
+              {timelineData.map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar primary" style={{ height: `${(item.created.v1 / 20000) * 100}%` }} title={`Stoksuz: ${item.created.v1}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%' }}>{item.created.v1.toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div className="ar-bar secondary" style={{ height: `${(item.created.v2 / 20000) * 100}%` }} title={`Toplam: ${item.created.v2}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%', top: '-30px' }}>{item.created.v2.toLocaleString('tr-TR')}</span>
+                    </div>
+                  </div>
+                  <span className="ar-bar-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#3b82f6' }}></span>Stoksuz malzeme</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#a855f7' }}></span>Stoklanabilir malzeme</div>
+            </div>
+          </div>
+
+          {/* Chart 2: En az 1 verisi değişen stoklanabilir malzemeler */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">En az 1 verisi değişen stoklanabilir malzemeler</span>
+            <div className="ar-chart-callout">
+              Yeni açılan ÜY için genişletmeler yapılmıştır.
+            </div>
+            <div className="ar-bar-chart">
+              {timelineData.map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar" style={{ height: `${(item.changed.v / 120000) * 100}%`, background: i === 8 ? '#f59e0b' : '#3b82f6' }} title={`Değişen: ${item.changed.v}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%' }}>{item.changed.v.toLocaleString('tr-TR')}</span>
+                    </div>
+                  </div>
+                  <span className="ar-bar-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#3b82f6' }}></span>Değiştirilen Malzeme</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#f59e0b' }}></span>En Yüksek Değişim</div>
+            </div>
+          </div>
+
+          {/* Chart 3: Ticket sayıları ve durumları */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">Ticket sayıları ve durumları</span>
+            <div className="ar-bar-chart">
+              {timelineData.map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar grey" style={{ height: `${(item.tickets.v1 / 1000) * 100}%` }} title={`Tamamlanan: ${item.tickets.v1}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%' }}>{item.tickets.v1}</span>
+                    </div>
+                    {item.tickets.v2 > 0 && (
+                      <div className="ar-bar red" style={{ height: `${(item.tickets.v2 / 1000) * 100}%` }} title={`Devam Eden: ${item.tickets.v2}`}>
+                        <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%', top: '-30px' }}>{item.tickets.v2}</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="ar-bar-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#94a3b8' }}></span>Tamamlanan Ticket Sayısı</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#dc2626' }}></span>Devam Eden Ticket Sayısı</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2 of Charts */}
+        <div className="ar-chart-grid">
+          {/* Chart 4: Efor ve kapatma süreleri */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">Efor ve kapatma süreleri</span>
+            <div className="ar-chart-callout" style={{ maxWidth: '140px' }}>
+              ÜY genişletme işlemleri için tasarlanan ekran çalışmaları sebebiyle ilgili ticketlar bekletilmiştir.
+            </div>
+            <div className="ar-bar-chart">
+              {timelineData.map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar primary" style={{ height: `${(item.effort.v1 / 200) * 100}%` }} title={`Efor: ${item.effort.v1}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%' }}>{item.effort.v1}</span>
+                    </div>
+                  </div>
+                  {/* Line Chart Point simulation overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: `${(item.effort.v2 / 50) * 200}px`,
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#10b981',
+                    border: '1px solid #fff',
+                    transform: 'translateY(50%)',
+                    zIndex: 2
+                  }} title={`Kapatma: ${item.effort.v2} sa`}>
+                    <span style={{
+                      position: 'absolute',
+                      top: '-14px',
+                      left: '-8px',
+                      fontSize: '0.6rem',
+                      fontWeight: 'bold',
+                      color: '#065f46'
+                    }}>{item.effort.v2}</span>
+                  </div>
+                  <span className="ar-bar-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#3b82f6' }}></span>Toplam efor (saat)</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#10b981' }}></span>Ort. ticket kapatma süresi (saat)</div>
+            </div>
+          </div>
+
+          {/* Chart 5: Şirket Bazlı TOP10 */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">Şirket Bazlı TOP10 - {selectedMonth}.{selectedYear}</span>
+            <div className="ar-bar-chart">
+              {[
+                { label: 'REC', v1: 33.9, v2: 29.9, max1: 40, max2: 40 },
+                { label: 'RET', v1: 26.6, v2: 15.1, max1: 40, max2: 40 },
+                { label: 'RMG', v1: 21.4, v2: 9.5, max1: 40, max2: 40 },
+                { label: 'TBO', v1: 31.0, v2: 6.6, max1: 40, max2: 40 },
+                { label: 'KUM', v1: 24.2, v2: 6.6, max1: 40, max2: 40 },
+                { label: 'RX1', v1: 34.4, v2: 2.9, max1: 40, max2: 40 },
+                { label: 'VOL', v1: 6.7, v2: 2.6, max1: 40, max2: 40 },
+                { label: 'RBH', v1: 6.9, v2: 2.1, max1: 40, max2: 40 },
+                { label: 'RTS', v1: 36.4, v2: 1.4, max1: 40, max2: 40 },
+                { label: 'EMS', v1: 24.3, v2: 1.4, max1: 40, max2: 40 },
+              ].map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar primary" style={{ height: `${(item.v1 / item.max1) * 100}%` }} title={`Efor: ${item.v1}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%', fontSize: '0.6rem' }}>{item.v1}</span>
+                    </div>
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: `${(item.v2 / item.max2) * 200}px`,
+                    width: '5px',
+                    height: '5px',
+                    borderRadius: '50%',
+                    background: '#ef4444',
+                    border: '1px solid #fff',
+                    transform: 'translateY(50%)',
+                    zIndex: 2
+                  }} title={`Süre: ${item.v2} sa`}>
+                    <span style={{
+                      position: 'absolute',
+                      top: '-12px',
+                      left: '-8px',
+                      fontSize: '0.55rem',
+                      fontWeight: 'bold',
+                      color: '#b91c1c'
+                    }}>{item.v2}</span>
+                  </div>
+                  <span className="ar-bar-label">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#3b82f6' }}></span>Toplam efor (saat)</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#ef4444' }}></span>Ort. ticket kapatma süresi (saat)</div>
+            </div>
+          </div>
+
+          {/* Chart 6: Malzeme bazı İncelenen/Düzenlenen stok değerleri */}
+          <div className="ar-chart-card">
+            <span className="ar-chart-title">Malzeme bazı İncelenen/Düzenlenen stok değerleri</span>
+            <div className="ar-chart-subtitle">Milyonlar (₺)</div>
+            <div className="ar-bar-chart">
+              {[
+                { label: 'Demir', v1: 1321, max: 1500 },
+                { label: 'Hazır Beton', v1: 726, max: 1500 },
+                { label: 'Sac', v1: 607, max: 1500 },
+                { label: 'Kutu Profil', v1: 82, max: 1500 },
+                { label: 'Çelik Hasır', v1: 56, max: 1500 },
+                { label: 'Boya', v1: 28, max: 1500 },
+                { label: 'Lastik', v1: 13, max: 1500 },
+                { label: 'Halat', v1: 446, max: 1500 },
+              ].map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar green" style={{ height: `${(item.v1 / item.max) * 100}%` }} title={`Değer: ₺${item.v1}M`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%' }}>₺{item.v1}</span>
+                    </div>
+                  </div>
+                  <span className="ar-bar-label" style={{ fontSize: '0.55rem', wordBreak: 'break-all' }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend">
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#10b981' }}></span>Düzenlenen Toplam Değer</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Pie/Donut Charts Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
+          {/* Donut 1: Malzeme Kullanım Oranı */}
+          <div className="ar-chart-card" style={{ height: '280px' }}>
+            <span className="ar-chart-title">Malzeme Kullanım Oranı</span>
+            <div className="ar-donut-chart-container">
+              <svg width="120" height="120" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#cbd5e1" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f59e0b" strokeWidth="3"
+                        strokeDasharray="47.3 52.7" strokeDashoffset="25" />
+              </svg>
+              <div className="ar-donut-center">
+                <span className="ar-donut-pct">%47,3</span>
+                <span className="ar-donut-val">77.679</span>
+              </div>
+            </div>
+            <div className="ar-chart-legend" style={{ flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', paddingLeft: '0.5rem' }}>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#cbd5e1' }}></span>%52,7 (88.337) Alınmamış</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#f59e0b' }}></span>%47,3 (77.679) Alınmış</div>
+            </div>
+          </div>
+
+          {/* Donut 2: Dönem Bazlı Kullanım Oranı */}
+          <div className="ar-chart-card" style={{ height: '280px' }}>
+            <span className="ar-chart-title">Dönem Bazlı Kullanım</span>
+            <div className="ar-bar-chart" style={{ height: '140px', paddingBottom: '0.25rem' }}>
+              {[
+                { label: 'Son 1 Ay', v: 2.5, max: 50 },
+                { label: '1-3 Ay', v: 6.6, max: 50 },
+                { label: '3-6 Ay', v: 4.6, max: 50 },
+                { label: '6+ Ay', v: 44.9, max: 50 },
+              ].map((item, i) => (
+                <div key={i} className="ar-bar-column">
+                  <div className="ar-bar-group">
+                    <div className="ar-bar yellow" style={{ height: `${(item.v / item.max) * 100}%` }} title={`Kullanım: %${item.v}`}>
+                      <span className="ar-bar-value" style={{ transform: 'translateX(-50%)', left: '50%', fontSize: '0.6rem' }}>%{item.v}</span>
+                    </div>
+                  </div>
+                  <span className="ar-bar-label" style={{ fontSize: '0.55rem', whiteSpace: 'nowrap' }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="ar-chart-legend" style={{ fontSize: '0.65rem' }}>
+              <span>Yaratılmış & Satın Alınmış Oranı</span>
+            </div>
+          </div>
+
+          {/* Donut 3: Anaverisi incelenmiş malzemeler */}
+          <div className="ar-chart-card" style={{ height: '280px' }}>
+            <span className="ar-chart-title">Anaverisi İncelenmiş</span>
+            <div className="ar-donut-chart-container">
+              <svg width="120" height="120" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#cbd5e1" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3b82f6" strokeWidth="3"
+                        strokeDasharray="23.2 76.8" strokeDashoffset="25" />
+              </svg>
+              <div className="ar-donut-center">
+                <span className="ar-donut-pct">%23,2</span>
+                <span className="ar-donut-val">{kpiData.matCount === 4855 ? '3,28 BTL' : '3,29 BTL'}</span>
+              </div>
+            </div>
+            <div className="ar-chart-legend" style={{ flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', paddingLeft: '0.5rem' }}>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#3b82f6' }}></span>%23,2 İncelenmiş</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#cbd5e1' }}></span>%76,8 Bekleyen</div>
+              <span style={{ fontSize: '0.6rem', color: '#dc2626', fontWeight: 600 }}>Stok: ~14,12MilyarTL</span>
+            </div>
+          </div>
+
+          {/* Donut 4: Anaverisi düzenlenmiş malzemeler */}
+          <div className="ar-chart-card" style={{ height: '280px' }}>
+            <span className="ar-chart-title">Anaverisi Düzenlenmiş</span>
+            <div className="ar-donut-chart-container">
+              <svg width="120" height="120" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#cbd5e1" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#10b981" strokeWidth="3"
+                        strokeDasharray="15.6 84.4" strokeDashoffset="25" />
+              </svg>
+              <div className="ar-donut-center">
+                <span className="ar-donut-pct">%15,6</span>
+                <span className="ar-donut-val">2,19 BTL</span>
+              </div>
+            </div>
+            <div className="ar-chart-legend" style={{ flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', paddingLeft: '0.5rem' }}>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#10b981' }}></span>%15,6 Düzenlenmiş</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#cbd5e1' }}></span>%84,4 Bekleyen</div>
+              <span style={{ fontSize: '0.6rem', color: '#dc2626', fontWeight: 600 }}>Stok: ~14,12MilyarTL</span>
+            </div>
+          </div>
+
+          {/* Donut 5: Stoklu malzemeler kullanılabilirlik oranı */}
+          <div className="ar-chart-card" style={{ height: '280px' }}>
+            <span className="ar-chart-title">Stoklu Malzeme Kullanılabilirlik</span>
+            <div className="ar-donut-chart-container">
+              <svg width="120" height="120" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#cbd5e1" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.915" fill="none" stroke="#dc2626" strokeWidth="3"
+                        strokeDasharray="20.3 79.7" strokeDashoffset="25" />
+              </svg>
+              <div className="ar-donut-center">
+                <span className="ar-donut-pct">%20,3</span>
+                <span className="ar-donut-val">34.017</span>
+              </div>
+            </div>
+            <div className="ar-chart-legend" style={{ flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start', paddingLeft: '0.5rem' }}>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#dc2626' }}></span>%20,3 Satınalınabilir</div>
+              <div className="ar-legend-item"><span className="ar-legend-dot" style={{ background: '#cbd5e1' }}></span>%79,7 Tedarike Kapalı</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Table 1: KPI Details */}
+        <div className="ar-kpi-table-section">
+          <h2>Ana Rapor Göstergeleri (KPI)</h2>
+          <table className="ar-kpi-table">
+            <thead>
+              <tr>
+                <th style={{ width: '220px' }}>Gösterge</th>
+                <th style={{ width: '120px' }}>Değerler</th>
+                <th style={{ width: '80px' }}>Birim</th>
+                <th style={{ width: '100px' }}>Değişim</th>
+                <th>Açıklama</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { name: 'Yaratılan Anaveri', val: kpiData.matCount.toLocaleString('tr-TR'), unit: 'Adet', diff: '-73%', status: 'negative', desc: "Bir önceki aya göre yaratılan malzeme sayısında %73 oranında azalış söz konusudur. Bir önceki ay 5100 adet yeni kutu profil kodu yaratılmış olmasından dolayı bu ayın değerinde azalış görünmektedir." },
+                { name: '  Yaratılan Stoklu Anaveri', val: kpiData.stokluCount.toLocaleString('tr-TR'), unit: 'Adet', diff: '-56%', status: 'negative', desc: "Mayıs ayında yaratılan malzemelerin %86'sı Stoklu malzeme olarak yaratılmıştır. Bir önceki aya kıyasla azalışın nedeni Nisan ayında malzeme bazlı incelemeler sonucu oluşturulan malzeme sayısının fazla olmasıdır." },
+                { name: 'En az 1 verisi değişen Stoklu malzemeler', val: kpiData.changedCount.toLocaleString('tr-TR'), unit: 'Adet', diff: '637,1%', status: 'positive', desc: "Mayıs ayında yeni açılan ÜY'leri için malzemelere ÜY bakımı yapılmasından dolayı en az bir verisi değiştirilen malzeme sayısında artış yaşanmıştır. Bir önceki ay 13.265'tir." },
+                { name: 'Ticket Sayısı', val: kpiData.ticketCount.toLocaleString('tr-TR'), unit: 'Adet', diff: '-34,8%', status: 'negative', desc: "Bir önceki aya göre ticket sayısında azalış gözlemlenmiş olup mayıs ayıdan açık kalan ticket bulunmamaktadır. Bir önceki ay 843'tür." },
+                { name: 'Ticket Eforu', val: kpiData.effortVal.toLocaleString('tr-TR'), unit: 'Saat', diff: '-34,2%', status: 'negative', desc: "Toplam 82,97 saatlik eforun %36'sı REC, %18,2'si RET, %11,5'i ise RMG şirketi için harcanmıştır. Bir önceki ay efor 126 saattir." },
+                { name: 'Ortalama Ticket Kapama Süresi', val: kpiData.avgClosedTime.toLocaleString('tr-TR'), unit: 'Saat', diff: '63,1%', status: 'negative', desc: "Mayıs ayında açılan toplu ÜY genişletme ticketları, işlemlerin gerçekleştirilebilmesi için ihtiyaç duyulan toplu ÜY genişletme ekranının canlıya alınması süresince hold'da tutulmuştur. Bu sebeple ort. Ticket kapatma süresinde artış gözlemlenmiştir. Bir önceki ay 16,7 saattir." },
+                { name: 'Anaverisi incelenmiş malz. oranı ve değeri', val: '3.279.253.237', unit: 'TL', diff: '0,0%', status: 'neutral', desc: "Nisan ayında incelenen malzeme anaverilerine ek olarak Mayıs ayında malzeme anaveri inceleme işlemi yapılmamıştır." },
+                { name: 'Anaverisi düzenlenmiş malz. oranı ve değeri', val: '2.197.827.807', unit: 'TL', diff: '49,34%', status: 'positive', desc: "Malzeme bazlı incelemeler sonrası düzenleme faaliyetleri Nisan ayında 1,47 Milyar TL iken Mayıs ayında 2,19 Milyar TL değerine yükselmiştir." }
+              ].map((row, idx) => (
+                <tr key={idx}>
+                  <td style={{ fontWeight: 600, paddingLeft: row.name.startsWith(' ') ? '1.5rem' : '0.75rem', color: row.name.startsWith(' ') ? '#475569' : '#0f172a' }}>{row.name}</td>
+                  <td style={{ fontWeight: 700, fontFamily: 'monospace' }}>{row.val}</td>
+                  <td>{row.unit}</td>
+                  <td>
+                    <span className={`ar-change-badge ${row.status}`}>
+                      {row.diff}
+                    </span>
+                  </td>
+                  <td style={{ color: '#475569', fontSize: '0.8rem', lineHeight: '1.4' }}>{row.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bottom Table 2: Lokasyon Bazlı Malzeme Anaveri İncelemeleri */}
+        <div className="ar-kpi-table-section">
+          <h2>Lokasyon Bazlı Malzeme Anaveri İncelemeleri</h2>
+          <table className="ar-kpi-table">
+            <thead>
+              <tr>
+                <th style={{ width: '300px' }}>Üretim Yeri</th>
+                <th style={{ width: '150px' }}>Veriler</th>
+                <th style={{ width: '220px' }}>İnceleme İlerlemesi</th>
+                <th>Düzenlenecek</th>
+                <th style={{ width: '220px' }}>Düzenleme İlerlemesi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { type: 'sub', name: 'Malzeme metni', rate1: 52, note: 'İncelemeler tamamlandıktan sonra belirlenecektir.', rate2: 52 },
+                { type: 'sub', name: 'TÖB', rate1: 52, note: 'İncelemeler tamamlandıktan sonra belirlenecektir.', rate2: 52 },
+                { type: 'sub', name: 'Sınıflandırma', rate1: 36, note: 'İncelemeler tamamlandıktan sonra belirlenecektir.', rate2: 36 },
+                { type: 'sub', name: 'Adresleme', rate1: 50.1, note: '975', rate2: 50.1 }
+              ].map((row, idx) => (
+                <tr key={idx}>
+                  {idx === 0 ? (
+                    <td rowSpan="4" style={{ fontWeight: 700, color: '#1e3a8a', verticalAlign: 'middle', borderRight: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                      H057 Ceyhan PDH-PP & H066 Ceyhan Terminal
+                    </td>
+                  ) : null}
+                  <td style={{ fontWeight: 600, color: '#475569' }}>{row.name}</td>
+                  <td>
+                    <div className="ar-progress-wrapper">
+                      <div className="ar-progress-bar-bg">
+                        <div className="ar-progress-bar-fill" style={{ width: `${row.rate1}%`, background: '#3b82f6' }} />
+                      </div>
+                      <span className="ar-progress-text" style={{ color: '#2563eb' }}>%{row.rate1}</span>
+                    </div>
+                  </td>
+                  <td style={{ color: '#64748b', fontSize: '0.8rem' }}>{row.note}</td>
+                  <td>
+                    <div className="ar-progress-wrapper">
+                      <div className="ar-progress-bar-bg">
+                        <div className="ar-progress-bar-fill" style={{ width: `${row.rate2}%`, background: '#10b981' }} />
+                      </div>
+                      <span className="ar-progress-text" style={{ color: '#059669' }}>%{row.rate2}</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="ar-page">
       <div className="ar-header">
         <div>
-          <h1>Raporlar ve İstatistikler</h1>
-          <p>Malzeme oluşturma, onay süreçleri ve ticket verileri</p>
+          <h1>Malzeme Anaveri Raporu — {MONTHS.find(m => m.value === selectedMonth)?.label} {selectedYear}</h1>
+          <p>Malzeme oluşturma, onay süreçleri ve ticket verileri özeti</p>
         </div>
         <div className="ar-header-actions">
           <Button variant="secondary" size="medium" onClick={exportMaterialsExcel}>
@@ -456,21 +1126,49 @@ export default function AdminReports() {
         </div>
       </div>
 
-      {/* Tarih Aralığı */}
+      {/* Ay / Yıl Seçimi */}
       <div className="ar-filters">
-        <div className="ar-date-range">
+        <div className="ar-date-range" style={{ gap: '0.75rem', display: 'flex', alignItems: 'center' }}>
           <Calendar size={16} />
-          <input
-            type="date"
-            value={dateRange.start}
-            onChange={e => { setDateRange(r => ({ ...r, start: e.target.value })); setMatPage(1); setDailyMatPage(1); setTicketPage(1); setDailyTicketPage(1) }}
-          />
-          <span>—</span>
-          <input
-            type="date"
-            value={dateRange.end}
-            onChange={e => { setDateRange(r => ({ ...r, end: e.target.value })); setMatPage(1); setDailyMatPage(1); setTicketPage(1); setDailyTicketPage(1) }}
-          />
+          <select
+            value={selectedMonth}
+            onChange={handleMonthChange}
+            style={{
+              padding: '0.5rem 2rem 0.5rem 0.75rem',
+              border: '1px solid #e2e8f0',
+              borderRadius: '6px',
+              fontSize: '0.875rem',
+              background: '#fff',
+              cursor: 'pointer',
+              color: '#334155',
+              fontWeight: 500,
+              outline: 'none'
+            }}
+          >
+            {MONTHS.map(m => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+          <span style={{ color: '#cbd5e1' }}>/</span>
+          <select
+            value={selectedYear}
+            onChange={handleYearChange}
+            style={{
+              padding: '0.5rem 2rem 0.5rem 0.75rem',
+              border: '1px solid #e2e8f0',
+              borderRadius: '6px',
+              fontSize: '0.875rem',
+              background: '#fff',
+              cursor: 'pointer',
+              color: '#334155',
+              fontWeight: 500,
+              outline: 'none'
+            }}
+          >
+            {YEARS.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -535,6 +1233,12 @@ export default function AdminReports() {
       {/* Tab Seçimi */}
       <div className="ar-tabs">
         <button
+          className={`ar-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          Anaveri Raporu (Görsel)
+        </button>
+        <button
           className={`ar-tab ${activeTab === 'materials' ? 'active' : ''}`}
           onClick={() => setActiveTab('materials')}
         >
@@ -547,6 +1251,8 @@ export default function AdminReports() {
           Ticket Raporu
         </button>
       </div>
+
+      {activeTab === 'dashboard' && renderDashboard()}
 
       {activeTab === 'materials' && (
         <>
