@@ -21,17 +21,18 @@ import {
   Upload,
   Eye,
   ArrowRightLeft,
-  FileEdit
+  FileEdit,
+  ClipboardList
 } from 'lucide-react'
 import './Presentation.css'
 
 // Logo URLs
-const btcLogo = 'https://www.btc-ag.com.tr/css/BTC-AG/images/BTC-AG-Logo.svg'
+const btcLogo = 'https://www.btc-ag.com.tr/wp-content/uploads/2026/01/btc-logo.svg'
 const ronesansLogo = 'https://upload.wikimedia.org/wikipedia/tr/d/d7/Ronesans_holding.png'
 
 // Ekran görüntülerini dinamik import ile yükle
 let dashboardImg, materialsImg, materialNewImg, materialBulkImg, materialDetailImg, 
-    materialExtendImg, materialChangeImg, approvalsImg, reportsImg, rulesImg, ticketsImg, ticketDetailImg
+    materialExtendImg, materialChangeImg, approvalsImg, reportsImg, rulesImg, ticketsImg, ticketDetailImg, reservationsImg, reports2Img
 
 try { dashboardImg = new URL('../assets/screenshots/dashboard.png', import.meta.url).href } catch {}
 try { materialsImg = new URL('../assets/screenshots/materials.png', import.meta.url).href } catch {}
@@ -45,6 +46,8 @@ try { reportsImg = new URL('../assets/screenshots/reports.png', import.meta.url)
 try { rulesImg = new URL('../assets/screenshots/rules.png', import.meta.url).href } catch {}
 try { ticketsImg = new URL('../assets/screenshots/tickets.png', import.meta.url).href } catch {}
 try { ticketDetailImg = new URL('../assets/screenshots/ticket-detail.png', import.meta.url).href } catch {}
+try { reservationsImg = new URL('../assets/screenshots/reservations.png', import.meta.url).href } catch {}
+try { reports2Img = new URL('../assets/screenshots/reports2.png', import.meta.url).href } catch {}
 
 const slides = [
   {
@@ -236,21 +239,21 @@ const slides = [
   {
     id: 11,
     type: 'feature',
-    title: 'Admin Raporları',
-    subtitle: 'Detaylı analiz ve istatistikler',
-    description: 'Sistem kullanım metrikleri, malzeme analizleri ve kullanıcı performansını takip edin.',
+    title: 'Rezervasyon Yönetimi',
+    subtitle: 'SAP entegrasyonlu malzeme rezervasyonu',
+    description: 'Şantiyeleriniz veya departmanlarınız için depolardan malzeme rezervasyon talepleri oluşturun ve onay sürecini işletin.',
     bgColor: '#0f172a',
-    icon: BarChart3,
+    icon: ClipboardList,
     screenshot: true,
-    screenshotUrl: reportsImg,
-    targetPage: '/admin/reports',
+    screenshotUrl: reservationsImg,
+    targetPage: '/reservations',
     features: [
-      'Toplam/Aylık malzeme oluşturma sayısı',
-      'Onay oranı ve süre analizi',
-      'Kullanıcı bazlı aktivite raporu',
-      'Üretim yeri ve mal grubu dağılımı',
-      'Zaman bazlı trend grafikleri',
-      'En çok kullanılan malzeme türleri'
+      'Depo bazlı malzeme rezervasyonu oluşturma',
+      '2 aşamalı onay mekanizması (Bölüm ve Bütçe onayları)',
+      'SAP ile tam entegre rezervasyon numarası oluşturma',
+      'Rezervasyon durum takibi (Beklemede, Onaylandı, Reddedildi)',
+      'Detaylı rezervasyon hareketleri geçmişi ve yorumlar',
+      'Malzeme kodları ve açıklamaları ile hızlı arama'
     ]
   },
   {
@@ -275,6 +278,44 @@ const slides = [
   },
   {
     id: 13,
+    type: 'feature',
+    title: 'Admin Raporları',
+    subtitle: 'Detaylı analiz ve istatistikler',
+    description: 'Sistem kullanım metrikleri, malzeme analizleri ve kullanıcı performansını takip edin.',
+    bgColor: '#0f172a',
+    icon: BarChart3,
+    screenshot: true,
+    screenshotUrl: reportsImg,
+    targetPage: '/admin/reports',
+    features: [
+      'Toplam/Aylık malzeme oluşturma sayısı',
+      'Onay oranı ve süre analizi',
+      'Kullanıcı bazlı aktivite raporu',
+      'Üretim yeri ve mal grubu dağılımı',
+      'Zaman bazlı trend grafikleri',
+      'En çok kullanılan malzeme türleri'
+    ]
+  },
+  {
+    id: 14,
+    type: 'feature',
+    title: 'Admin Raporları (Detay)',
+    subtitle: 'İşlem detayları ve log analizleri',
+    description: 'Oluşturulan tüm malzemelerin detaylı günlük dağılım listesini ve işlem geçmişini analiz edin.',
+    bgColor: '#0f172a',
+    icon: BarChart3,
+    screenshot: true,
+    screenshotUrl: reports2Img,
+    targetPage: '/admin/reports',
+    features: [
+      'Günlük bazda oluşturulan, onaylanan ve reddedilen veri analizi',
+      'Detaylı malzeme log listesi (tarih, kod, ürün adı, mal grubu, durum)',
+      'İşlemi gerçekleştiren kullanıcı takibi',
+      'Tek tıkla tüm verileri Excel (CSV) formatında indirme'
+    ]
+  },
+  {
+    id: 15,
     type: 'highlights',
     title: 'Neden Bu Sistem?',
     bgColor: '#1e293b',
@@ -302,7 +343,7 @@ const slides = [
     ]
   },
   {
-    id: 14,
+    id: 16,
     type: 'cta',
     title: 'Hemen Başlayın',
     subtitle: 'Malzeme yönetiminizi bir üst seviyeye taşıyın',
