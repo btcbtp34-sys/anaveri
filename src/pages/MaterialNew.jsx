@@ -51,7 +51,7 @@ const getValuationClass = (malGrubu, productionSite) => {
 }
 
 const EMPTY = {
-  productionSites: [], depoYeri: '', status: 'Kontrol Ediliyor',
+  productionSites: [], status: 'Kontrol Ediliyor',
   urunAdi: '', tipModel: '', ozellik: '', olcu: '', marka: '',
   ureticiParcaNo: '', seriNo: '',
   malGrubu: '', urunHiyerarsisi: '', commodityKod: '', unit: '',
@@ -269,7 +269,6 @@ export default function MaterialNew({ onSave }) {
       unit: form.unit,
       productionSite: form.productionSites[0] || '',
       productionSites: form.productionSites,
-      depoYeri: form.depoYeri,
       ureticiParcaNo: form.ureticiParcaNo,
       seriNo: form.seriNo,
       status: 'Kontrol Ediliyor',
@@ -384,10 +383,7 @@ export default function MaterialNew({ onSave }) {
                 </div>
               )}
             </Field>
-            <div className="mnp-row-2" style={{ marginTop: '0.875rem' }}>
-              <Field label="Depo Yeri">
-                <input value={form.depoYeri} onChange={e => set('depoYeri', e.target.value)} placeholder="Depo yeri" />
-              </Field>
+            <div style={{ marginTop: '0.875rem' }}>
               <Field label="Durum">
                 <input value="Kontrol Ediliyor" readOnly className="mnp-readonly" />
               </Field>
@@ -461,8 +457,28 @@ export default function MaterialNew({ onSave }) {
               <Field label="Üretici Parça No" hint="Opsiyonel">
                 <input value={form.ureticiParcaNo} onChange={e => set('ureticiParcaNo', e.target.value)} placeholder="Üretici parça numarası" />
               </Field>
-              <Field label="Seri No" hint="Opsiyonel">
-                <input value={form.seriNo} onChange={e => set('seriNo', e.target.value)} placeholder="Seri numarası" />
+              <Field label="Seri No Profili" hint="Opsiyonel">
+                <select
+                  value={form.seriNo || ''}
+                  onChange={e => set('seriNo', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.625rem 0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.875rem',
+                    backgroundColor: '#fff',
+                    color: '#1e293b'
+                  }}
+                >
+                  <option value="">Profil Yok (Seri No Takipsiz)</option>
+                  <option value="0001">0001 - Seri No Girişi Zorunlu</option>
+                  <option value="0002">0002 - Otomatik Seri No Atama</option>
+                  <option value="0003">0003 - Girişte ve Çıkışta Seri No</option>
+                  <option value="0004">0004 - Sadece Çıkışta Seri No</option>
+                  <option value="Z001">Z001 - Şantiye / Ekipman Seri No Profili</option>
+                  <option value="Z002">Z002 - IT / Donanım Seri No Profili</option>
+                </select>
               </Field>
             </div>
 

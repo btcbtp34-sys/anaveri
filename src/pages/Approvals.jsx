@@ -11,7 +11,7 @@ const getMaterialVisual = (material) => {
   const realImages = {
     'Beton': 'https://images.pexels.com/photos/1117452/pexels-photo-1117452.jpeg?auto=compress&cs=tinysrgb&w=400',
     'Demir': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
-    'Çimento': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Çimento': 'https://images.unsplash.com/photo-1680357680725-f350480aee35?auto=format&fit=crop&w=400&q=80',
     'Çelik': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
     'Boru': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
     'Kablo': 'https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=400',

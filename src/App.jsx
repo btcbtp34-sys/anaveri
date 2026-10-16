@@ -63,7 +63,7 @@ function AppContent() {
   const [materials, setMaterials] = useState(() => {
     const saved = localStorage.getItem('materials')
     const savedVersion = localStorage.getItem('materialsVersion')
-    const currentVersion = '3.2' // Versiyon numarasını artırarak yeni verileri zorla
+    const currentVersion = '4.0' // Versiyon numarasını artırarak yeni katalog verilerini yükle
     
     // Eğer versiyon eski ise veya yoksa, yeni verileri yükle
     if (savedVersion !== currentVersion) {

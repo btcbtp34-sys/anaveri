@@ -210,8 +210,28 @@ export default function MaterialEdit({ materials, onUpdate }) {
               <Field label="Üretici Parça No">
                 <input value={form.ureticiParcaNo || ''} onChange={e => set('ureticiParcaNo', e.target.value)} />
               </Field>
-              <Field label="Seri No">
-                <input value={form.seriNo || ''} onChange={e => set('seriNo', e.target.value)} />
+              <Field label="Seri No Profili">
+                <select
+                  value={form.seriNo || ''}
+                  onChange={e => set('seriNo', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.625rem 0.75rem',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.875rem',
+                    backgroundColor: '#fff',
+                    color: '#1e293b'
+                  }}
+                >
+                  <option value="">Profil Yok (Seri No Takipsiz)</option>
+                  <option value="0001">0001 - Seri No Girişi Zorunlu</option>
+                  <option value="0002">0002 - Otomatik Seri No Atama</option>
+                  <option value="0003">0003 - Girişte ve Çıkışta Seri No</option>
+                  <option value="0004">0004 - Sadece Çıkışta Seri No</option>
+                  <option value="Z001">Z001 - Şantiye / Ekipman Seri No Profili</option>
+                  <option value="Z002">Z002 - IT / Donanım Seri No Profili</option>
+                </select>
               </Field>
             </div>
             {tanim && (

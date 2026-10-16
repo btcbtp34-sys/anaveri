@@ -1,21 +1,21 @@
-import { useState, useMemo, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Search, Plus, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter, ArrowRightLeft, FileEdit, Layers, Package as PackageIcon } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Search, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter, Package as PackageIcon } from 'lucide-react'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import { useAuth } from '../contexts/AuthContext'
 import { MAL_GRUPLARI, MALZEME_TURLERI } from '../data/materialHierarchy'
 import './Materials.css'
 
-const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Crect width="40" height="40" fill="%23f1f5f9"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="16" fill="%2394a3b8"%3E📦%3C/text%3E%3C/svg%3E'
+const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="m7.5 4.27 9 5.15"%3E%3C/path%3E%3Cpath d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"%3E%3C/path%3E%3Cpath d="m3.3 7 8.7 5 8.7-5"%3E%3C/path%3E%3Cpath d="M12 22V12"%3E%3C/path%3E%3C/svg%3E'
 
 const CATEGORY_IMAGES = {
   'İnşaat Malzemeleri': 'https://images.pexels.com/photos/1117452/pexels-photo-1117452.jpeg?auto=compress&cs=tinysrgb&w=80',
   'Elektrik Malzemeleri': 'https://images.pexels.com/photos/257736/pexels-photo-257736.jpeg?auto=compress&cs=tinysrgb&w=80',
   'Mekanik Malzemeler': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=80',
   'Kaplama Malzemeleri': 'https://images.pexels.com/photos/1358900/pexels-photo-1358900.jpeg?auto=compress&cs=tinysrgb&w=80',
-  'Yalıtım Malzemeleri': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=80',
-  'Boya ve Kimyasallar': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=80',
+  'Yalıtım Malzemeleri': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=80&q=80',
+  'Boya ve Kimyasallar': 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=80&q=80',
   default: PLACEHOLDER_IMG,
 }
 
@@ -34,13 +34,13 @@ const getMaterialVisual = (material) => {
     // Demir
     'Demir': 'https://images.pexels.com/photos/159358/construction-site-build-construction-work-159358.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Çimento
-    'Cimento': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Cimento': 'https://images.unsplash.com/photo-1680357680725-f350480aee35?auto=format&fit=crop&w=400&q=80',
     // Çelik
     'Celik': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Tuğla
     'Tugla': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Gazbeton
-    'Gazbeton': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Gazbeton': 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=400&q=80',
     // Alçıpan
     'Alcipan': 'https://images.pexels.com/photos/8961183/pexels-photo-8961183.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Boru
@@ -54,11 +54,11 @@ const getMaterialVisual = (material) => {
     // Sac
     'Sac': 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Su Yalıtım
-    'Su': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Su': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=400&q=80',
     // Cam Yünü
-    'Cam': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Cam': 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=400&q=80',
     // Taş Yünü
-    'Tas': 'https://images.pexels.com/photos/5974931/pexels-photo-5974931.jpeg?auto=compress&cs=tinysrgb&w=400',
+    'Tas': 'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?auto=format&fit=crop&w=400&q=80',
     // Seramik
     'Seramik': 'https://images.pexels.com/photos/1358900/pexels-photo-1358900.jpeg?auto=compress&cs=tinysrgb&w=400',
     // Kapı
@@ -154,23 +154,42 @@ function getApprovalMeta(status) {
 
 export default function Materials({ materials, onDelete }) {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user, isAdmin } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [viewMode, setViewMode] = useState('grid')
   const [modal, setModal] = useState(null)
   const [selected, setSelected] = useState(null)
   const [bulkText, setBulkText] = useState(BULK_TEMPLATE)
-  const [showNewMenu, setShowNewMenu] = useState(false)
-  const newMenuRef = useRef(null)
   const [bulkError, setBulkError] = useState('')
   const [nextId, setNextId] = useState(100)
   const [page, setPage] = useState(1)
 
+  const urlMalzemeTuru = searchParams.get('malzemeTuru')
+
   const [filters, setFilters] = useState({
-    malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: []
+    malzemeTuru: urlMalzemeTuru ? [urlMalzemeTuru] : [], 
+    urunHiyerarsisi: [], 
+    malGrubu: [], 
+    approvalStatus: [], 
+    productionSite: [], 
+    tipModel: [], 
+    ozellik: [], 
+    olcu: []
   })
+
+  // URL parametresi değiştikçe filtreyi güncelle
+  useEffect(() => {
+    const mt = searchParams.get('malzemeTuru')
+    if (mt) {
+      setFilters(f => ({ ...f, malzemeTuru: [mt] }))
+    } else {
+      setFilters(f => ({ ...f, malzemeTuru: [] }))
+    }
+  }, [searchParams])
+
   const [collapsed, setCollapsed] = useState({
-    approvalStatus: false, malzemeTuru: false, urunHiyerarsisi: false, malGrubu: true, tipModel: true, ozellik: true, olcu: true, productionSite: false
+    malzemeTuru: false, productionSite: false, urunHiyerarsisi: false, malGrubu: false, approvalStatus: true, tipModel: true, ozellik: true, olcu: true
   })
   const [groupSearches, setGroupSearches] = useState({
     malzemeTuru: '', urunHiyerarsisi: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
@@ -207,6 +226,7 @@ export default function Materials({ materials, onDelete }) {
         m.name.toLowerCase().includes(s) ||
         m.code.toLowerCase().includes(s) ||
         (m.tipModel || '').toLowerCase().includes(s)
+
       const matchMalzemeTuru = !filters.malzemeTuru.length || filters.malzemeTuru.includes(m.malzemeTuru || '')
       const matchUrunHiyerarsisi = !filters.urunHiyerarsisi.length || filters.urunHiyerarsisi.includes(m.urunHiyerarsisi || '')
       const matchMalGrubu = !filters.malGrubu.length || filters.malGrubu.includes(m.malGrubu)
@@ -223,6 +243,7 @@ export default function Materials({ materials, onDelete }) {
       const matchOlcu = !filters.olcu.length ||
         filters.olcu.includes(m.olcu || '') ||
         (filters.olcu.includes('(Boş)') && !m.olcu)
+
       return matchSearch && matchMalzemeTuru && matchUrunHiyerarsisi && matchMalGrubu && matchApproval && matchSite && matchTip && matchOzellik && matchOlcu
     })
   }, [materials, searchTerm, filters])
@@ -237,23 +258,13 @@ export default function Materials({ materials, onDelete }) {
   const activeFilterCount = Object.values(filters).flat().length
   const clearFilters = () => {
     setFilters({ malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
+    setSearchParams({})
     setPage(1)
   }
 
   const openDelete = (m) => { setSelected(m); setModal('delete') }
   const closeModal = () => { setModal(null); setSelected(null) }
   const handleDelete = () => { onDelete(selected.id); closeModal() }
-
-  // Dropdown menü dışına tıklayınca kapat
-  useEffect(() => {
-    const handler = (e) => {
-      if (newMenuRef.current && !newMenuRef.current.contains(e.target)) {
-        setShowNewMenu(false)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   const handleBulkImport = () => {
     setBulkError('')
@@ -286,42 +297,6 @@ export default function Materials({ materials, onDelete }) {
           <h1>Malzemeler</h1>
           <p>{filtered.length} / {materials.length} malzeme</p>
         </div>
-        <div className="mat-header-actions">
-          <div className="mat-new-dropdown" ref={newMenuRef}>
-            <Button 
-              variant="primary" 
-              size="medium" 
-              onClick={() => setShowNewMenu(!showNewMenu)}
-            >
-              <Plus size={16} /> Yeni Talep <ChevronDown size={14} />
-            </Button>
-            {showNewMenu && (
-              <div className="mat-dropdown-menu">
-                <button onClick={() => { navigate('/materials/new'); setShowNewMenu(false) }}>
-                  <Plus size={16} />
-                  <span>Yeni Malzeme</span>
-                </button>
-                <button onClick={() => { navigate('/materials/request-bulk'); setShowNewMenu(false) }}>
-                  <Layers size={16} />
-                  <span>Toplu Malzeme</span>
-                </button>
-                <div className="mat-dropdown-divider" />
-                <button onClick={() => { navigate('/materials/extend'); setShowNewMenu(false) }}>
-                  <ArrowRightLeft size={16} />
-                  <span>Malzeme Genişletme</span>
-                </button>
-                <button onClick={() => { navigate('/materials/change-desc'); setShowNewMenu(false) }}>
-                  <FileEdit size={16} />
-                  <span>Tanım Değişikliği</span>
-                </button>
-                <button onClick={() => { navigate('/materials/add-unit'); setShowNewMenu(false) }}>
-                  <PackageIcon size={16} />
-                  <span>Ek Ölçü Birimi</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
       <div className="mat-layout">
@@ -336,22 +311,7 @@ export default function Materials({ materials, onDelete }) {
             )}
           </div>
 
-          <FilterGroup
-            title="Onay Durumu" filterKey="approvalStatus"
-            items={approvalStatuses.map(v => ({ val: v, label: getApprovalMeta(v).label }))}
-            filters={filters} toggle={toggleFilter}
-            collapsed={collapsed} toggleCollapse={toggleCollapse}
-            materials={materials} valueKey="status"
-            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
-          />
-          <FilterGroup
-            title="Üretim Yeri" filterKey="productionSite"
-            items={productionSites.map(v => ({ val: v, label: v || '(Boş)' }))}
-            filters={filters} toggle={toggleFilter}
-            collapsed={collapsed} toggleCollapse={toggleCollapse}
-            materials={materials} valueKey="productionSite"
-            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
-          />
+          {/* 1. Malzeme Türü (En Üstte - ZPRJ ve ZSRF Başta) */}
           <FilterGroup
             title="Malzeme Türü" filterKey="malzemeTuru"
             items={MALZEME_TURLERI.map(t => ({ val: t.kod, label: `${t.kod} - ${t.tanim}` }))}
@@ -360,6 +320,18 @@ export default function Materials({ materials, onDelete }) {
             materials={materials} valueKey="malzemeTuru"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
+
+          {/* 2. Üretim Yeri (2. Kriter) */}
+          <FilterGroup
+            title="Üretim Yeri" filterKey="productionSite"
+            items={productionSites.map(v => ({ val: v, label: v || '(Boş)' }))}
+            filters={filters} toggle={toggleFilter}
+            collapsed={collapsed} toggleCollapse={toggleCollapse}
+            materials={materials} valueKey="productionSite"
+            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
+          />
+
+          {/* 3. Ürün Hiyerarşisi (3. Kriter) */}
           <FilterGroup
             title="Ürün Hiyerarşisi" filterKey="urunHiyerarsisi"
             items={uniqWithEmpty('urunHiyerarsisi').map(v => ({ val: v, label: v || '(Boş)' }))}
@@ -368,12 +340,24 @@ export default function Materials({ materials, onDelete }) {
             materials={materials} valueKey="urunHiyerarsisi"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
+
+          {/* 4. Mal Grubu (4. Kriter) */}
           <FilterGroup
             title="Mal Grubu" filterKey="malGrubu"
-            items={MAL_GRUPLARI.filter(g => materials.some(m => m.malGrubu === g.kod)).map(g => ({ val: g.kod, label: g.kod }))}
+            items={MAL_GRUPLARI.filter(g => materials.some(m => m.malGrubu === g.kod)).map(g => ({ val: g.kod, label: `${g.kod} - ${g.tanim || ''}` }))}
             filters={filters} toggle={toggleFilter}
             collapsed={collapsed} toggleCollapse={toggleCollapse}
             materials={materials} valueKey="malGrubu"
+            groupSearches={groupSearches} setGroupSearches={setGroupSearches}
+          />
+
+          {/* Diğer Kriterler */}
+          <FilterGroup
+            title="Onay Durumu" filterKey="approvalStatus"
+            items={approvalStatuses.map(v => ({ val: v, label: getApprovalMeta(v).label }))}
+            filters={filters} toggle={toggleFilter}
+            collapsed={collapsed} toggleCollapse={toggleCollapse}
+            materials={materials} valueKey="status"
             groupSearches={groupSearches} setGroupSearches={setGroupSearches}
           />
           <FilterGroup

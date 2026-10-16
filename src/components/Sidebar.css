@@ -234,6 +234,170 @@
 }
 
 /* Mobile Bottom Navigation */
+/* Akordeon ve Katalog Yapısı */
+.nav-accordion-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-accordion-toggle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  font-family: inherit;
+}
+
+.nav-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.nav-accordion-arrow {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+
+
+/* Talep Alt Menüsü */
+.sidebar-sub-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.25rem 0 0.5rem 1.75rem;
+  margin-left: 0.5rem;
+  border-left: 2px solid #1e293b;
+}
+
+.sidebar-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.65rem;
+  color: #94a3b8;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.sidebar-sub-item:hover {
+  color: #f8fafc;
+  background: #1e293b;
+}
+
+.sidebar-sub-item.active {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  font-weight: 600;
+}
+
+.sub-item-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* Katalog Ağacı (Hepsiburada mantığı) */
+.sidebar-catalog-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0.35rem 0 0.5rem 0.75rem;
+  margin-left: 0.5rem;
+  border-left: 2px solid #334155;
+}
+
+
+
+.sidebar-type-btn {
+  background: transparent;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  color: #94a3b8;
+  font-family: inherit;
+}
+
+.sidebar-type-btn:hover {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.sidebar-type-btn.active {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.sidebar-type-btn.active .cat-lucide-icon {
+  color: #38bdf8;
+}
+
+.sidebar-type-btn.active .catalog-badge {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.sidebar-type-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-type-arrow {
+  color: #475569;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-type-btn:hover .sidebar-type-arrow {
+  color: #94a3b8;
+  transform: translateX(2px);
+}
+
+.sidebar-type-btn.active .sidebar-type-arrow {
+  color: #38bdf8;
+}
+
+.sidebar-type-name {
+  font-size: 0.775rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catalog-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #1e293b;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;

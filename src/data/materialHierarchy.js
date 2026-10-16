@@ -1,20 +1,88 @@
-// Malzeme Türleri
+// Malzeme Türleri - ZPRJ ve ZSRF en başta
 export const MALZEME_TURLERI = [
-  { kod: 'ZALT', tanim: 'Altyapı Poz Hizm Listesi' },
-  { kod: 'ZBDS', tanim: 'Miktar Takipli Malzemeler' },
-  { kod: 'ZDSM', tanim: 'Dönüşümlü Malzemeler' },
-  { kod: 'ZGKD', tanim: 'GKD Malzemeleri' },
-  { kod: 'ZHAM', tanim: 'Hammadde Malzemeleri' },
-  { kod: 'ZHRD', tanim: 'Hurda Malzemeleri' },
-  { kod: 'ZHZM', tanim: 'Hizmet Malzemeleri' },
-  { kod: 'ZISV', tanim: 'İşveren Malzemeleri' },
-  { kod: 'ZMML', tanim: 'Mamul Malzemeleri' },
-  { kod: 'ZPOZ', tanim: 'PS Proje Poz Hizm Listesi' },
   { kod: 'ZPRJ', tanim: 'Proje Malzemeleri' },
-  { kod: 'ZRMG', tanim: 'RMG Malzemeleri' },
   { kod: 'ZSRF', tanim: 'Sarf Malzemeleri' },
-  { kod: 'ZTC2', tanim: 'Ticari Malzemeler - Enerj' },
-  { kod: 'ZTIC', tanim: 'Ticari Malzemeler' }
+  { kod: 'ZTIC', tanim: 'Ticari Malzemeler' },
+  { kod: 'ZHAM', tanim: 'Hammadde Malzemeleri' },
+  { kod: 'ZBDS', tanim: 'Miktar Takipli Malzemeler' },
+  { kod: 'ZMML', tanim: 'Mamul Malzemeleri' },
+  { kod: 'ZHZM', tanim: 'Hizmet Malzemeleri' },
+  { kod: 'ZALT', tanim: 'Altyapı Poz Hizm Listesi' },
+  { kod: 'ZPOZ', tanim: 'PS Proje Poz Hizm Listesi' },
+  { kod: 'ZGKD', tanim: 'GKD Malzemeleri' },
+  { kod: 'ZDSM', tanim: 'Dönüşümlü Malzemeler' },
+  { kod: 'ZISV', tanim: 'İşveren Malzemeleri' },
+  { kod: 'ZHRD', tanim: 'Hurda Malzemeleri' },
+  { kod: 'ZRMG', tanim: 'RMG Malzemeleri' },
+  { kod: 'ZTC2', tanim: 'Ticari Malzemeler - Enerj' }
+]
+
+// Hepsiburada mantığında Katalog ve Alt Kategori Ağacı
+export const MATERIAL_CATALOGS = [
+  {
+    id: 'katalog-zprj',
+    kod: 'ZPRJ',
+    ad: 'Proje Malzemeleri',
+    icon: 'Package',
+    badge: 'ZPRJ',
+    description: 'Şantiye ve inşaat projelerinde kullanılan kaba yapı, tesisat ve mimari imalat malzemeleri',
+    subCategories: [
+      { id: 'kaba-yapi', ad: 'Kaba Yapı & Beton', malGruplari: ['M002'], hiyerarsiKodlari: ['0103006', '0103017', '0105003', '0105001', '0106011', '0111005', '0111009'] },
+      { id: 'elektrik-tesisat', ad: 'Elektrik & Tesisat', malGruplari: ['M003'], hiyerarsiKodlari: ['0337018', '0337025', '0337035', '0315001', '0317003', '0317005', '0320002', '0330025', '0352001', '0360001', '0361001', '0311002'] },
+      { id: 'mekanik-tesisat', ad: 'Mekanik & Borulama', malGruplari: ['M004'], hiyerarsiKodlari: ['0205004', '0205008', '0205013', '0207001', '0213009', '0214011', '0222004', '0232006', '0232009', '0234006'] },
+      { id: 'mimari-ince-yapi', ad: 'Mimari & İnce Yapı', malGruplari: ['M005'], hiyerarsiKodlari: ['0401003', '0404001', '0405002', '0411001', '0411008', '0424005', '0424009'] },
+      { id: 'yalitim-celik', ad: 'Yalıtım & Çelik Profiller', malGruplari: ['M002'], hiyerarsiKodlari: ['0107007', '0108007', '0112003', '0112015', '0112018'] },
+    ]
+  },
+  {
+    id: 'katalog-zsrf',
+    kod: 'ZSRF',
+    ad: 'Sarf Malzemeleri',
+    icon: 'Shield',
+    badge: 'ZSRF',
+    description: 'Şantiye operasyonları, iş sağlığı & güvenliği, bağlantı elemanları ve büro sarf malzemeleri',
+    subCategories: [
+      { id: 'isg-guvenlik', ad: 'İSG & Kişisel Koruyucu', malGruplari: ['M027', 'M029'], hiyerarsiKodlari: ['0826003', '0826009', '0826010', '0826012', '0826029', 'DD01381', 'DD01382'] },
+      { id: 'hirdavat-baglanti', ad: 'Hırdavat, Bağlantı & Yağlar', malGruplari: ['M002', 'Y001'], hiyerarsiKodlari: ['0813001', '0816005', '0841003', '0843004', '0844001', '0850004'] },
+      { id: 'kirtasiye-buro', ad: 'Kırtasiye & Büro Sarf', malGruplari: ['M007'], hiyerarsiKodlari: ['0836001', '0836013', '0836021', '0836037'] },
+      { id: 'temizlik-hijyen', ad: 'Temizlik & Hijyen', malGruplari: ['M017'], hiyerarsiKodlari: ['0854002', '0854007', '0854021'] },
+      { id: 'akaryakit', ad: 'Akaryakıt & Madeni Yağ', malGruplari: ['M002'], hiyerarsiKodlari: ['0801001', '0801003'] },
+    ]
+  },
+  {
+    id: 'katalog-it',
+    kod: 'ZTIC',
+    ad: 'IT & Teknoloji',
+    icon: 'Laptop',
+    badge: 'ZTIC',
+    description: 'Bilgisayar, tablet, mobil cihazlar ve bilgi işlem donanımları',
+    subCategories: [
+      { id: 'bilgisayar-tablet', ad: 'Bilgisayar ve Tablet', malGruplari: ['M008'], hiyerarsiKodlari: ['0701001', '0701002', '0701026', '0701021'] },
+      { id: 'cevre-birimleri', ad: 'Monitör, Yazıcı & Ağ', malGruplari: ['M008'], hiyerarsiKodlari: ['0701015', '0701018'] },
+    ]
+  },
+  {
+    id: 'katalog-zham',
+    kod: 'ZHAM',
+    ad: 'Hammadde & Agrega',
+    icon: 'Layers',
+    badge: 'ZHAM',
+    description: 'Çimento hammaddeleri, agregalar, kırma taş ve katkı malzemeleri',
+    subCategories: [
+      { id: 'agrega-baglayici', ad: 'Bağlayıcı Çimento & Agrega', malGruplari: ['U001', 'U002', 'U003'], hiyerarsiKodlari: ['0103004', '0103009', '0103010', '0103002'] }
+    ]
+  },
+  {
+    id: 'katalog-yedek',
+    kod: 'ZBDS',
+    ad: 'Yedek Parça & Ekipman',
+    icon: 'Wrench',
+    badge: 'ZBDS',
+    description: 'İş makinesi ve şantiye ekipmanı filtre, rulman ve yedek parçaları',
+    subCategories: [
+      { id: 'makine-yedek-parca', ad: 'Filtre, Lastik, Rulman & Akü', malGruplari: ['Y001'], hiyerarsiKodlari: ['0505002', '0505003', '0511001', '0512001', '0516001'] }
+    ]
+  }
 ]
 
 // ZAR_002_T_COM - Mal Grubu / Ürün Hiyerarşisi eşleşme tablosu (örnek 100 kayıt)
@@ -142,3 +210,47 @@ export const getUrunHiyerarsileri = (malGrubu) =>
 // Ürün hiyerarşisine göre commodity
 export const getCommodity = (malGrubu, urunHiyerarsisi) =>
   HIERARCHY_DATA.find(r => r.malGrubu === malGrubu && r.urunHiyerarsisi === urunHiyerarsisi) || null
+
+// Bir malzemenin hangi kataloğa ait olduğunu bulma
+export const getMaterialCatalog = (material) => {
+  if (!material) return null
+
+  // 1. Doğrudan malzemeTuru eşleşmesi
+  if (material.malzemeTuru) {
+    const matched = MATERIAL_CATALOGS.find(c => c.kod === material.malzemeTuru)
+    if (matched) return matched
+  }
+
+  // 2. Alt kategori malGrubu veya urunHiyerarsisi eşleşmesi
+  for (const cat of MATERIAL_CATALOGS) {
+    for (const sub of cat.subCategories) {
+      if (material.urunHiyerarsisi && sub.hiyerarsiKodlari.includes(material.urunHiyerarsisi)) {
+        return cat
+      }
+      if (material.malGrubu && sub.malGruplari.includes(material.malGrubu)) {
+        return cat
+      }
+    }
+  }
+
+  return MATERIAL_CATALOGS[0] // Varsayılan ZPRJ
+}
+
+// Bir malzemenin hangi alt kategoriye ait olduğunu bulma
+export const getMaterialSubCategory = (material) => {
+  if (!material) return null
+
+  for (const cat of MATERIAL_CATALOGS) {
+    for (const sub of cat.subCategories) {
+      if (material.urunHiyerarsisi && sub.hiyerarsiKodlari.includes(material.urunHiyerarsisi)) {
+        return { ...sub, parentCatalog: cat }
+      }
+      if (material.malGrubu && sub.malGruplari.includes(material.malGrubu)) {
+        return { ...sub, parentCatalog: cat }
+      }
+    }
+  }
+
+  return null
+}
+
