@@ -63,17 +63,22 @@ function AppContent() {
   const [materials, setMaterials] = useState(() => {
     const saved = localStorage.getItem('materials')
     const savedVersion = localStorage.getItem('materialsVersion')
-    const currentVersion = '4.0' // Versiyon numarasını artırarak yeni katalog verilerini yükle
+    const currentVersion = '4.5' // Versiyon numarasını artırarak yeni katalog verilerini yükle
     
     // Eğer versiyon eski ise veya yoksa, yeni verileri yükle
     if (savedVersion !== currentVersion) {
+      const existing = saved ? JSON.parse(saved) : []
+      const initialIds = new Set(INITIAL_MATERIALS.map(m => m.id))
+      const userAdded = existing.filter(m => !initialIds.has(m.id))
+
       const formattedMaterials = INITIAL_MATERIALS.map(m => ({
         ...m,
         name: formatMaterialName(m)
       }))
+      const finalMaterials = [...formattedMaterials, ...userAdded]
       localStorage.setItem('materialsVersion', currentVersion)
-      localStorage.setItem('materials', JSON.stringify(formattedMaterials))
-      return formattedMaterials
+      localStorage.setItem('materials', JSON.stringify(finalMaterials))
+      return finalMaterials
     }
     
     return saved ? JSON.parse(saved) : INITIAL_MATERIALS.map(m => ({

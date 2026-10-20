@@ -2,12 +2,40 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft, Ticket, Clock, CheckCircle, XCircle, RotateCcw,
-  User, Calendar, MessageSquare, Lock, Send, Hash, FileText
+  User, Calendar, MessageSquare, Lock, Send, Hash, FileText, AlertTriangle
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import './TicketDetail.css'
+
+const REJECTION_PRESETS = [
+  'Mükerrer malzeme talebi (benzer ürün sistemde zaten mevcut)',
+  'Eksik veya yetersiz teknik spesifikasyon / ölçü bilgisi',
+  'Hatalı mal grubu veya ürün hiyerarşisi seçimi',
+  'Standart dışı ürün tanımı / kodlama kurallarına aykırı',
+  'Onaylanmayan marka veya tedarikçi bilgisi',
+]
+
+const ITEM_REJECTION_PRESETS = [
+  'Mükerrer malzeme kaydı',
+  'Eksik teknik bilgi',
+  'Hatalı mal grubu seçimi',
+  'Standart dışı tanım',
+  'Geçersiz marka / model',
+]
+
+function getRejectionReason(ticket) {
+  if (!ticket) return null
+  if (ticket.rejectionReason) return ticket.rejectionReason
+  const rejHistory = ticket.history?.slice().reverse().find(h => h.action === 'rejected')
+  if (rejHistory?.comment) return rejHistory.comment
+  if (ticket.itemDecisions) {
+    const dec = Object.values(ticket.itemDecisions).find(d => d.action === 'rejected' && d.comment)
+    if (dec) return dec.comment
+  }
+  return null
+}
 
 const STATUS_LABELS = {
   pending:            'Beklemede',
@@ -33,6 +61,42 @@ const STATUS_COLORS = {
   partially_approved: { bg: '#e0f2fe', text: '#0369a1', border: '#7dd3fc' },
   returned:           { bg: '#dbeafe', text: '#2563eb', border: '#93c5fd' },
   completed:          { bg: '#e0e7ff', text: '#6366f1', border: '#c7d2fe' },
+}
+
+const MINUTE_EFFORT_PRESETS = [
+  { label: '5 dk',       minutes: 5 },
+  { label: '10 dk',      minutes: 10 },
+  { label: '20 dk',      minutes: 20 },
+  { label: '30 dk',      minutes: 30 },
+  { label: '45 dk',      minutes: 45 },
+  { label: '60 dk',      minutes: 60, sub: '1 saat' },
+  { label: '120 dk',     minutes: 120, sub: '2 saat' },
+  { label: '180 dk',     minutes: 180, sub: '3 saat' },
+]
+
+const DAY_EFFORT_PRESETS = [
+  { label: 'Yarım Gün',  minutes: 240, sub: '4 sa / 240 dk' },
+  { label: '1 Gün',      minutes: 480, sub: '8 sa / 480 dk' },
+  { label: '1.5 Gün',    minutes: 720, sub: '12 sa / 720 dk' },
+  { label: '2 Gün',      minutes: 960, sub: '16 sa / 960 dk' },
+]
+
+function formatEffortDisplay(minutes, hours) {
+  let m = minutes
+  if ((m == null || m === '') && hours != null) m = Math.round(Number(hours) * 60)
+  if (m == null || isNaN(m) || Number(m) <= 0) return '—'
+  m = Number(m)
+
+  if (m === 240) return 'Yarım Gün (4 sa)'
+  if (m === 480) return '1 Gün (8 sa)'
+  if (m === 720) return '1.5 Gün (12 sa)'
+  if (m === 960) return '2 Gün (16 sa)'
+  if (m >= 480 && m % 480 === 0) return `${m / 480} Gün`
+  if (m < 60) return `${m} dk`
+  if (m % 60 === 0) return `${m} dk (${m / 60} sa)`
+  const h = Math.floor(m / 60)
+  const remM = m % 60
+  return `${h} sa ${remM} dk (${m} dk)`
 }
 
 const ITEM_IMAGES = {
@@ -77,9 +141,11 @@ export default function TicketDetail({ onApprove, onReject }) {
   const [actionComment, setActionComment] = useState('')
   const [singleTarget, setSingleTarget]   = useState(null)
   const [closeComment, setCloseComment]   = useState('')
+  const [rejectReason, setRejectReason]   = useState('')
   const [newComment, setNewComment]       = useState('')
-  const [spentHours, setSpentHours]       = useState('')
-  const [extraHours, setExtraHours]       = useState('')
+  const [spentMinutes, setSpentMinutes]   = useState('')
+  const [extraMinutes, setExtraMinutes]   = useState(0)
+  const [showCustomMinutes, setShowCustomMinutes] = useState(false)
   const commentsEndRef                    = useRef(null)
 
   useEffect(() => {
@@ -114,8 +180,13 @@ export default function TicketDetail({ onApprove, onReject }) {
   const toggleAll = () =>
     setSelectedIdxs(selectedIdxs.length === items.length ? [] : items.map((_, i) => i))
 
-  // ── Tek satır hızlı karar (toggle: aynı aksiyona tekrar basınca kalkar) ──
+  // ── Tek satır hızlı karar ──
   const quickDecide = (index, action) => {
+    if (action === 'rejected') {
+      // Reddetme işlemi için her zaman gerekçe penceresi açılsın
+      openSingle(index, 'rejected')
+      return
+    }
     const existing = itemDecisions[index]
     // Aynı aksiyona tekrar basıldıysa kaldır
     if (existing?.action === action) {
@@ -124,7 +195,7 @@ export default function TicketDetail({ onApprove, onReject }) {
       saveDecisions(newDec)
       return
     }
-    const dec = { action, comment: action === 'approved' ? 'Onaylandı' : 'Reddedildi', by: user.name, at: new Date().toISOString() }
+    const dec = { action: 'approved', comment: 'Onaylandı', by: user.name, at: new Date().toISOString() }
     saveDecisions({ ...itemDecisions, [index]: dec })
   }
 
@@ -136,9 +207,9 @@ export default function TicketDetail({ onApprove, onReject }) {
   }
 
   const confirmSingle = () => {
-    if (!actionComment.trim()) { alert('Lütfen açıklama girin'); return }
+    if (!actionComment.trim()) { alert('Lütfen açıklama / gerekçe girin'); return }
     const { index, action } = singleTarget
-    const dec = { action, comment: actionComment, by: user.name, at: new Date().toISOString() }
+    const dec = { action, comment: actionComment.trim(), by: user.name, at: new Date().toISOString() }
     saveDecisions({ ...itemDecisions, [index]: dec })
     setModal(null); setActionComment(''); setSingleTarget(null)
   }
@@ -150,10 +221,10 @@ export default function TicketDetail({ onApprove, onReject }) {
   }
 
   const confirmBulk = (action) => {
-    if (!actionComment.trim()) { alert('Lütfen açıklama girin'); return }
+    if (!actionComment.trim()) { alert('Lütfen açıklama / gerekçe girin'); return }
     const newDec = { ...itemDecisions }
     selectedIdxs.forEach(idx => {
-      newDec[idx] = { action, comment: actionComment, by: user.name, at: new Date().toISOString() }
+      newDec[idx] = { action, comment: actionComment.trim(), by: user.name, at: new Date().toISOString() }
     })
     saveDecisions(newDec)
     setSelectedIdxs([])
@@ -190,7 +261,7 @@ export default function TicketDetail({ onApprove, onReject }) {
     setTimeout(() => commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100)
   }
 
-  // ── Ticket Kapat ──
+  // ── Ticket Kapat (Kararları Uygula & Kapat) ──
   const confirmClose = () => {
     if (!closeComment.trim()) { alert('Lütfen kapanış yorumu girin'); return }
 
@@ -203,12 +274,20 @@ export default function TicketDetail({ onApprove, onReject }) {
     const allRejected = items.every((_, i) => finalDec[i]?.action === 'rejected')
     const finalStatus = allApproved ? 'approved' : allRejected ? 'rejected' : 'partially_approved'
 
+    const rejectedDecs = Object.values(finalDec).filter(d => d.action === 'rejected')
+    const ticketRejectionReason = (allRejected || rejectedDecs.length > 0)
+      ? (rejectedDecs.map(d => d.comment).filter(Boolean).join('; ') || closeComment)
+      : null
+
     const tickets = JSON.parse(localStorage.getItem('tickets') || '[]')
     const updated = tickets.map(t => {
       if (t.id !== ticket.id) return t
       return {
-        ...t, status: finalStatus, itemDecisions: finalDec,
-        history: [...t.history, {
+        ...t, 
+        status: finalStatus, 
+        itemDecisions: finalDec,
+        rejectionReason: ticketRejectionReason || t.rejectionReason,
+        history: [...(t.history || []), {
           action: finalStatus,
           user: { name: user.name, role: user.role },
           timestamp: new Date().toISOString(),
@@ -231,26 +310,123 @@ export default function TicketDetail({ onApprove, onReject }) {
 
     setModal(null); setCloseComment('')
     // Kapanış sonrası süre girişi pop-up'ını aç
-    setSpentHours(''); setExtraHours('')
+    setSpentMinutes('')
+    setExtraMinutes(0)
+    setShowCustomMinutes(false)
     setModal('hours')
   }
 
-  // ── Süre Kaydet ──
+  // ── Ticket Reddet (Tümünü Gerekçeli Reddetme) ──
+  const confirmRejectTicket = () => {
+    if (!rejectReason.trim()) {
+      alert('Lütfen reddedilme nedenini belirtin.')
+      return
+    }
+
+    const finalDec = { ...itemDecisions }
+    items.forEach((_, i) => {
+      finalDec[i] = {
+        action: 'rejected',
+        comment: rejectReason.trim(),
+        by: user.name,
+        at: new Date().toISOString()
+      }
+    })
+
+    const tickets = JSON.parse(localStorage.getItem('tickets') || '[]')
+    const updated = tickets.map(t => {
+      if (t.id !== ticket.id) return t
+      return {
+        ...t,
+        status: 'rejected',
+        rejectionReason: rejectReason.trim(),
+        itemDecisions: finalDec,
+        history: [
+          ...(t.history || []),
+          {
+            action: 'rejected',
+            user: { name: user.name, role: user.role },
+            timestamp: new Date().toISOString(),
+            comment: rejectReason.trim(),
+          }
+        ],
+        comments: [
+          ...(t.comments || []),
+          {
+            id: Date.now(),
+            text: `🔴 Talep Reddedildi.\nRed Nedeni: ${rejectReason.trim()}`,
+            author: { name: user.name, role: user.role },
+            createdAt: new Date().toISOString(),
+          }
+        ]
+      }
+    })
+    localStorage.setItem('tickets', JSON.stringify(updated))
+    setTicket(updated.find(t => t.id === ticket.id))
+    setItemDecisions(finalDec)
+
+    if (ticket.materialIds && onReject) {
+      ticket.materialIds.forEach(matId => {
+        onReject(matId, rejectReason.trim(), user)
+      })
+    }
+
+    setModal(null)
+    setSpentMinutes('')
+    setExtraMinutes(0)
+    setShowCustomMinutes(false)
+    setModal('hours')
+  }
+
+  // ── Efor Modalını Aç (Güncelleme veya Yeni Giriş) ──
+  const openEffortModal = () => {
+    const curMins = ticket.spentMinutes ?? (ticket.spentHours != null ? Math.round(Number(ticket.spentHours) * 60) : '')
+    const curExtra = ticket.extraMinutes ?? (ticket.extraHours != null ? Math.round(Number(ticket.extraHours) * 60) : 0)
+    setSpentMinutes(curMins)
+    setExtraMinutes(curExtra)
+    setShowCustomMinutes(false)
+    setModal('hours')
+  }
+
+  // ── Efor Kaydet ──
   const confirmHours = () => {
-    const spent = parseFloat(spentHours)
-    const extra = parseFloat(extraHours) || 0
-    if (isNaN(spent) || spent < 0) { alert('Geçerli bir harcanan süre girin'); return }
+    const mins = parseInt(spentMinutes, 10)
+    const extraMins = parseInt(extraMinutes, 10) || 0
+    if (isNaN(mins) || mins <= 0) {
+      alert('Lütfen geçerli bir efor süresi seçin veya girin.')
+      return
+    }
+    const spentH = Math.round((mins / 60) * 100) / 100
+    const extraH = Math.round((extraMins / 60) * 100) / 100
+
     const tickets = JSON.parse(localStorage.getItem('tickets') || '[]')
     const updated = tickets.map(t =>
-      t.id === ticket.id ? { ...t, spentHours: spent, extraHours: extra } : t
+      t.id === ticket.id
+        ? {
+            ...t,
+            spentMinutes: mins,
+            spentHours: spentH,
+            extraMinutes: extraMins,
+            extraHours: extraH,
+            spentLabel: formatEffortDisplay(mins)
+          }
+        : t
     )
     localStorage.setItem('tickets', JSON.stringify(updated))
     setTicket(updated.find(t => t.id === ticket.id))
     setModal(null)
   }
 
-  const approvedCount = Object.values(itemDecisions).filter(d => d.action === 'approved').length
-  const rejectedCount = Object.values(itemDecisions).filter(d => d.action === 'rejected').length
+  const approvedCount = Object.keys(itemDecisions).length > 0
+    ? Object.values(itemDecisions).filter(d => d.action === 'approved').length
+    : (['approved', 'completed'].includes(ticket.status) ? items.length : 0)
+
+  const rejectedCount = Object.keys(itemDecisions).length > 0
+    ? Object.values(itemDecisions).filter(d => d.action === 'rejected').length
+    : (ticket.status === 'rejected' ? items.length : 0)
+
+  const rejectionReason = getRejectionReason(ticket)
+  const lastRejectHistory = ticket.history?.slice().reverse().find(h => h.action === 'rejected')
 
   return (
     <div className="ticket-detail-page">
@@ -261,9 +437,14 @@ export default function TicketDetail({ onApprove, onReject }) {
           <ArrowLeft size={16} /> Geri
         </Button>
         {canAct && (
-          <Button variant="danger" size="medium" onClick={() => { setCloseComment(''); setModal('close') }}>
-            <Lock size={15} /> Ticket Kapat
-          </Button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <Button variant="danger" size="medium" onClick={() => { setRejectReason(''); setModal('reject_ticket') }}>
+              <XCircle size={15} /> Ticket Reddet
+            </Button>
+            <Button variant="primary" size="medium" onClick={() => { setCloseComment(''); setModal('close') }}>
+              <CheckCircle size={15} /> Kararları Uygula & Kapat
+            </Button>
+          </div>
         )}
       </div>
 
@@ -318,40 +499,87 @@ export default function TicketDetail({ onApprove, onReject }) {
             </div>
           </div>
           <div className="tdd-meta-block">
-            <span className="tdd-meta-label">Malzeme Sayısı</span>
+            <span className="tdd-meta-label">Kalem Sayısı</span>
             <div className="tdd-meta-value">
               <Hash size={14} />
-              <span>{items.length} malzeme</span>
+              <span>{items.length} kalem</span>
             </div>
           </div>
+          {(ticket.spentMinutes != null || ticket.spentHours != null) && (
+            <div className="tdd-meta-block">
+              <span className="tdd-meta-label">Harcanan Efor</span>
+              <div className="tdd-meta-value" style={{ color: '#2563eb', fontWeight: 600 }}>
+                <Clock size={14} />
+                <span>{formatEffortDisplay(ticket.spentMinutes, ticket.spentHours)}</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {canAct && (
+        {items.length > 0 && (
           <>
             <div className="tdd-summary-divider" />
             <div className="tdd-summary-progress">
               <div className="tdd-prog-stats">
-                <span className="tdd-prog-stat approved"><CheckCircle size={13} /> {approvedCount} Onaylandı</span>
-                <span className="tdd-prog-stat rejected"><XCircle size={13} /> {rejectedCount} Reddedildi</span>
-                <span className="tdd-prog-stat pending"><Clock size={13} /> {items.length - decidedCount} Bekliyor</span>
+                <span className="tdd-prog-stat total" style={{ color: '#0f172a', fontWeight: 600 }}>
+                  <Hash size={13} /> {items.length} Kalem
+                </span>
+                <span className="tdd-prog-stat approved">
+                  <CheckCircle size={13} /> {approvedCount} Onaylanan
+                </span>
+                {rejectedCount > 0 && (
+                  <span className="tdd-prog-stat rejected">
+                    <XCircle size={13} /> {rejectedCount} Reddedilen
+                  </span>
+                )}
+                {!isTicketClosed && (items.length - decidedCount > 0) && (
+                  <span className="tdd-prog-stat pending">
+                    <Clock size={13} /> {items.length - decidedCount} Bekliyor
+                  </span>
+                )}
               </div>
               <div className="tdd-prog-bar-wrap">
-                <div className="tdd-prog-bar-approved" style={{ width: `${(approvedCount / items.length) * 100}%` }} />
-                <div className="tdd-prog-bar-rejected" style={{ width: `${(rejectedCount / items.length) * 100}%` }} />
+                <div className="tdd-prog-bar-approved" style={{ width: `${(approvedCount / (items.length || 1)) * 100}%` }} />
+                <div className="tdd-prog-bar-rejected" style={{ width: `${(rejectedCount / (items.length || 1)) * 100}%` }} />
               </div>
             </div>
           </>
         )}
       </div>
 
+      {/* ── Reddedilme Nedeni Vurgu Kartı ── */}
+      {rejectionReason && (ticket.status === 'rejected' || ticket.status === 'partially_approved' || rejectedCount > 0) && (
+        <div className="tdd-rejection-card">
+          <div className="tdd-rejection-card-icon">
+            <AlertTriangle size={24} />
+          </div>
+          <div className="tdd-rejection-card-content">
+            <div className="tdd-rejection-card-header">
+              <span className="tdd-rejection-card-badge">
+                {ticket.status === 'rejected' ? 'TALEP REDDEDİLDİ' : 'BAZI KALEMLER REDDEDİLDİ'}
+              </span>
+              {lastRejectHistory && (
+                <span className="tdd-rejection-card-by">
+                  İşlemi Yapan: <strong>{lastRejectHistory.user?.name || 'Onay Yöneticisi'}</strong> • {new Date(lastRejectHistory.timestamp).toLocaleString('tr-TR')}
+                </span>
+              )}
+            </div>
+            <div className="tdd-rejection-card-title">Reddetme Gerekçesi:</div>
+            <div className="tdd-rejection-card-reason">
+              {rejectionReason}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Kullanıcı durum banner */}
-      {!isApprover && isTicketClosed && (
+      {!isApprover && isTicketClosed && !rejectionReason && (
         <div className={`ticket-status-banner ${ticket.status}`} style={{ marginBottom: '1rem' }}>
-          {ticket.status === 'approved'           && <><CheckCircle size={18} /> Talebiniz onaylandı</>}
-          {ticket.status === 'partially_approved' && <><CheckCircle size={18} /> Talebiniz kısmen onaylandı — bazı malzemeler reddedildi</>}
-          {ticket.status === 'rejected'           && <><XCircle size={18} /> Talebiniz reddedildi</>}
+          {ticket.status === 'approved'           && <><CheckCircle size={18} /> Talebiniz onaylandı ({items.length} kalem onaylandı)</>}
+          {ticket.status === 'partially_approved' && <><CheckCircle size={18} /> Talebiniz kısmen onaylandı — {approvedCount} kalem onaylandı, {rejectedCount} kalem reddedildi</>}
+          {ticket.status === 'rejected'           && <><XCircle size={18} /> Talebiniz reddedildi ({items.length} kalem)</>}
           {ticket.status === 'returned'           && <><RotateCcw size={18} /> Talebiniz geri gönderildi</>}
-          {ticket.status === 'completed'          && <><CheckCircle size={18} /> Talebiniz tamamlandı</>}
+          {ticket.status === 'completed'          && <><CheckCircle size={18} /> Talebiniz tamamlandı ({items.length} kalem tamamlandı)</>}
         </div>
       )}
 
@@ -378,7 +606,7 @@ export default function TicketDetail({ onApprove, onReject }) {
               <thead>
                 <tr>
                   {canAct && (
-                    <th style={{ width: 40 }}>
+                    <th style={{ width: 36 }}>
                       <input
                         type="checkbox"
                         checked={selectedIdxs.length === items.length && items.length > 0}
@@ -396,7 +624,7 @@ export default function TicketDetail({ onApprove, onReject }) {
                   <th>Mal Grubu</th>
                   <th>Birim</th>
                   <th>Üretim Yerleri</th>
-                  <th style={{ width: 120 }}>Durum</th>
+                  <th style={{ width: 140 }}>Durum</th>
                   {canAct && <th style={{ width: 160 }}>İşlem</th>}
                 </tr>
               </thead>
@@ -445,9 +673,16 @@ export default function TicketDetail({ onApprove, onReject }) {
                       <td className="tdd-sites">{item.productionSites?.join(', ') || '—'}</td>
                       <td>
                         {dec ? (
-                          <span className={`tdd-dec-badge ${dec.action}`} title={dec.comment}>
-                            {dec.action === 'approved' ? <><CheckCircle size={12} /> Onaylandı</> : <><XCircle size={12} /> Reddedildi</>}
-                          </span>
+                          <div className="tdd-cell-decision">
+                            <span className={`tdd-dec-badge ${dec.action}`} title={dec.comment}>
+                              {dec.action === 'approved' ? <><CheckCircle size={12} /> Onaylandı</> : <><XCircle size={12} /> Reddedildi</>}
+                            </span>
+                            {dec.action === 'rejected' && dec.comment && (
+                              <div className="tdd-item-reason" title={dec.comment}>
+                                <span className="tdd-item-reason-tag">Neden:</span> {dec.comment}
+                              </div>
+                            )}
+                          </div>
                         ) : (
                           <span className="tdd-dec-badge pending"><Clock size={12} /> Bekliyor</span>
                         )}
@@ -465,7 +700,7 @@ export default function TicketDetail({ onApprove, onReject }) {
                             <button
                               className={`tdd-act-btn reject ${dec?.action === 'rejected' ? 'active' : ''}`}
                               onClick={() => quickDecide(index, 'rejected')}
-                              title="Reddet"
+                              title="Gerekçe Belirterek Reddet"
                             >
                               <XCircle size={14} />
                             </button>
@@ -514,7 +749,7 @@ export default function TicketDetail({ onApprove, onReject }) {
                           {new Date(c.createdAt).toLocaleDateString('tr-TR')} {new Date(c.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <div className="tdd-comment-text">{c.text}</div>
+                      <div className="tdd-comment-text" style={{ whiteSpace: 'pre-wrap' }}>{c.text}</div>
                     </div>
                   </div>
                 )
@@ -566,7 +801,12 @@ export default function TicketDetail({ onApprove, onReject }) {
                     </div>
                     <div className="history-user">{entry.user?.name}</div>
                     <div className="history-time">{new Date(entry.timestamp).toLocaleString('tr-TR')}</div>
-                    {entry.comment && <div className="history-comment">{entry.comment}</div>}
+                    {entry.comment && (
+                      <div className={`history-comment ${entry.action === 'rejected' ? 'rejection-highlight' : ''}`}>
+                        {entry.action === 'rejected' && <b>Red Nedeni: </b>}
+                        {entry.comment}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -575,16 +815,41 @@ export default function TicketDetail({ onApprove, onReject }) {
         </div>
       </div>
 
-      {/* ── Tek satır yorum modal ── */}
+      {/* ── Tek satır yorum / red gerekçesi modal ── */}
       <Modal isOpen={modal === 'single'} onClose={() => setModal(null)}
-        title={singleTarget?.action === 'approved' ? 'Onayla — Yorum Ekle' : 'Reddet — Yorum Ekle'}>
+        title={singleTarget?.action === 'approved' ? 'Onayla — Yorum Ekle' : 'Kalem Reddet — Red Sebebi'}>
         <div className="ticket-modal">
           {singleTarget && (
             <p><strong>#{singleTarget.index + 1} — {items[singleTarget.index]?.urunAdi || items[singleTarget.index]?.materialName}</strong></p>
           )}
-          <div className="form-group">
-            <label>Açıklama *</label>
-            <textarea value={actionComment} onChange={e => setActionComment(e.target.value)} rows={3} placeholder="Açıklama girin..." />
+
+          {singleTarget?.action === 'rejected' && (
+            <div className="tdd-preset-buttons">
+              <span className="tdd-preset-label">Hızlı Red Sebebi:</span>
+              <div className="tdd-preset-list">
+                {ITEM_REJECTION_PRESETS.map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="tdd-preset-btn"
+                    onClick={() => setActionComment(p)}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="form-group" style={{ marginTop: '0.625rem' }}>
+            <label>{singleTarget?.action === 'rejected' ? 'Reddetme Nedeni *' : 'Açıklama *'}</label>
+            <textarea 
+              value={actionComment} 
+              onChange={e => setActionComment(e.target.value)} 
+              rows={3} 
+              placeholder={singleTarget?.action === 'rejected' ? 'Kalemin neden reddedildiğini açıklayın...' : 'Açıklama girin...'} 
+              autoFocus
+            />
           </div>
           <div className="modal-actions">
             <Button variant="secondary" size="medium" onClick={() => setModal(null)}>İptal</Button>
@@ -615,13 +880,73 @@ export default function TicketDetail({ onApprove, onReject }) {
       <Modal isOpen={modal === 'bulk_reject'} onClose={() => setModal(null)} title={`${selectedIdxs.length} Malzeme Toplu Reddet`}>
         <div className="ticket-modal">
           <p>{selectedIdxs.length} malzeme reddedilecek.</p>
-          <div className="form-group">
+
+          <div className="tdd-preset-buttons">
+            <span className="tdd-preset-label">Hızlı Red Sebebi:</span>
+            <div className="tdd-preset-list">
+              {ITEM_REJECTION_PRESETS.map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="tdd-preset-btn"
+                  onClick={() => setActionComment(p)}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '0.625rem' }}>
             <label>Red Sebebi *</label>
             <textarea value={actionComment} onChange={e => setActionComment(e.target.value)} rows={3} placeholder="Red sebebini açıklayın..." />
           </div>
           <div className="modal-actions">
             <Button variant="secondary" size="medium" onClick={() => setModal(null)}>İptal</Button>
             <Button variant="danger" size="medium" onClick={() => confirmBulk('rejected')}><XCircle size={15} /> Toplu Reddet</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Ticket Reddet Modal (Tümünü Reddetme) ── */}
+      <Modal isOpen={modal === 'reject_ticket'} onClose={() => setModal(null)} title="Ticket Reddet">
+        <div className="ticket-modal">
+          <p style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '0.75rem' }}>
+            Bu ticket ve içerisindeki <strong>{items.length} kalem</strong> reddedilecektir. Lütfen talep sahibine iletilecek reddedilme gerekçesini belirtin.
+          </p>
+
+          <div className="tdd-preset-buttons">
+            <span className="tdd-preset-label">Hızlı Red Sebebi Seç:</span>
+            <div className="tdd-preset-list">
+              {REJECTION_PRESETS.map((p, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="tdd-preset-btn"
+                  onClick={() => setRejectReason(p)}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group" style={{ marginTop: '0.75rem' }}>
+            <label>Reddedilme Nedeni *</label>
+            <textarea
+              value={rejectReason}
+              onChange={e => setRejectReason(e.target.value)}
+              rows={4}
+              placeholder="Reddedilme gerekçesini ayrıntılı olarak yazın..."
+              autoFocus
+            />
+          </div>
+
+          <div className="modal-actions">
+            <Button variant="secondary" size="medium" onClick={() => setModal(null)}>İptal</Button>
+            <Button variant="danger" size="medium" onClick={confirmRejectTicket}>
+              <XCircle size={15} /> Reddet ve Kapat
+            </Button>
           </div>
         </div>
       </Modal>
@@ -656,44 +981,144 @@ export default function TicketDetail({ onApprove, onReject }) {
         </div>
       </Modal>
 
-      {/* ── Süre Girişi modal (kapanış sonrası) ── */}
-      <Modal isOpen={modal === 'hours'} onClose={() => setModal(null)} title="Harcanan Süre Girişi">
-        <div className="ticket-modal">
-          <p style={{ fontSize: '0.85rem', color: '#475569', marginBottom: '1rem' }}>
-            Ticket kapatıldı. Lütfen bu ticket için harcanan süreyi saat cinsinden girin.
+      {/* ── Efor Girişi modal (Yatay ve Ferah Dashboard Düzeni) ── */}
+      <Modal isOpen={modal === 'hours'} onClose={() => setModal(null)} title="Harcanan Efor Girişi" maxWidth="720px">
+        <div className="ticket-modal tdd-effort-modal-horizontal">
+          <p className="tdd-effort-desc">
+            Bu ticket üzerinde harcanan çalışma eforunu dakika veya gün bazında seçin:
           </p>
-          <div className="tdd-hours-row">
-            <div className="form-group">
-              <label>Harcanan Süre (saat) *</label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={spentHours}
-                onChange={e => setSpentHours(e.target.value)}
-                placeholder="örn: 4"
-                className="tdd-hours-input"
-              />
+
+          <div className="tdd-effort-grid-2col">
+            {/* Sol Kolon: Dakika Bazlı Süreler */}
+            <div className="tdd-effort-col">
+              <div className="tdd-effort-group">
+                <label className="tdd-effort-label">
+                  <Clock size={13} /> Dakika Bazlı Süreler
+                </label>
+                <div className="tdd-effort-chips minute-chips">
+                  {MINUTE_EFFORT_PRESETS.map((p) => {
+                    const isSelected = Number(spentMinutes) === p.minutes
+                    return (
+                      <button
+                        key={p.minutes}
+                        type="button"
+                        className={`tdd-effort-chip ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setSpentMinutes(p.minutes)
+                          setShowCustomMinutes(false)
+                        }}
+                      >
+                        <span className="tdd-chip-main">{p.label}</span>
+                        {p.sub && <span className="tdd-chip-sub">{p.sub}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Özel / Manuel Dakika Girişi */}
+              <div className="tdd-effort-custom-row">
+                <button
+                  type="button"
+                  className="tdd-effort-custom-toggle"
+                  onClick={() => setShowCustomMinutes(!showCustomMinutes)}
+                >
+                  {showCustomMinutes ? '− Manuel Girişi Gizle' : '+ Farklı Bir Süre Belirt (Özel Dakika Girişi)'}
+                </button>
+
+                {showCustomMinutes && (
+                  <div className="tdd-custom-input-box">
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={spentMinutes}
+                      onChange={e => setSpentMinutes(e.target.value)}
+                      placeholder="örn: 75"
+                      className="tdd-hours-input"
+                      autoFocus
+                    />
+                    <span className="tdd-custom-unit">dakika</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="form-group">
-              <label>Ekstra Süre (saat)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                value={extraHours}
-                onChange={e => setExtraHours(e.target.value)}
-                placeholder="örn: 1.5"
-                className="tdd-hours-input"
-              />
+
+            {/* Sağ Kolon: Gün Bazlı Süreler & Ekstra Süre */}
+            <div className="tdd-effort-col">
+              <div className="tdd-effort-group">
+                <label className="tdd-effort-label">
+                  <Calendar size={13} /> İlerleyen Süreler (Gün Bazlı)
+                </label>
+                <div className="tdd-effort-chips day-chips">
+                  {DAY_EFFORT_PRESETS.map((p) => {
+                    const isSelected = Number(spentMinutes) === p.minutes
+                    return (
+                      <button
+                        key={p.minutes}
+                        type="button"
+                        className={`tdd-effort-chip day-chip ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setSpentMinutes(p.minutes)
+                          setShowCustomMinutes(false)
+                        }}
+                      >
+                        <span className="tdd-chip-main">{p.label}</span>
+                        <span className="tdd-chip-sub">{p.sub}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Ekstra Süre (Opsiyonel) */}
+              <div className="tdd-effort-extra-section">
+                <label className="tdd-effort-label">
+                  Ekstra / Revizyon Süresi (Opsiyonel)
+                </label>
+                <div className="tdd-effort-chips extra-chips">
+                  {[0, 15, 30, 45, 60, 120].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      className={`tdd-effort-chip extra-chip ${Number(extraMinutes) === mins ? 'active' : ''}`}
+                      onClick={() => setExtraMinutes(mins)}
+                    >
+                      {mins === 0 ? 'Yok' : `${mins} dk`}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-          <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-            Ekstra süre; beklenmedik durumlar, revizyonlar veya ek işlemler için harcanan süreyi ifade eder.
-          </p>
-          <div className="modal-actions">
-            <Button variant="secondary" size="medium" onClick={() => setModal(null)}>Atla</Button>
-            <Button variant="primary" size="medium" onClick={confirmHours}><CheckCircle size={15} /> Kaydet</Button>
+
+          {/* Alt Yatay Bar: Özet ve Eylemler */}
+          <div className="tdd-effort-footer-bar">
+            <div className="tdd-effort-footer-summary">
+              {Number(spentMinutes) > 0 ? (
+                <div className="tdd-effort-summary-pill">
+                  <span className="tdd-pill-label">Seçilen Efor:</span>
+                  <strong className="tdd-pill-val">{formatEffortDisplay(Number(spentMinutes))}</strong>
+                  {Number(extraMinutes) > 0 && (
+                    <span className="tdd-pill-extra">+{extraMinutes} dk ekstra</span>
+                  )}
+                </div>
+              ) : (
+                <span className="tdd-effort-none-hint">Lütfen yukarıdan bir süre seçin</span>
+              )}
+            </div>
+
+            <div className="tdd-effort-footer-actions">
+              <Button variant="secondary" size="medium" onClick={() => setModal(null)}>İptal / Atla</Button>
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={confirmHours}
+                disabled={!spentMinutes || Number(spentMinutes) <= 0}
+              >
+                <CheckCircle size={15} /> Eforu Kaydet
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>

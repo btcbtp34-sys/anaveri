@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ChevronLeft, Edit2, Trash2, Image, Plus, X, ZoomIn, CheckCircle, XCircle, Clock, User, Send } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Edit2, Trash2, Image, Plus, X, ZoomIn, CheckCircle, XCircle, Clock, User, Send } from 'lucide-react'
 import Button from '../components/Button'
 import { useAuth } from '../contexts/AuthContext'
 import './MaterialDetail.css'
@@ -14,6 +14,7 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
   const material = materials.find(m => m.id === Number(id))
   const [tab, setTab] = useState(0)
   const [lightbox, setLightbox] = useState(null)
+  const [activeImgIdx, setActiveImgIdx] = useState(0)
   const fileRef = useRef()
 
   // Geldiği sayfayı belirle
@@ -74,13 +75,63 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
 
       {/* Hero */}
       <div className="md-hero">
-        <div className="md-hero-thumb">
-          {material.images?.[0]
-            ? <img src={material.images[0]} alt={material.name} onClick={() => setLightbox(0)} />
-            : <div className="md-hero-placeholder"><Image size={32} /></div>
-          }
+        <div className="md-hero-slider-wrap">
+          <div className="md-hero-thumb" onClick={() => material.images?.length > 0 && setLightbox(activeImgIdx)}>
+            {material.images && material.images.length > 0 && material.images[activeImgIdx] ? (
+              <img src={material.images[activeImgIdx]} alt={material.name} referrerPolicy="no-referrer" />
+            ) : (
+              <div className="md-hero-placeholder"><Image size={36} /></div>
+            )}
+            {material.images?.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="md-slider-arrow md-slider-prev"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveImgIdx((activeImgIdx - 1 + material.images.length) % material.images.length)
+                  }}
+                  title="Önceki görsel"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="md-slider-arrow md-slider-next"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveImgIdx((activeImgIdx + 1) % material.images.length)
+                  }}
+                  title="Sonraki görsel"
+                >
+                  <ChevronRight size={16} />
+                </button>
+                <span className="md-img-count">{activeImgIdx + 1} / {material.images.length}</span>
+              </>
+            )}
+            {material.images?.length > 0 && (
+              <div className="md-zoom-hint" title="Büyüt">
+                <ZoomIn size={14} />
+              </div>
+            )}
+          </div>
           {material.images?.length > 1 && (
-            <span className="md-img-count">+{material.images.length - 1}</span>
+            <div className="md-thumb-strip">
+              {material.images.map((src, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`md-thumb-strip-btn ${i === activeImgIdx ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveImgIdx(i)
+                  }}
+                  title={`Görsel ${i + 1}`}
+                >
+                  <img src={src} alt={`thumb-${i}`} referrerPolicy="no-referrer" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
         <div className="md-hero-info">
@@ -282,7 +333,7 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
       {lightbox !== null && (
         <div className="md-lightbox" onClick={() => setLightbox(null)}>
           <button className="md-lb-close"><X size={20} /></button>
-          <img src={material.images[lightbox]} alt="lightbox" onClick={e => e.stopPropagation()} />
+          <img src={material.images[lightbox]} alt="lightbox" referrerPolicy="no-referrer" onClick={e => e.stopPropagation()} />
           {material.images.length > 1 && (
             <div className="md-lb-nav">
               <button onClick={e => { e.stopPropagation(); setLightbox((lightbox - 1 + material.images.length) % material.images.length) }}>‹</button>

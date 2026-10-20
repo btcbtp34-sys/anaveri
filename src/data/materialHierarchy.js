@@ -254,3 +254,116 @@ export const getMaterialSubCategory = (material) => {
   return null
 }
 
+// Commodity Kodları Tanımları
+export const COMMODITY_DESCRIPTIONS = {
+  '0101': 'BİLGİSAYAR ÇEVRE BİRİMLERİ',
+  '010101': 'BİLGİSAYAR VE NOTEBOOK',
+  '010102': 'MOBİL CİHAZLAR VE TELEFON',
+  '010103': 'TABLET BİLGİSAYARLAR',
+  '02': 'OTOMATİK SİGORTALAR',
+  '0201': 'TRAFOLAR',
+  '0203': 'UPS VE GÜÇ KAYNAKLARI',
+  '0208': 'ELEKTRİK PANOLARI',
+  '0211': 'GÜÇ VE ENERJİ KABLOLARI',
+  '0216': 'TOPRAKLAMA VE BARALAR',
+  '0228': 'DATA VE ZAYIF AKIM KABLOLARI',
+  '0229': 'YANGIN ALARM SİSTEMLERİ',
+  '0232': 'CCTV VE KAMERA SİSTEMLERİ',
+  '0236': 'GEÇİŞ VE GÜVENLİK SİSTEMLERİ',
+  '0308': 'ÇELİK HASIR',
+  '0309': 'NERVÜRLÜ İNŞAAT DEMİRİ',
+  '0311': 'ÇİMENTO VE BAĞLAYICILAR',
+  '0312': 'HAZIR BETON VE HARÇLAR',
+  '0315': 'BOYA VE KİMYASALLAR',
+  '0324': 'KÖŞEBENT VE DEMİR PROFİLLER',
+  '0326': 'SİYAH SACLAR',
+  '0327': 'AHŞAP KAPILAR',
+  '0334': 'GAZBETON VE DUVAR BLOKLARI',
+  '0336': 'TUĞLA VE KİREMİT',
+  '0340': 'CAM YÜNÜ YALITIM',
+  '0342': 'TAŞ YÜNÜ YALITIM',
+  '0348': 'YANGIN VE ÇELİK KAPILAR',
+  '0355': 'ALÇIPAN VE ASMA TAVAN',
+  '0359': 'TAŞIYICI ÇELİK PROFİLLER',
+  '0371': 'DÜZ VE MİMARİ CAMLAR',
+  '0378': 'TRAPEZ VE SAÇ LEVHALAR',
+  '0379': 'SERAMİK VE FAYANSLAR',
+  '0381': 'SU YALITIM MALZEMELERİ',
+  '0399': 'ÇİMENTO VE AGREGA HAMMADDELERİ',
+  '0402': 'BARETLER VE BAŞ KORUMA',
+  '0404': 'İŞ ELDİVENLERİ',
+  '0405': 'EMNİYET KEMERLERİ',
+  '0407': 'GÖZLÜK VE MASKELER',
+  '0413': 'YANGIN SÖNDÜRME EKİPMANLARI',
+  '0602': 'AKARYAKIT (BENZİN/MAZOT)',
+  '0612': 'EL ALETLERİ VE ANAHTARLAR',
+  '0622': 'CİVATA VE BAĞLANTI ELEMANLARI',
+  '0627': 'MOTOR VE MADENİ YAĞLAR',
+  '0631': 'KIRTASİYE VE OFİS SARF',
+  '0634': 'TEMİZLİK VE HİJYEN',
+  '0641': 'PLYWOOD VE AHŞAP KALIP',
+  '0645': 'MERDİVEN VE İSKELELER',
+  '0648': 'İŞ MAKİNESİ YEDEK PARÇALARI',
+  '07': 'PPR VE PLASTİK BORULAR',
+  '0704': 'KÜRESEL VANALAR',
+  '0725': 'KLİMA VE HAVALANDIRMA SANTRALLERİ',
+  '0740': 'RADYATÖR VE ISITMA',
+  '0746': 'SPRİNKLER VE YANGIN VALFLERİ',
+  '0758': 'KELEBEK VANALAR',
+  '0759': 'GALVANİZ VE SİYAH BORULAR',
+  '9901': 'PROJELENDİRME HİZMETLERİ',
+  '9902': 'DANIŞMANLIK HİZMETLERİ',
+  '990201': 'ELEKTRİK DANIŞMANLIK',
+  '990203': 'MİMARİ DANIŞMANLIK',
+  '990204': 'İNŞAAT DANIŞMANLIK',
+  '990206': 'MEKANİK DANIŞMANLIK',
+  '990220': 'HUKUKİ DANIŞMANLIK',
+  '990227': 'MALİ DANIŞMANLIK',
+  '9904': 'EĞİTİM HİZMETLERİ',
+  '9906': 'KİRALAMA HİZMETLERİ',
+  '990608': 'TANKER VE VİDANJÖR HİZMETİ',
+  '990610': 'ARAÇ KİRALAMA',
+  '990611': 'MAKİNE-EKİPMAN KİRALAMA',
+  '990801': 'İNŞAAT ALL-RISK SİGORTASI',
+  '990802': 'SAĞLIK SİGORTASI',
+  '990803': 'KAR KAYBI SİGORTASI',
+  '990804': 'MAKİNE EKİPMAN SİGORTASI',
+  '990805': 'MESLEKİ SORUMLULUK SİGORTASI',
+  '990806': 'İŞVEREN MALİ MESULİYET SİGORTASI',
+  '990807': 'FERDİ KAZA SİGORTASI',
+  '990808': 'AMBAR YANGIN/HIRSIZLIK SİGORTASI',
+  '990809': 'NAKLİYE VE TAŞIMA SİGORTASI',
+  '991002': 'TEMİZLİK HİZMETLERİ',
+  '991028': 'TESİS VE AİDAT GİDERLERİ',
+  '991029': 'İÇ GÜVENLİK HİZMETLERİ',
+  '991030': 'GÜVENLİK TAŞERONU',
+  '991064': 'DANIŞMA TAŞERONLUK HİZMETLERİ',
+  '991201': 'İSG GÜVENLİK DONANIMLARI',
+  '991202': 'İSG KIYAFETLERİ',
+  '991301': 'YEMEK VE HAKEDİŞ HİZMETLERİ',
+  '9915': 'LOJİSTİK HİZMETLERİ',
+  '991501': 'GÜMRÜKLEME HİZMETLERİ',
+  '991512': 'BAKIM ONARIM MONTAJ HİZMETLERİ',
+}
+
+// Commodity Kodu tanımını döndürür
+export const getCommodityTanim = (kod) => COMMODITY_DESCRIPTIONS[kod] || ''
+
+// Ürün Hiyerarşisi koduna göre eşleşen kayıt ve tüm tanımları döndürür
+export const getHierarchyDetail = (hKod) => {
+  if (!hKod) return null
+  const item = HIERARCHY_DATA.find(r => r.urunHiyerarsisi === hKod)
+  if (!item) return null
+  return {
+    ...item,
+    commodityTanim: COMMODITY_DESCRIPTIONS[item.commodityKod] || ''
+  }
+}
+
+// Mal grubu koduna göre tanım döndürür
+export const getMalGrubuTanim = (kod) => {
+  const item = HIERARCHY_DATA.find(r => r.malGrubu === kod)
+  return item ? item.malGrubuTanim : ''
+}
+
+

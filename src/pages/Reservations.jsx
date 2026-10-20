@@ -74,6 +74,23 @@ const INITIAL_RESERVATIONS = [
     history: [
       { action: 'created', user: 'Kullanıcı', timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), comment: 'Blok aydınlatma işi için.' }
     ]
+  },
+  {
+    id: 'RES-1005',
+    materialCode: '100000105',
+    materialName: 'Tuğla / Bims / 20x20x40 / adet / Ytong',
+    warehouse: '2000 - Şantiye Deposu',
+    quantity: 800,
+    unit: 'ADT',
+    createdBy: 'kullanici1',
+    createdByName: 'Kullanıcı 1',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'REJECTED',
+    sapNumber: '',
+    history: [
+      { action: 'created', user: 'Kullanıcı 1', timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), comment: 'Duvar örme bims tuğla talebi.' },
+      { action: 'rejected', user: 'Yönetici 1', timestamp: new Date(Date.now() - 3.5 * 24 * 60 * 60 * 1000).toISOString(), comment: 'Bütçe onaylanmadı, şantiye kotası dolu.' }
+    ]
   }
 ]
 
@@ -86,13 +103,16 @@ export default function Reservations() {
 
   useEffect(() => {
     const saved = localStorage.getItem('reservations')
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      const sorted = parsed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    const savedVersion = localStorage.getItem('reservationsVersion')
+    const currentVersion = '1.2'
+    if (savedVersion !== currentVersion || !saved) {
+      const sorted = INITIAL_RESERVATIONS.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      localStorage.setItem('reservationsVersion', currentVersion)
+      localStorage.setItem('reservations', JSON.stringify(sorted))
       setReservations(sorted)
     } else {
-      const sorted = INITIAL_RESERVATIONS.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      localStorage.setItem('reservations', JSON.stringify(sorted))
+      const parsed = JSON.parse(saved)
+      const sorted = parsed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       setReservations(sorted)
     }
   }, [])
@@ -167,14 +187,18 @@ export default function Reservations() {
     saveReservations(updated)
   }
 
-  // Count summaries
-  const totalCount = reservations.length
-  const pending1Count = reservations.filter(r => r.status === 'PENDING_1').length
-  const pending2Count = reservations.filter(r => r.status === 'PENDING_2').length
-  const sapCount = reservations.filter(r => r.status === 'SAP_CREATED').length
-  const rejectedCount = reservations.filter(r => r.status === 'REJECTED').length
+  // Rol bazlı rezervasyon görünürlüğü (normal kullanıcı sadece kendi taleplerini görür)
+  const isApproverRole = user?.role === 'admin' || user?.role === 'yonetici1' || user?.role === 'yonetici2' || user?.role === 'approver' || user?.role === 'approver2'
+  const visibleReservations = isApproverRole ? reservations : reservations.filter(r => r.createdBy === user?.username || r.createdByName === user?.name)
 
-  const filteredReservations = reservations.filter(res => {
+  // Count summaries (kullanıcı sadece kendi taleplerini, onaycılar tümünü sayar)
+  const totalCount = visibleReservations.length
+  const pending1Count = visibleReservations.filter(r => r.status === 'PENDING_1').length
+  const pending2Count = visibleReservations.filter(r => r.status === 'PENDING_2').length
+  const sapCount = visibleReservations.filter(r => r.status === 'SAP_CREATED').length
+  const rejectedCount = visibleReservations.filter(r => r.status === 'REJECTED').length
+
+  const filteredReservations = visibleReservations.filter(res => {
     const matchesSearch = 
       res.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       res.materialCode.includes(searchTerm) ||

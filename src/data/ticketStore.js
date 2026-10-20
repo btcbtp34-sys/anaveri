@@ -236,6 +236,7 @@ export const INITIAL_TICKETS = [
       }
     ],
     status: TICKET_STATUS.REJECTED,
+    rejectionReason: 'Benzer malzeme zaten mevcut. Kod: 100000999',
     createdBy: {
       id: 3,
       name: 'Kullanıcı',

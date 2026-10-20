@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import './Modal.css'
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title, children, maxWidth, className }) => {
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose() }
     if (isOpen) document.addEventListener('keydown', handleKey)
@@ -13,7 +13,11 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`modal ${className || ''}`}
+        style={maxWidth ? { maxWidth } : {}}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>{title}</h2>
           <button className="modal-close" onClick={onClose}>

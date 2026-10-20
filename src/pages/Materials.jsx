@@ -4,7 +4,7 @@ import { Search, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGr
 import Button from '../components/Button'
 import Modal from '../components/Modal'
 import { useAuth } from '../contexts/AuthContext'
-import { MAL_GRUPLARI, MALZEME_TURLERI } from '../data/materialHierarchy'
+import { MAL_GRUPLARI, MALZEME_TURLERI, getHierarchyDetail, getMalGrubuTanim, getCommodityTanim } from '../data/materialHierarchy'
 import './Materials.css'
 
 const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="m7.5 4.27 9 5.15"%3E%3C/path%3E%3Cpath d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"%3E%3C/path%3E%3Cpath d="m3.3 7 8.7 5 8.7-5"%3E%3C/path%3E%3Cpath d="M12 22V12"%3E%3C/path%3E%3C/svg%3E'
@@ -69,14 +69,17 @@ const getMaterialVisual = (material) => {
     'Notebook': 'https://images.pexels.com/photos/18105/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=400',
   }
 
-  // Malzeme adından anahtar kelime bul
-  const materialName = material.name.toLowerCase()
-  let imageUrl = null
-  
-  for (const [key, url] of Object.entries(realImages)) {
-    if (materialName.includes(key.toLowerCase())) {
-      imageUrl = url
-      break
+  // 1. Vitrin görseli: Kullanıcının yüklediği ilk fotoğraf
+  let imageUrl = (material?.images && material.images.length > 0) ? material.images[0] : null
+
+  // 2. Eğer yüklenmiş görsel yoksa, malzeme adından anahtar kelime bul
+  if (!imageUrl && material?.name) {
+    const materialName = material.name.toLowerCase()
+    for (const [key, url] of Object.entries(realImages)) {
+      if (materialName.includes(key.toLowerCase())) {
+        imageUrl = url
+        break
+      }
     }
   }
 
@@ -92,11 +95,11 @@ const getMaterialVisual = (material) => {
   ]
   
   // Malzeme ID'sine göre renk seç
-  const colorIndex = material.id % colors.length
+  const colorIndex = (material?.id || 0) % colors.length
   const color = colors[colorIndex]
   
   // İlk harfleri al
-  const initials = material.name
+  const initials = (material?.name || 'M')
     .split(' ')
     .slice(0, 2)
     .map(word => word[0])
@@ -108,25 +111,87 @@ const getMaterialVisual = (material) => {
 
 function MaterialImage({ material }) {
   const visual = getMaterialVisual(material)
-  const [imgError, setImgError] = useState(false)
-  
-  // Eğer gerçek görsel varsa ve hata olmadıysa göster
-  if (visual.imageUrl && !imgError) {
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [failedUrls, setFailedUrls] = useState({})
+
+  // Tüm aday görseller (önce material.images, yoksa keyword bazlı visual.imageUrl)
+  const rawList = (material?.images && material.images.length > 0)
+    ? material.images
+    : (visual.imageUrl ? [visual.imageUrl] : [])
+
+  const validImages = rawList.filter(url => url && !failedUrls[url])
+  const count = validImages.length
+  const currentImage = count > 0 ? validImages[activeIdx % count] : null
+
+  const handlePrev = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setActiveIdx(prev => (prev - 1 + count) % count)
+  }
+
+  const handleNext = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setActiveIdx(prev => (prev + 1) % count)
+  }
+
+  const handleDotClick = (e, i) => {
+    e.stopPropagation()
+    e.preventDefault()
+    setActiveIdx(i)
+  }
+
+  if (currentImage) {
     return (
-      <div className="mat-card-img">
+      <div className="mat-card-img mat-card-img-slider">
         <img 
-          src={visual.imageUrl} 
+          src={currentImage} 
           alt={material.name}
-          onError={() => setImgError(true)}
+          referrerPolicy="no-referrer"
+          onError={() => setFailedUrls(prev => ({ ...prev, [currentImage]: true }))}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        {material.images?.length > 0 && (
-          <span className="mat-card-img-count">+{material.images.length}</span>
+
+        {count > 1 && (
+          <>
+            <button
+              type="button"
+              className="mat-card-arrow mat-card-arrow-prev"
+              onClick={handlePrev}
+              title="Önceki Görsel"
+            >
+              <ChevronLeft size={14} />
+            </button>
+            <button
+              type="button"
+              className="mat-card-arrow mat-card-arrow-next"
+              onClick={handleNext}
+              title="Sonraki Görsel"
+            >
+              <ChevronRight size={14} />
+            </button>
+
+            <div className="mat-card-dots" onClick={e => e.stopPropagation()}>
+              {validImages.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className={`mat-card-dot ${i === (activeIdx % count) ? 'active' : ''}`}
+                  onClick={(e) => handleDotClick(e, i)}
+                  aria-label={`Görsel ${i + 1}`}
+                />
+              ))}
+            </div>
+
+            <span className="mat-card-img-count">
+              {(activeIdx % count) + 1} / {count}
+            </span>
+          </>
         )}
       </div>
     )
   }
-  
+
   // Yoksa renkli placeholder göster
   return (
     <div className="mat-card-img" style={{ background: visual.color.bg }}>
@@ -134,9 +199,6 @@ function MaterialImage({ material }) {
         <span className="mat-card-initials">{visual.initials}</span>
         <PackageIcon size={32} style={{ opacity: 0.3 }} />
       </div>
-      {material.images?.length > 0 && (
-        <span className="mat-card-img-count">+{material.images.length}</span>
-      )}
     </div>
   )
 }
@@ -167,11 +229,13 @@ export default function Materials({ materials, onDelete }) {
 
   const urlMalzemeTuru = searchParams.get('malzemeTuru')
 
+  const DEFAULT_APPROVAL_STATUS = ['Aktif', 'Kontrol Ediliyor']
+
   const [filters, setFilters] = useState({
     malzemeTuru: urlMalzemeTuru ? [urlMalzemeTuru] : [], 
     urunHiyerarsisi: [], 
     malGrubu: [], 
-    approvalStatus: [], 
+    approvalStatus: DEFAULT_APPROVAL_STATUS, 
     productionSite: [], 
     tipModel: [], 
     ozellik: [], 
@@ -189,7 +253,7 @@ export default function Materials({ materials, onDelete }) {
   }, [searchParams])
 
   const [collapsed, setCollapsed] = useState({
-    malzemeTuru: false, productionSite: false, urunHiyerarsisi: false, malGrubu: false, approvalStatus: true, tipModel: true, ozellik: true, olcu: true
+    malzemeTuru: false, productionSite: false, urunHiyerarsisi: false, malGrubu: false, approvalStatus: false, tipModel: true, ozellik: true, olcu: true
   })
   const [groupSearches, setGroupSearches] = useState({
     malzemeTuru: '', urunHiyerarsisi: '', malGrubu: '', approvalStatus: '', productionSite: '', tipModel: '', ozellik: '', olcu: ''
@@ -217,7 +281,39 @@ export default function Materials({ materials, onDelete }) {
   const ozellikler = uniqWithEmpty('ozellik')
   const olcular = uniqWithEmpty('olcu')
   const productionSites = uniqWithEmpty('productionSite')
-  const approvalStatuses = ['Aktif', 'Pasif', 'Kontrol Ediliyor']
+  const approvalStatuses = ['Aktif', 'Kontrol Ediliyor', 'Pasif']
+
+  const urunHiyerarsisiItems = useMemo(() => {
+    return uniqWithEmpty('urunHiyerarsisi').map(v => {
+      if (!v || v === '(Boş)') {
+        return { val: v, label: '(Boş)', subLabel: '' }
+      }
+      const detail = getHierarchyDetail(v)
+      if (detail) {
+        const commDesc = detail.commodityTanim ? ` (${detail.commodityTanim})` : ''
+        return {
+          val: v,
+          label: `${v} — ${detail.urunHiyerarsiTanim}`,
+          subLabel: `Mal Grubu: ${detail.malGrubu} (${detail.malGrubuTanim}) • Commodity: ${detail.commodityKod}${commDesc}`,
+          detail
+        }
+      }
+      return { val: v, label: v, subLabel: '' }
+    })
+  }, [materials])
+
+  const getFilterTagLabel = (key, v) => {
+    if (key === 'approvalStatus') return getApprovalMeta(v)?.label || v
+    if (key === 'urunHiyerarsisi') {
+      const detail = getHierarchyDetail(v)
+      return detail ? `${v} — ${detail.urunHiyerarsiTanim}` : v
+    }
+    if (key === 'malGrubu') {
+      const tanim = getMalGrubuTanim(v)
+      return tanim ? `${v} - ${tanim}` : v
+    }
+    return v
+  }
 
   const filtered = useMemo(() => {
     return materials.filter(m => {
@@ -255,9 +351,34 @@ export default function Materials({ materials, onDelete }) {
 
   const goPage = (p) => setPage(Math.max(1, Math.min(p, totalPages)))
 
-  const activeFilterCount = Object.values(filters).flat().length
+  const isDefaultApproval =
+    filters.approvalStatus.length === 2 &&
+    filters.approvalStatus.includes('Aktif') &&
+    filters.approvalStatus.includes('Kontrol Ediliyor')
+
+  const activeApprovalCount = isDefaultApproval ? 0 : filters.approvalStatus.length
+
+  const activeFilterCount =
+    filters.malzemeTuru.length +
+    filters.urunHiyerarsisi.length +
+    filters.malGrubu.length +
+    filters.productionSite.length +
+    filters.tipModel.length +
+    filters.ozellik.length +
+    filters.olcu.length +
+    activeApprovalCount
+
   const clearFilters = () => {
-    setFilters({ malzemeTuru: [], urunHiyerarsisi: [], malGrubu: [], approvalStatus: [], productionSite: [], tipModel: [], ozellik: [], olcu: [] })
+    setFilters({
+      malzemeTuru: [],
+      urunHiyerarsisi: [],
+      malGrubu: [],
+      approvalStatus: DEFAULT_APPROVAL_STATUS,
+      productionSite: [],
+      tipModel: [],
+      ozellik: [],
+      olcu: []
+    })
     setSearchParams({})
     setPage(1)
   }
@@ -334,7 +455,7 @@ export default function Materials({ materials, onDelete }) {
           {/* 3. Ürün Hiyerarşisi (3. Kriter) */}
           <FilterGroup
             title="Ürün Hiyerarşisi" filterKey="urunHiyerarsisi"
-            items={uniqWithEmpty('urunHiyerarsisi').map(v => ({ val: v, label: v || '(Boş)' }))}
+            items={urunHiyerarsisiItems}
             filters={filters} toggle={toggleFilter}
             collapsed={collapsed} toggleCollapse={toggleCollapse}
             materials={materials} valueKey="urunHiyerarsisi"
@@ -405,11 +526,15 @@ export default function Materials({ materials, onDelete }) {
 
           {activeFilterCount > 0 && (
             <div className="mat-active-tags">
-              {Object.entries(filters).flatMap(([key, vals]) => vals.map(v => (
-                <span key={`${key}-${v}`} className="mat-tag">
-                  {v} <button onClick={() => toggleFilter(key, v)}><X size={10} /></button>
-                </span>
-              )))}
+              {Object.entries(filters).flatMap(([key, vals]) => {
+                if (key === 'approvalStatus' && isDefaultApproval) return []
+                return vals.map(v => (
+                  <span key={`${key}-${v}`} className="mat-tag">
+                    {getFilterTagLabel(key, v)}{' '}
+                    <button onClick={() => toggleFilter(key, v)}><X size={10} /></button>
+                  </span>
+                ))
+              })}
             </div>
           )}
 
@@ -528,13 +653,15 @@ export default function Materials({ materials, onDelete }) {
 // Liste görünümü için küçük resim
 function ListImage({ material, visual }) {
   const [imgError, setImgError] = useState(false)
+  const targetUrl = (material?.images && material.images.length > 0) ? material.images[0] : visual.imageUrl
 
-  if (visual.imageUrl && !imgError) {
+  if (targetUrl && !imgError) {
     return (
       <img
-        src={visual.imageUrl}
+        src={targetUrl}
         alt={material.name}
         className="mat-list-img"
+        referrerPolicy="no-referrer"
         onError={() => setImgError(true)}
       />
     )
@@ -605,9 +732,13 @@ function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, togg
 
   const searchTerm = groupSearches[filterKey] || ''
   
-  // Filtre aramasına göre öğeleri filtrele
+  // Filtre aramasına göre öğeleri filtrele (label ve subLabel içinde arar)
   const filteredItems = searchTerm
-    ? items.filter(({ label }) => label.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? items.filter(({ label, subLabel }) => {
+        const term = searchTerm.toLowerCase()
+        return (label && label.toLowerCase().includes(term)) ||
+               (subLabel && subLabel.toLowerCase().includes(term))
+      })
     : items
 
   // İlk 5 veya tümünü göster
@@ -644,10 +775,13 @@ function FilterGroup({ title, filterKey, items, filters, toggle, collapsed, togg
             </div>
           )}
           <div className="mat-filter-options">
-            {displayItems.map(({ val, label }) => (
+            {displayItems.map(({ val, label, subLabel }) => (
               <label key={val} className="mat-filter-option">
                 <input type="checkbox" checked={filters[filterKey].includes(val)} onChange={() => toggle(filterKey, val)} />
-                <span>{label}</span>
+                <div className="mat-filter-option-body">
+                  <span className="mat-filter-option-title">{label}</span>
+                  {subLabel && <span className="mat-filter-option-sub">{subLabel}</span>}
+                </div>
                 <span className="mat-filter-count">{counts[val] || 0}</span>
               </label>
             ))}

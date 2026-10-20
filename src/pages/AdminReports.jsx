@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Download, Calendar, TrendingUp, CheckCircle, XCircle, Clock, Ticket } from 'lucide-react'
+import { Download, Calendar, TrendingUp, CheckCircle, XCircle, Clock, Ticket, Layers, Hash } from 'lucide-react'
 import { INITIAL_MATERIALS } from '../data/materialsStore'
 import { INITIAL_TICKETS } from '../data/ticketStore'
 import Button from '../components/Button'
@@ -536,15 +536,19 @@ export default function AdminReports() {
     })
   }, [selectedMonth, selectedYear, newStoklu, newStoksuz, addedCompletedTickets, addedPendingTickets, addedEffort, filteredMaterials, filteredTickets])
 
-  const stats = useMemo(() => ({
-    totalMaterials: filteredMaterials.length,
-    approved: filteredMaterials.filter(m => m.status === 'Aktif').length,
-    rejected: filteredMaterials.filter(m => m.status === 'Pasif').length,
-    pending: filteredMaterials.filter(m => m.status === 'Kontrol Ediliyor').length,
-    totalTickets: filteredTickets.length,
-    closedTickets: closedTickets.length,
-    openTickets: filteredTickets.filter(t => ['pending', 'returned'].includes(t.status)).length,
-  }), [filteredMaterials, filteredTickets, closedTickets])
+  const stats = useMemo(() => {
+    const closedItems = closedTickets.reduce((sum, t) => sum + (t.items?.length || 1), 0)
+    return {
+      totalMaterials: filteredMaterials.length,
+      approved: filteredMaterials.filter(m => m.status === 'Aktif').length,
+      rejected: filteredMaterials.filter(m => m.status === 'Pasif').length,
+      pending: filteredMaterials.filter(m => m.status === 'Kontrol Ediliyor').length,
+      totalTickets: filteredTickets.length,
+      closedTickets: closedTickets.length,
+      closedItems: closedItems,
+      openTickets: filteredTickets.filter(t => ['pending', 'returned'].includes(t.status)).length,
+    }
+  }, [filteredMaterials, filteredTickets, closedTickets])
 
   // Her malzeme için ilişkili ticketi bul (malzeme adı veya kodu üzerinden eşleşme)
   const materialTicketMap = useMemo(() => {
@@ -613,7 +617,7 @@ export default function AdminReports() {
     return Object.values(daily).sort((a, b) => a.date.localeCompare(b.date))
   }, [filteredMaterials])
 
-  // Günlük kapatılan ticket dağılımı
+  // Günlük kapatılan ticket ve içerisindeki kalem sayıları dağılımı
   const dailyTicketStats = useMemo(() => {
     const daily = {}
     closedTickets.forEach(t => {
@@ -622,11 +626,34 @@ export default function AdminReports() {
       const date = lastEntry
         ? new Date(lastEntry.timestamp).toISOString().split('T')[0]
         : new Date(t.createdAt).toISOString().split('T')[0]
-      if (!daily[date]) daily[date] = { date, closed: 0, approved: 0, rejected: 0, completed: 0 }
+      if (!daily[date]) {
+        daily[date] = { 
+          date, 
+          closed: 0, 
+          closedItems: 0, 
+          approved: 0, 
+          approvedItems: 0, 
+          rejected: 0, 
+          rejectedItems: 0, 
+          completed: 0, 
+          completedItems: 0 
+        }
+      }
+      const itemCount = (t.items && t.items.length > 0) ? t.items.length : 1
       daily[date].closed++
-      if (t.status === 'approved') daily[date].approved++
-      if (t.status === 'rejected') daily[date].rejected++
-      if (t.status === 'completed') daily[date].completed++
+      daily[date].closedItems += itemCount
+      if (t.status === 'approved') {
+        daily[date].approved++
+        daily[date].approvedItems += itemCount
+      }
+      if (t.status === 'rejected') {
+        daily[date].rejected++
+        daily[date].rejectedItems += itemCount
+      }
+      if (t.status === 'completed') {
+        daily[date].completed++
+        daily[date].completedItems += itemCount
+      }
     })
     return Object.values(daily).sort((a, b) => a.date.localeCompare(b.date))
   }, [closedTickets])
@@ -1228,6 +1255,15 @@ export default function AdminReports() {
             <span className="ar-stat-value">{stats.closedTickets}</span>
           </div>
         </div>
+        <div className="ar-stat-card">
+          <div className="ar-stat-icon" style={{ background: '#ede9fe', color: '#6d28d9' }}>
+            <Layers size={22} />
+          </div>
+          <div className="ar-stat-content">
+            <span className="ar-stat-label">Kapatılan Kalem Sayısı</span>
+            <span className="ar-stat-value">{stats.closedItems}</span>
+          </div>
+        </div>
       </div>
 
       {/* Tab Seçimi */}
@@ -1349,7 +1385,12 @@ export default function AdminReports() {
         <>
           {/* Günlük Kapatılan Ticket */}
           <div className="ar-section">
-            <h2>Günlük Kapatılan Ticket</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h2 style={{ margin: 0 }}>Günlük Kapatılan Ticket ve Kalem Sayıları</h2>
+              <span style={{ background: '#f1f5f9', padding: '0.3rem 0.75rem', borderRadius: '6px', color: '#334155', fontWeight: 600, fontSize: '0.85rem' }}>
+                Toplam: {stats.closedTickets} ticket ({stats.closedItems} kalem)
+              </span>
+            </div>
             {dailyTicketStats.length > 0 ? (
               <>
                 <div className="ar-daily-table">
@@ -1357,7 +1398,8 @@ export default function AdminReports() {
                     <thead>
                       <tr>
                         <th>Tarih</th>
-                        <th>Toplam Kapatılan</th>
+                        <th>Kapatılan Ticket</th>
+                        <th>Kapatılan Kalem Sayısı</th>
                         <th>Onaylanan</th>
                         <th>Reddedilen</th>
                         <th>Tamamlanan</th>
@@ -1367,10 +1409,21 @@ export default function AdminReports() {
                       {dailyTicketStats.slice((dailyTicketPage - 1) * PAGE_SIZE, dailyTicketPage * PAGE_SIZE).map(day => (
                         <tr key={day.date}>
                           <td>{new Date(day.date + 'T12:00:00').toLocaleDateString('tr-TR')}</td>
-                          <td><strong>{day.closed}</strong></td>
-                          <td className="ar-approved">{day.approved}</td>
-                          <td className="ar-rejected">{day.rejected}</td>
-                          <td className="ar-completed">{day.completed}</td>
+                          <td><strong>{day.closed} ticket</strong></td>
+                          <td>
+                            <strong style={{ color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: '4px', display: 'inline-block' }}>
+                              {day.closedItems} kalem
+                            </strong>
+                          </td>
+                          <td className="ar-approved">
+                            {day.approved} ticket {day.approved > 0 && <span style={{ fontSize: '0.8rem', color: '#16a34a' }}>({day.approvedItems} kalem)</span>}
+                          </td>
+                          <td className="ar-rejected">
+                            {day.rejected} ticket {day.rejected > 0 && <span style={{ fontSize: '0.8rem', color: '#dc2626' }}>({day.rejectedItems} kalem)</span>}
+                          </td>
+                          <td className="ar-completed">
+                            {day.completed} ticket {day.completed > 0 && <span style={{ fontSize: '0.8rem', color: '#4f46e5' }}>({day.completedItems} kalem)</span>}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

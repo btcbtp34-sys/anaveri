@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Ticket, Clock, CheckCircle, XCircle, RotateCcw, Eye,
-  User, Calendar, Package, AlertTriangle, ArrowUpDown, Filter, X
+  User, Calendar, Package, AlertTriangle, ArrowUpDown, Filter, X, FileText
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import Button from '../components/Button'
@@ -26,6 +26,15 @@ const TICKET_TYPE_LABELS = {
 }
 
 const OVERDUE_HOURS = 48
+
+function getRejectionReason(ticket) {
+  if (ticket.rejectionReason) return ticket.rejectionReason
+  if (ticket.history && ticket.history.length > 0) {
+    const rh = ticket.history.slice().reverse().find(h => h.action === 'rejected')
+    if (rh && rh.comment) return rh.comment
+  }
+  return null
+}
 
 function getElapsedHours(ticket) {
   const closedEntry = ticket.history?.slice().reverse().find(h =>
@@ -158,12 +167,14 @@ const EXTRA_TICKETS = [
       unit: 'M2', valuationClass: '3000', malzemeTuru: 'ZROH',
       productionSites: ['1000']
     }],
-    status: 'pending',
+    status: 'rejected',
+    rejectionReason: 'Benzer yalıtım levhası mevcut ve yangın sınıfı belgesi eksik.',
     createdBy: { id: 5, name: 'Kullanıcı 1', username: 'kullanici1', role: 'user' },
-    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     note: 'Çatı yalıtımı için',
     history: [
-      { action: 'created', user: { name: 'Kullanıcı 1' }, timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), comment: 'Oluşturuldu' },
+      { action: 'created', user: { name: 'Kullanıcı 1' }, timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), comment: 'Oluşturuldu' },
+      { action: 'rejected', user: { name: 'Onay Yöneticisi', role: 'approver' }, timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), comment: 'Benzer yalıtım levhası mevcut ve yangın sınıfı belgesi eksik.' },
     ]
   },
 ]
@@ -174,7 +185,7 @@ export default function Tickets() {
 
   const [tickets, setTickets] = useState(() => {
     const savedVersion = localStorage.getItem('ticketsVersion')
-    const currentVersion = '2.2'
+    const currentVersion = '2.4'
     if (savedVersion !== currentVersion) {
       // Mevcut INITIAL_TICKETS + EXTRA_TICKETS birleştir
       const existingIds = new Set(INITIAL_TICKETS.map(t => t.id))
@@ -201,6 +212,20 @@ export default function Tickets() {
   const [sortField, setSortField] = useState('createdAt')
   const [sortDir, setSortDir]     = useState('desc')
 
+  // Popover state for rejection reasons
+  const [activeReasonPopoverId, setActiveReasonPopoverId] = useState(null)
+
+  useEffect(() => {
+    if (!activeReasonPopoverId) return
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.tl-reason-popover') && !e.target.closest('.tl-reason-btn') && !e.target.closest('.tl-status.has-reason')) {
+        setActiveReasonPopoverId(null)
+      }
+    }
+    document.addEventListener('click', handleOutsideClick)
+    return () => document.removeEventListener('click', handleOutsideClick)
+  }, [activeReasonPopoverId])
+
   useEffect(() => {
     localStorage.setItem('tickets', JSON.stringify(tickets))
   }, [tickets])
@@ -224,8 +249,10 @@ export default function Tickets() {
       const isApproverRole = user?.role === 'approver' || user?.role === 'approver2' || user?.role === 'admin'
       if (!isApproverRole) {
         const cb = ticket.createdBy
-        const isOwner = cb?.id === user?.id || cb?.email === user?.email ||
-          cb?.username === user?.username || cb?.name === user?.name
+        const isOwner = (cb?.id && user?.id && cb.id === user.id) ||
+          (cb?.username && user?.username && cb.username === user.username) ||
+          (cb?.email && user?.email && cb.email === user.email) ||
+          (cb?.name && user?.name && cb.name === user.name)
         if (!isOwner) return false
       }
 
@@ -295,12 +322,30 @@ export default function Tickets() {
     }
   }
 
+  // Rol bazlı bilet kümesi (kullanıcı sadece kendi ticketlarını görür)
+  const isApproverRole = user?.role === 'approver' || user?.role === 'approver2' || user?.role === 'admin'
+  const userTickets = isApproverRole ? tickets : tickets.filter(t => {
+    const cb = t.createdBy
+    return (cb?.id && user?.id && cb.id === user.id) ||
+      (cb?.username && user?.username && cb.username === user.username) ||
+      (cb?.email && user?.email && cb.email === user.email) ||
+      (cb?.name && user?.name && cb.name === user.name)
+  })
+
   const statusCounts = {
-    all:      tickets.length,
-    pending:  tickets.filter(t => t.status === 'pending').length,
-    approved: tickets.filter(t => t.status === 'approved').length,
-    rejected: tickets.filter(t => t.status === 'rejected').length,
-    returned: tickets.filter(t => t.status === 'returned').length,
+    all:      userTickets.length,
+    pending:  userTickets.filter(t => t.status === 'pending').length,
+    approved: userTickets.filter(t => t.status === 'approved').length,
+    rejected: userTickets.filter(t => t.status === 'rejected').length,
+    returned: userTickets.filter(t => t.status === 'returned').length,
+  }
+
+  const itemCounts = {
+    all:      userTickets.reduce((sum, t) => sum + (t.items?.length || 0), 0),
+    pending:  userTickets.filter(t => t.status === 'pending').reduce((sum, t) => sum + (t.items?.length || 0), 0),
+    approved: userTickets.filter(t => t.status === 'approved').reduce((sum, t) => sum + (t.items?.length || 0), 0),
+    rejected: userTickets.filter(t => t.status === 'rejected').reduce((sum, t) => sum + (t.items?.length || 0), 0),
+    returned: userTickets.filter(t => t.status === 'returned').reduce((sum, t) => sum + (t.items?.length || 0), 0),
   }
 
   const SortBtn = ({ field, label }) => (
@@ -388,11 +433,11 @@ export default function Tickets() {
         {/* Durum tabları */}
         <div className="tickets-status-tabs">
           {[
-            { key: 'all',      label: `Tümü (${statusCounts.all})` },
-            { key: 'pending',  label: `Beklemede (${statusCounts.pending})`,        icon: <Clock size={13} /> },
-            { key: 'approved', label: `Onaylandı (${statusCounts.approved})`,       icon: <CheckCircle size={13} /> },
-            { key: 'returned', label: `Geri Gönderildi (${statusCounts.returned})`, icon: <RotateCcw size={13} /> },
-            { key: 'rejected', label: `Reddedildi (${statusCounts.rejected})`,      icon: <XCircle size={13} /> },
+            { key: 'all',      label: `Tümü (${statusCounts.all} ticket · ${itemCounts.all} kalem)` },
+            { key: 'pending',  label: `Beklemede (${statusCounts.pending} ticket · ${itemCounts.pending} kalem)`,        icon: <Clock size={13} /> },
+            { key: 'approved', label: `Onaylandı (${statusCounts.approved} ticket · ${itemCounts.approved} kalem)`,       icon: <CheckCircle size={13} /> },
+            { key: 'returned', label: `Geri Gönderildi (${statusCounts.returned} ticket · ${itemCounts.returned} kalem)`, icon: <RotateCcw size={13} /> },
+            { key: 'rejected', label: `Reddedildi (${statusCounts.rejected} ticket · ${itemCounts.rejected} kalem)`,      icon: <XCircle size={13} /> },
           ].map(tab => (
             <button
               key={tab.key}
@@ -423,7 +468,7 @@ export default function Tickets() {
             <span><SortBtn field="ticketNumber" label="Ticket No" /></span>
             <span><SortBtn field="type" label="Tür" /></span>
             <span>Not</span>
-            <span>Malzeme</span>
+            <span>Kalem</span>
             <span>Oluşturan</span>
             <span><SortBtn field="createdAt" label="Tarih/Saat" /></span>
             <span><SortBtn field="elapsed" label="Geçen Süre" /></span>
@@ -431,8 +476,12 @@ export default function Tickets() {
             <span></span>
           </div>
 
-          <div className="tickets-result-count">
-            {filteredTickets.length} ticket {hasActiveFilters ? '(filtrelenmiş)' : ''}
+          <div className="tickets-result-count" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>{filteredTickets.length} ticket {hasActiveFilters ? '(filtrelenmiş)' : ''}</span>
+            <span style={{ color: '#94a3b8' }}>•</span>
+            <span style={{ fontWeight: 600, color: '#0f172a' }}>
+              Toplam {filteredTickets.reduce((sum, t) => sum + (t.items?.length || 0), 0)} kalem
+            </span>
           </div>
 
           {filteredTickets.map(ticket => {
@@ -441,6 +490,7 @@ export default function Tickets() {
             const isOpen = ticket.status === 'pending' || ticket.status === 'returned'
             const isOverdue = isOpen && hours >= OVERDUE_HOURS
             const label = elapsedLabel(hours)
+            const rejReason = ticket.status === 'rejected' ? getRejectionReason(ticket) : null
 
             return (
               <div
@@ -458,7 +508,7 @@ export default function Tickets() {
                   {TICKET_TYPE_LABELS[ticket.type]}
                 </span>
                 <span className="tl-note">{ticket.note || '—'}</span>
-                <span className="tl-items">{ticket.items?.length || 0} malzeme</span>
+                <span className="tl-items">{ticket.items?.length || 0} kalem</span>
                 <span className="tl-creator">
                   <User size={13} />
                   {ticket.createdBy.name}
@@ -474,9 +524,77 @@ export default function Tickets() {
                   {isOverdue && <AlertTriangle size={12} />}
                   {label}
                 </span>
-                <span className="tl-status" style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}>
-                  {getStatusIcon(ticket.status)}
-                  {TICKET_STATUS_LABELS[ticket.status]}
+                <span className="tl-status-cell" onClick={e => e.stopPropagation()}>
+                  <div className="tl-status-group">
+                    <span
+                      className={`tl-status ${rejReason ? 'has-reason' : ''}`}
+                      style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}` }}
+                      onClick={() => {
+                        if (rejReason) {
+                          setActiveReasonPopoverId(activeReasonPopoverId === ticket.id ? null : ticket.id)
+                        }
+                      }}
+                      title={rejReason ? 'Red gerekçesini görmek için tıklayın' : undefined}
+                    >
+                      {getStatusIcon(ticket.status)}
+                      {TICKET_STATUS_LABELS[ticket.status]}
+                    </span>
+
+                    {rejReason && (
+                      <button
+                        type="button"
+                        className={`tl-reason-btn ${activeReasonPopoverId === ticket.id ? 'active' : ''}`}
+                        onClick={() => setActiveReasonPopoverId(activeReasonPopoverId === ticket.id ? null : ticket.id)}
+                        title="Red gerekçesini görüntüle"
+                      >
+                        <FileText size={11} />
+                        <span>Gerekçe</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ── Mini Açılır Popover Kartı ── */}
+                  {rejReason && activeReasonPopoverId === ticket.id && (
+                    <div className="tl-reason-popover" onClick={e => e.stopPropagation()}>
+                      <div className="tl-popover-arrow" />
+                      <div className="tl-popover-header">
+                        <div className="tl-popover-title">
+                          <AlertTriangle size={13} className="tl-popover-icon" />
+                          <span>Reddetme Gerekçesi</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="tl-popover-close"
+                          onClick={() => setActiveReasonPopoverId(null)}
+                          title="Kapat"
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+
+                      <div className="tl-popover-body">
+                        <p className="tl-popover-reason">{rejReason}</p>
+                      </div>
+
+                      <div className="tl-popover-footer">
+                        {(() => {
+                          const rejectHist = ticket.history?.slice().reverse().find(h => h.action === 'rejected')
+                          return (
+                            <span className="tl-popover-meta" title={rejectHist?.user?.name || 'Onay Yöneticisi'}>
+                              {rejectHist?.user?.name ? `${rejectHist.user.name}` : 'Onay Yöneticisi'}
+                            </span>
+                          )
+                        })()}
+                        <button
+                          type="button"
+                          className="tl-popover-link"
+                          onClick={() => navigate(`/tickets/${ticket.id}`)}
+                        >
+                          Detayları Gör →
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </span>
                 <span className="tl-action" onClick={e => e.stopPropagation()}>
                   <Button variant="secondary" size="small" onClick={() => navigate(`/tickets/${ticket.id}`)}>
