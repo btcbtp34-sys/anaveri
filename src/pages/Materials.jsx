@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import { Search, Edit2, Trash2, Eye, Upload, X, ChevronDown, ChevronUp, LayoutGrid, List, ChevronLeft, ChevronRight, Filter, Package as PackageIcon } from 'lucide-react'
 import Button from '../components/Button'
 import Modal from '../components/Modal'
@@ -216,6 +216,7 @@ function getApprovalMeta(status) {
 
 export default function Materials({ materials, onDelete }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const { user, isAdmin } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
@@ -225,7 +226,20 @@ export default function Materials({ materials, onDelete }) {
   const [bulkText, setBulkText] = useState(BULK_TEMPLATE)
   const [bulkError, setBulkError] = useState('')
   const [nextId, setNextId] = useState(100)
-  const [page, setPage] = useState(1)
+
+  // URL query param veya location.state veya sessionStorage'dan sayfa numarasını al
+  const getInitialPage = () => {
+    const pageParam = parseInt(searchParams.get('page'), 10)
+    if (!isNaN(pageParam) && pageParam > 0) return pageParam
+    if (location.state?.fromPage && Number(location.state.fromPage) > 0) {
+      return Number(location.state.fromPage)
+    }
+    const saved = parseInt(sessionStorage.getItem('materials_last_page'), 10)
+    if (!isNaN(saved) && saved > 0) return saved
+    return 1
+  }
+
+  const [page, setPage] = useState(getInitialPage)
 
   const urlMalzemeTuru = searchParams.get('malzemeTuru')
 
@@ -242,7 +256,7 @@ export default function Materials({ materials, onDelete }) {
     olcu: []
   })
 
-  // URL parametresi değiştikçe filtreyi güncelle
+  // URL parametresi değiştikçe filtreyi ve sayfayı güncelle
   useEffect(() => {
     const mt = searchParams.get('malzemeTuru')
     if (mt) {
@@ -250,7 +264,14 @@ export default function Materials({ materials, onDelete }) {
     } else {
       setFilters(f => ({ ...f, malzemeTuru: [] }))
     }
-  }, [searchParams])
+
+    const pageParam = parseInt(searchParams.get('page'), 10)
+    if (!isNaN(pageParam) && pageParam > 0) {
+      setPage(pageParam)
+    } else if (location.state?.fromPage && Number(location.state.fromPage) > 0) {
+      setPage(Number(location.state.fromPage))
+    }
+  }, [searchParams, location.state])
 
   const [collapsed, setCollapsed] = useState({
     malzemeTuru: false, productionSite: false, urunHiyerarsisi: false, malGrubu: false, approvalStatus: false, tipModel: true, ozellik: true, olcu: true
@@ -261,6 +282,12 @@ export default function Materials({ materials, onDelete }) {
 
   const toggleFilter = (key, val) => {
     setPage(1)
+    sessionStorage.setItem('materials_last_page', '1')
+    setSearchParams(prev => {
+      const nextParams = new URLSearchParams(prev)
+      nextParams.delete('page')
+      return nextParams
+    })
     setFilters(f => ({
       ...f,
       [key]: f[key].includes(val) ? f[key].filter(x => x !== val) : [...f[key], val]
@@ -349,7 +376,40 @@ export default function Materials({ materials, onDelete }) {
   const safePage = Math.min(page, totalPages)
   const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE)
 
-  const goPage = (p) => setPage(Math.max(1, Math.min(p, totalPages)))
+  const goPage = (p) => {
+    const targetPage = Math.max(1, Math.min(p, totalPages))
+    setPage(targetPage)
+    sessionStorage.setItem('materials_last_page', String(targetPage))
+    setSearchParams(prev => {
+      const nextParams = new URLSearchParams(prev)
+      if (targetPage > 1) {
+        nextParams.set('page', String(targetPage))
+      } else {
+        nextParams.delete('page')
+      }
+      return nextParams
+    })
+  }
+
+  const goToDetail = (id) => {
+    sessionStorage.setItem('materials_last_page', String(safePage))
+    navigate(`/materials/${id}`, {
+      state: {
+        fromPage: safePage,
+        fromSearch: window.location.search
+      }
+    })
+  }
+
+  const goToEdit = (id) => {
+    sessionStorage.setItem('materials_last_page', String(safePage))
+    navigate(`/materials/${id}/edit`, {
+      state: {
+        fromPage: safePage,
+        fromSearch: window.location.search
+      }
+    })
+  }
 
   const isDefaultApproval =
     filters.approvalStatus.length === 2 &&
@@ -380,6 +440,7 @@ export default function Materials({ materials, onDelete }) {
       olcu: []
     })
     setSearchParams({})
+    sessionStorage.setItem('materials_last_page', '1')
     setPage(1)
   }
 
@@ -515,7 +576,16 @@ export default function Materials({ materials, onDelete }) {
               <input
                 placeholder="Malzeme ara..."
                 value={searchTerm}
-                onChange={e => { setSearchTerm(e.target.value); setPage(1) }}
+                onChange={e => {
+                  setSearchTerm(e.target.value)
+                  setPage(1)
+                  sessionStorage.setItem('materials_last_page', '1')
+                  setSearchParams(prev => {
+                    const nextParams = new URLSearchParams(prev)
+                    nextParams.delete('page')
+                    return nextParams
+                  })
+                }}
               />
             </div>
             <div className="mat-view-toggle">
@@ -551,7 +621,7 @@ export default function Materials({ materials, onDelete }) {
                   const meta = getApprovalMeta(m.status)
                   const showCode = m.status === 'Aktif'
                   return (
-                    <div key={m.id} className="mat-card" onClick={() => navigate(`/materials/${m.id}`)}>
+                    <div key={m.id} className="mat-card" onClick={() => goToDetail(m.id)}>
                       <MaterialImage material={m} />
                       <div className="mat-card-top">
                         <span className="mat-card-code">{showCode ? m.code : ''}</span>
@@ -570,8 +640,8 @@ export default function Materials({ materials, onDelete }) {
                         <span>{m.unit}</span>
                       </div>
                       <div className="mat-card-actions" onClick={e => e.stopPropagation()}>
-                        <button className="action-btn view" onClick={() => navigate(`/materials/${m.id}`)}><Eye size={14} /></button>
-                        {isAdmin && <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>}
+                        <button className="action-btn view" onClick={() => goToDetail(m.id)}><Eye size={14} /></button>
+                        {isAdmin && <button className="action-btn edit" onClick={() => goToEdit(m.id)}><Edit2 size={14} /></button>}
                         {isAdmin && <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>}
                       </div>
                     </div>
@@ -594,7 +664,7 @@ export default function Materials({ materials, onDelete }) {
                   const visual = getMaterialVisual(m)
                   const showCode = m.status === 'Aktif'
                   return (
-                    <div key={m.id} className="mat-list-row" onClick={() => navigate(`/materials/${m.id}`)}>
+                    <div key={m.id} className="mat-list-row" onClick={() => goToDetail(m.id)}>
                       <span className="mat-list-thumb">
                         <ListImage material={m} visual={visual} />
                       </span>
@@ -607,8 +677,8 @@ export default function Materials({ materials, onDelete }) {
                       <span>{m.unit}</span>
                       <span><span className={`status-badge ${meta.cls}`}>{meta.label}</span></span>
                       <span className="mat-list-acts" onClick={e => e.stopPropagation()}>
-                        <button className="action-btn view" onClick={() => navigate(`/materials/${m.id}`)}><Eye size={14} /></button>
-                        {isAdmin && <button className="action-btn edit" onClick={() => navigate(`/materials/${m.id}/edit`)}><Edit2 size={14} /></button>}
+                        <button className="action-btn view" onClick={() => goToDetail(m.id)}><Eye size={14} /></button>
+                        {isAdmin && <button className="action-btn edit" onClick={() => goToEdit(m.id)}><Edit2 size={14} /></button>}
                         {isAdmin && <button className="action-btn delete" onClick={() => openDelete(m)}><Trash2 size={14} /></button>}
                       </span>
                     </div>

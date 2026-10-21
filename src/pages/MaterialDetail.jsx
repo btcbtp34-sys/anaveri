@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Edit2, Trash2, Image, Plus, X, ZoomIn, CheckCircle, XCircle, Clock, User, Send } from 'lucide-react'
 import Button from '../components/Button'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,6 +10,7 @@ const TABS = ['Genel Bilgiler', 'Sınıflandırma', 'Media', 'Onay Akışı']
 export default function MaterialDetail({ materials, onUpdate, onDelete }) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAdmin } = useAuth()
   const material = materials.find(m => m.id === Number(id))
   const [tab, setTab] = useState(0)
@@ -19,18 +20,22 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
 
   // Geldiği sayfayı belirle
   const goBack = () => {
-    // Eğer önceki sayfa varsa oraya dön, yoksa materials'e
-    if (window.history.length > 1) {
+    if (location.state?.fromSearch) {
+      navigate(`/materials${location.state.fromSearch}`)
+    } else if (location.state?.fromPage) {
+      navigate(`/materials?page=${location.state.fromPage}`)
+    } else if (window.history.length > 1) {
       navigate(-1)
     } else {
-      navigate('/materials')
+      const saved = sessionStorage.getItem('materials_last_page')
+      navigate(saved && saved !== '1' ? `/materials?page=${saved}` : '/materials')
     }
   }
 
   if (!material) return (
     <div className="md-notfound">
       <p>Malzeme bulunamadı.</p>
-      <Button variant="secondary" size="medium" onClick={() => navigate('/materials')}>Listeye Dön</Button>
+      <Button variant="secondary" size="medium" onClick={goBack}>Listeye Geri Dön</Button>
     </div>
   )
 
@@ -48,7 +53,7 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
   const handleDelete = () => {
     if (window.confirm(`"${material.name}" silinecek. Emin misiniz?`)) {
       onDelete(material.id)
-      navigate('/materials')
+      goBack()
     }
   }
 
@@ -57,11 +62,11 @@ export default function MaterialDetail({ materials, onUpdate, onDelete }) {
       {/* Topbar */}
       <div className="md-topbar">
         <button className="md-back" onClick={goBack}>
-          <ChevronLeft size={16} /> Geri Dön
+          <ChevronLeft size={16} /> Listeye Geri Dön
         </button>
         <div className="md-topbar-actions">
           {isAdmin && (
-            <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}/edit`)}>
+            <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}/edit`, { state: location.state })}>
               <Edit2 size={14} /> Düzenle
             </Button>
           )}

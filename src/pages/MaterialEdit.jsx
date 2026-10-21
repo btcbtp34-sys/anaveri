@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { ChevronLeft, Check, AlertCircle, X, Search } from 'lucide-react'
 import { MAL_GRUPLARI, getUrunHiyerarsileri, getCommodity } from '../data/materialHierarchy'
 import Button from '../components/Button'
@@ -19,6 +19,7 @@ const getValuationClass = (malGrubu, productionSite) => {
 export default function MaterialEdit({ materials, onUpdate }) {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const material = materials.find(m => m.id === Number(id))
   
   // Eski productionSite'ı productionSites array'e çevir
@@ -51,7 +52,11 @@ export default function MaterialEdit({ materials, onUpdate }) {
   if (!material || !form) return (
     <div style={{ padding: '2rem', color: '#94a3b8' }}>
       <p>Malzeme bulunamadı.</p>
-      <Button variant="secondary" size="medium" onClick={() => navigate('/materials')}>Listeye Dön</Button>
+      <Button variant="secondary" size="medium" onClick={() => {
+        if (location.state?.fromSearch) navigate(`/materials${location.state.fromSearch}`)
+        else if (location.state?.fromPage) navigate(`/materials?page=${location.state.fromPage}`)
+        else navigate('/materials')
+      }}>Listeye Geri Dön</Button>
     </div>
   )
 
@@ -96,7 +101,7 @@ export default function MaterialEdit({ materials, onUpdate }) {
   const handleSave = () => {
     if (!validate()) return
     onUpdate({ ...form, valuationClass })
-    navigate(`/materials/${id}`)
+    navigate(`/materials/${id}`, { state: location.state })
   }
 
   const tanim = [form.name, form.tipModel, form.ozellik, form.olcu, form.marka].filter(Boolean).join(' ').slice(0, 40)
@@ -109,7 +114,7 @@ export default function MaterialEdit({ materials, onUpdate }) {
           <p>{material.code} — {material.name}</p>
         </div>
         <div style={{ display: 'flex', gap: '0.625rem' }}>
-          <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}`)}>
+          <Button variant="secondary" size="medium" onClick={() => navigate(`/materials/${id}`, { state: location.state })}>
             <ChevronLeft size={16} /> İptal
           </Button>
           <Button variant="primary" size="medium" onClick={handleSave}>
